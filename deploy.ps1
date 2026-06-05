@@ -8,8 +8,9 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-gh repo create nashi-temki --public --source=. --remote=origin --push --description "Лендинг наших темок"
-gh api repos/{owner}/nashi-temki/pages -X POST -f "build_type=legacy" -f "source[branch]=main" -f "source[path]=/"
+git remote set-url origin https://github.com/Owl-14/Temki.git
+git push -u origin main
+gh api repos/Owl-14/Temki/pages -X POST -f "build_type=legacy" -f "source[branch]=main" -f "source[path]=/"
 
 Write-Host ""
 Write-Host "Готово! Сайт появится через пару минут на:"

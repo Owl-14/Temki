@@ -10,4 +10,6 @@
 
 ## GitHub Pages
 
-Сайт работает через GitHub Pages. Открой `index.html` или зайди на страницу репозитория в Settings → Pages.
+Репозиторий: https://github.com/Owl-14/Temki
+
+Сайт: https://owl-14.github.io/Temki/ (после включения Pages в Settings → Pages → branch `main`)
