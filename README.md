@@ -37,3 +37,46 @@
   - `cloacc_link` — кнопка Cloacc
 
 Цели появятся в Метрике сами после первых кликов. Смотри в разделе «Цели» и «Содержание → Переходы по ссылкам».
+
+## Счётчик «Сейчас на сайте»
+
+Метрика не умеет показывать онлайн прямо на странице — только в личном кабинете. Поэтому счётчик онлайн работает через **Firebase Realtime Database** (бесплатно).
+
+### Настройка Firebase (5–10 минут)
+
+1. Создай проект на https://console.firebase.google.com
+2. **Build → Realtime Database → Create Database** (режим test на старте)
+3. **Project settings → Your apps → Web** — зарегистрируй приложение и скопируй `firebaseConfig`
+4. Вставь конфиг в `presence.config.js`:
+
+```js
+window.FIREBASE_CONFIG = {
+  apiKey: "...",
+  authDomain: "...",
+  databaseURL: "https://....firebaseio.com",
+  projectId: "...",
+  storageBucket: "...",
+  messagingSenderId: "...",
+  appId: "..."
+};
+```
+
+5. В Realtime Database → **Rules** вставь:
+
+```json
+{
+  "rules": {
+    "presence": {
+      ".read": true,
+      "$uid": {
+        ".write": true,
+        ".validate": "newData.isNumber()"
+      }
+    }
+  }
+}
+```
+
+6. Запушь на GitHub
+
+После этого в правом верхнем углу появится бейдж: **«Сейчас на сайте N человек»** с зелёной точкой. Счётчик обновляется в реальном времени.
