@@ -6,7 +6,7 @@ import {
 } from '../firebase-app.js';
 import { getQueryParam, escapeHtml } from '../utils.js';
 import { initNav } from '../nav.js';
-import { renderEggs, mapFirestoreEgg } from '../eggs.js';
+import { renderEggs, mapFirestoreEgg } from '../eggs.js?v=3';
 
 var username = getQueryParam('u');
 var profileView = document.getElementById('profile-view');
