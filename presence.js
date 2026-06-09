@@ -12,6 +12,7 @@ var config = window.FIREBASE_CONFIG;
 var counter = document.getElementById('online-counter');
 var countEl = document.getElementById('online-count');
 var labelEl = document.getElementById('online-label');
+var suffixEl = document.getElementById('online-suffix');
 
 if (!config || !config.apiKey || !config.databaseURL) {
   if (counter) {
@@ -30,24 +31,25 @@ if (!config || !config.apiKey || !config.databaseURL) {
     var mod100 = count % 100;
 
     if (mod100 >= 11 && mod100 <= 19) {
-      return 'человек';
+      return 'темщиков';
     }
     if (mod10 === 1) {
-      return 'человек';
+      return 'темщик';
     }
     if (mod10 >= 2 && mod10 <= 4) {
-      return 'человека';
+      return 'темщика';
     }
-    return 'человек';
+    return 'темщиков';
   }
 
   function renderCount(count) {
-    if (!countEl || !labelEl) {
+    if (!countEl || !labelEl || !suffixEl) {
       return;
     }
 
     countEl.textContent = String(count);
-    labelEl.textContent = 'Сейчас на сайте ' + pluralize(count) + ':';
+    labelEl.textContent = 'на сайте щас';
+    suffixEl.textContent = pluralize(count);
     if (counter) {
       counter.hidden = false;
     }
