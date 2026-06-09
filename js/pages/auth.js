@@ -95,6 +95,12 @@ function mapAuthError(error) {
   if (error.message === 'USERNAME_TAKEN') {
     return 'Этот юзернейм уже занят';
   }
+  if (
+    error.code === 'auth/api-key-not-valid' ||
+    error.code === 'auth/invalid-api-key'
+  ) {
+    return 'API-ключ Firebase не принимает Auth. Открой Google Cloud → Credentials → Browser key: включи Identity Toolkit API и домены localhost + owl-14.github.io. Либо скопируй свежий firebaseConfig из Firebase → Project settings.';
+  }
   if (error.code === 'auth/email-already-in-use') {
     return 'Email уже зарегистрирован';
   }
@@ -103,6 +109,9 @@ function mapAuthError(error) {
   }
   if (error.code === 'auth/weak-password') {
     return 'Слишком слабый пароль';
+  }
+  if (error.code === 'auth/operation-not-allowed') {
+    return 'Вход по email не включён. Firebase → Authentication → Sign-in method → Email/Password';
   }
   return error.message || 'Что-то пошло не так';
 }
