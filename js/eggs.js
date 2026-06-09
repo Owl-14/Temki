@@ -25,7 +25,7 @@ function renderLink(egg) {
 
   return '<a class="btn btn--warm egg__link" href="' + escapeHtml(egg.link) + '" target="_blank" rel="noopener noreferrer"' + trackLink + '>' +
     '<span class="btn__shine" aria-hidden="true"></span>' +
-    '<span class="btn__text">Перейти в Telegram</span>' +
+    '<span class="btn__text">Ссылка</span>' +
     '<span class="btn__icon" aria-hidden="true">→</span>' +
     '</a>';
 }
