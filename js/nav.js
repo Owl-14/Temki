@@ -9,7 +9,7 @@ import { escapeHtml } from './utils.js';
 function renderGuestNav(slot) {
   slot.innerHTML =
     '<a class="nav__link" href="index.html#projects">Яйца</a>' +
-    '<a class="btn btn--warm nav__auth-btn" href="auth.html">Войти</a>';
+    '<a class="btn btn--warm nav__auth-btn" href="auth.html">Погреться</a>';
 }
 
 function renderUserNav(slot, profile) {
