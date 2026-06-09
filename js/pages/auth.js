@@ -14,17 +14,22 @@ var registerForm = document.getElementById('register-form');
 var tabs = document.querySelectorAll('[data-auth-tab]');
 var panels = document.querySelectorAll('[data-auth-panel]');
 
+function switchAuthTab(target) {
+  tabs.forEach(function (item) {
+    item.classList.toggle('is-active', item.getAttribute('data-auth-tab') === target);
+  });
+  panels.forEach(function (panel) {
+    panel.hidden = panel.getAttribute('data-auth-panel') !== target;
+  });
+}
+
 tabs.forEach(function (tab) {
   tab.addEventListener('click', function () {
-    var target = tab.getAttribute('data-auth-tab');
-    tabs.forEach(function (item) {
-      item.classList.toggle('is-active', item === tab);
-    });
-    panels.forEach(function (panel) {
-      panel.hidden = panel.getAttribute('data-auth-panel') !== target;
-    });
+    switchAuthTab(tab.getAttribute('data-auth-tab'));
   });
 });
+
+switchAuthTab('login');
 
 loginForm.addEventListener('submit', async function (event) {
   event.preventDefault();

@@ -806,6 +806,10 @@ body {
   gap: 18px;
 }
 
+.form[hidden] {
+  display: none !important;
+}
+
 .form__field {
   display: flex;
   flex-direction: column;
