@@ -207,13 +207,10 @@ export async function fetchPublishedEggs(max) {
 }
 
 export async function fetchUserEggs(uid) {
-  var q = query(
-    collection(db, 'eggs'),
-    where('ownerId', '==', uid)
-  );
-
-  var snap = await getDocs(q);
-  return sortEggs(snap.docs);
+  var published = await fetchPublishedEggs(100);
+  return published.filter(function (egg) {
+    return egg.ownerId === uid;
+  });
 }
 
 export function waitForAuth() {

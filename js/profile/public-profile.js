@@ -1,6 +1,4 @@
 import {
-  auth,
-  onAuthStateChanged,
   getUserByUsername,
   fetchUserEggs,
   waitForAuth
@@ -30,23 +28,21 @@ export function renderProfileHeader(profile, elements) {
   }
 }
 
-export function bindOwnerActions(profile, actionsEl) {
-  onAuthStateChanged(auth, function (user) {
-    if (user && user.uid === profile.uid) {
-      actionsEl.innerHTML =
-        '<a class="btn btn--primary" href="lay-egg.html">' +
-          '<span class="btn__shine" aria-hidden="true"></span>' +
-          '<span class="btn__text">Снести яйцо</span>' +
-        '</a>' +
-        '<a class="btn btn--warm" href="settings.html">Настройки</a>';
-      return;
-    }
+export function renderOwnerActions(profile, actionsEl, user) {
+  if (user && user.uid === profile.uid) {
+    actionsEl.innerHTML =
+      '<a class="btn btn--primary" href="lay-egg.html">' +
+        '<span class="btn__shine" aria-hidden="true"></span>' +
+        '<span class="btn__text">Снести яйцо</span>' +
+      '</a>' +
+      '<a class="btn btn--warm" href="settings.html">Настройки</a>';
+    return;
+  }
 
-    actionsEl.innerHTML = '';
-  });
+  actionsEl.innerHTML = '';
 }
 
-export async function loadPublicProfile(username, elements) {
+export async function loadPublicProfile(username, elements, authUser) {
   if (!username) {
     return null;
   }
@@ -58,23 +54,29 @@ export async function loadPublicProfile(username, elements) {
   }
 
   renderProfileHeader(profile, elements.header);
-  bindOwnerActions(profile, elements.actions);
+  renderOwnerActions(profile, elements.actions, authUser);
 
-  var eggs = await fetchUserEggs(profile.uid);
-  var mapped = eggs.map(function (egg) {
-    var card = mapFirestoreEgg(egg);
-    card.ownerUsername = null;
-    return card;
-  });
+  try {
+    var eggs = await fetchUserEggs(profile.uid);
+    var mapped = eggs.map(function (egg) {
+      var card = mapFirestoreEgg(egg);
+      card.ownerUsername = null;
+      return card;
+    });
 
-  if (!mapped.length) {
-    var user = await waitForAuth();
-    var isOwner = user && user.uid === profile.uid;
-    elements.eggs.innerHTML =
-      '<p class="empty-state">' + emptyEggsMessage(isOwner) + '</p>';
-    return profile;
+    if (!mapped.length) {
+      var user = authUser !== undefined ? authUser : await waitForAuth();
+      var isOwner = user && user.uid === profile.uid;
+      elements.eggs.innerHTML =
+        '<p class="empty-state">' + emptyEggsMessage(isOwner) + '</p>';
+      return profile;
+    }
+
+    renderEggs(elements.eggs, mapped);
+  } catch (error) {
+    console.error(error);
+    elements.eggs.innerHTML = '<p class="empty-state">Не удалось загрузить яйца</p>';
   }
 
-  renderEggs(elements.eggs, mapped);
   return profile;
 }

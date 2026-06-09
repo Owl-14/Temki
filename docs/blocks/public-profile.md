@@ -67,7 +67,7 @@ getUserByUsername(username)
         ↓
   users/{uid} → профиль
         ↓
-fetchUserEggs(uid) → только published
+fetchUserEggs(uid) → только published (через общий запрос, доступен гостям)
         ↓
 Рендер header + яйца
         ↓

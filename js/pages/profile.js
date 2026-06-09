@@ -28,8 +28,8 @@ function showProfile() {
   profileView.hidden = false;
 }
 
-async function initProfile() {
-  var profile = await loadPublicProfile(username, elements);
+async function renderProfile(user) {
+  var profile = await loadPublicProfile(username, elements, user);
 
   if (!profile) {
     showNotFound();
@@ -39,14 +39,13 @@ async function initProfile() {
   showProfile();
 }
 
-initProfile().catch(showNotFound);
-
-onAuthStateChanged(auth, function () {
-  if (profileView.hidden || !username) {
+onAuthStateChanged(auth, function (user) {
+  if (!username) {
+    showNotFound();
     return;
   }
 
-  loadPublicProfile(username, elements).catch(showNotFound);
+  renderProfile(user).catch(showNotFound);
 });
 
 initNav();
