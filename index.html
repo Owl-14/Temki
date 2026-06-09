@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Наши темки</title>
-  <meta name="description" content="Проекты, которые мы делаем вместе">
+  <title>Инкубатор</title>
+  <meta name="description" content="Место, где люди собираются и создают свои стартапы и темки">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,59 +19,80 @@
     <p class="online-counter__text" id="online-text">на сайте щас 0 темщиков</p>
   </div>
 
-  <header class="header">
-    <p class="header__label">Совместные проекты</p>
-    <h1 class="header__title">Наши темки</h1>
-    <p class="header__subtitle">Всё, что мы делаем вместе — в одном месте</p>
-  </header>
+  <nav class="nav">
+    <a class="nav__logo" href="#">Инкубатор</a>
+    <a class="nav__link" href="#projects">Темки</a>
+  </nav>
 
-  <main class="projects">
-    <article class="card">
-      <a class="card__image-link" href="https://t.me/+7eGYZIweLGQ4YTgy" target="_blank" rel="noopener noreferrer" data-track="padel_image">
-        <img class="card__image" src="images/padel.png" alt="Падел для Своих">
-      </a>
-      <div class="card__body">
-        <h2 class="card__title">Падел</h2>
-        <p class="card__description">Падел клуб для предпринимателей, 4 турнира в неделю</p>
-        <a class="card__link" href="https://t.me/+7eGYZIweLGQ4YTgy" target="_blank" rel="noopener noreferrer" data-track="padel_link">
-          Перейти в Telegram
-          <span class="card__arrow" aria-hidden="true">→</span>
+  <section class="hero" id="home">
+    <p class="hero__label">Добро пожаловать</p>
+    <h1 class="hero__title">Инкубатор</h1>
+    <p class="hero__lead">Место, где люди собираются и создают свои стартапы и темки.</p>
+    <p class="hero__text">
+      Здесь рождаются идеи, которые потом становятся проектами — от клубов и ботов
+      до AI-инструментов. Заходи, смотри, что уже делаем, и присоединяйся к своим.
+    </p>
+    <a class="hero__cta" href="#projects">
+      Смотреть темки
+      <span aria-hidden="true">↓</span>
+    </a>
+  </section>
+
+  <section class="projects-section" id="projects">
+    <header class="section-header">
+      <p class="section-header__label">Проекты</p>
+      <h2 class="section-header__title">Темки в инкубаторе</h2>
+      <p class="section-header__subtitle">Всё, что сейчас растёт у нас</p>
+    </header>
+
+    <div class="projects">
+      <article class="card">
+        <a class="card__image-link" href="https://t.me/+7eGYZIweLGQ4YTgy" target="_blank" rel="noopener noreferrer" data-track="padel_image">
+          <img class="card__image" src="images/padel.png" alt="Падел для Своих">
         </a>
-      </div>
-    </article>
+        <div class="card__body">
+          <h3 class="card__title">Падел</h3>
+          <p class="card__description">Падел клуб для предпринимателей, 4 турнира в неделю</p>
+          <a class="card__link" href="https://t.me/+7eGYZIweLGQ4YTgy" target="_blank" rel="noopener noreferrer" data-track="padel_link">
+            Перейти в Telegram
+            <span class="card__arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
 
-    <article class="card">
-      <a class="card__image-link" href="https://t.me/CloaccVPN_bot?start=ref_1081541424" target="_blank" rel="noopener noreferrer" data-track="cloacc_image">
-        <img class="card__image" src="images/cloacc.png" alt="Cloacc bot">
-      </a>
-      <div class="card__body">
-        <h2 class="card__title">Cloacc</h2>
-        <a class="card__link" href="https://t.me/CloaccVPN_bot?start=ref_1081541424" target="_blank" rel="noopener noreferrer" data-track="cloacc_link">
-          Перейти в Telegram
-          <span class="card__arrow" aria-hidden="true">→</span>
+      <article class="card">
+        <a class="card__image-link" href="https://t.me/CloaccVPN_bot?start=ref_1081541424" target="_blank" rel="noopener noreferrer" data-track="cloacc_image">
+          <img class="card__image" src="images/cloacc.png" alt="Cloacc bot">
         </a>
-      </div>
-    </article>
+        <div class="card__body">
+          <h3 class="card__title">Cloacc</h3>
+          <a class="card__link" href="https://t.me/CloaccVPN_bot?start=ref_1081541424" target="_blank" rel="noopener noreferrer" data-track="cloacc_link">
+            Перейти в Telegram
+            <span class="card__arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
 
-    <article class="card">
-      <div class="card__image-wrap">
-        <img class="card__image card__image--contain" src="images/bazis.png" alt="ИИ базис-мебельщик">
-      </div>
-      <div class="card__body">
-        <h2 class="card__title">ИИ базис-мебельщик</h2>
-        <p class="card__description">ИИ проектировщик</p>
-      </div>
-    </article>
-  </main>
+      <article class="card">
+        <div class="card__image-wrap">
+          <img class="card__image card__image--contain" src="images/bazis.png" alt="ИИ базис-мебельщик">
+        </div>
+        <div class="card__body">
+          <h3 class="card__title">ИИ базис-мебельщик</h3>
+          <p class="card__description">ИИ проектировщик</p>
+        </div>
+      </article>
+    </div>
+  </section>
 
   <footer class="footer">
-    <p>Сделано с друзьями</p>
+    <p>Инкубатор — собираемся и делаем своё</p>
   </footer>
 
-  <script src="analytics.config.js?v=2"></script>
-  <script src="analytics.js?v=2"></script>
-  <script src="presence.config.js?v=2"></script>
-  <script type="module" src="presence.js?v=2"></script>
+  <script src="analytics.config.js?v=3"></script>
+  <script src="analytics.js?v=3"></script>
+  <script src="presence.config.js?v=3"></script>
+  <script type="module" src="presence.js?v=3"></script>
   <noscript>
     <div><img src="https://mc.yandex.ru/watch/109729158" style="position:absolute; left:-9999px;" alt=""></div>
   </noscript>
