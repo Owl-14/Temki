@@ -1,39 +1,5 @@
 import { escapeHtml, statusLabel } from './utils.js';
 
-export var LEGACY_EGGS = [
-  {
-    id: 'legacy-padel',
-    title: 'Падел',
-    description: 'Падел клуб для предпринимателей, 4 турнира в неделю',
-    imageUrl: 'images/padel.png',
-    link: 'https://t.me/+7eGYZIweLGQ4YTgy',
-    status: 'greetsya',
-    contain: false,
-    trackImage: 'padel_image',
-    trackLink: 'padel_link'
-  },
-  {
-    id: 'legacy-cloacc',
-    title: 'Cloacc',
-    description: '',
-    imageUrl: 'images/cloacc.png',
-    link: 'https://t.me/CloaccVPN_bot?start=ref_1081541424',
-    status: 'greetsya',
-    contain: false,
-    trackImage: 'cloacc_image',
-    trackLink: 'cloacc_link'
-  },
-  {
-    id: 'legacy-bazis',
-    title: 'ИИ базис-мебельщик',
-    description: 'ИИ проектировщик',
-    imageUrl: 'images/bazis.png',
-    link: null,
-    status: 'greetsya',
-    contain: true
-  }
-];
-
 function renderImage(egg) {
   var trackImage = egg.trackImage ? ' data-track="' + egg.trackImage + '"' : '';
   var alt = escapeHtml(egg.title);

@@ -1,8 +1,15 @@
 import { fetchPublishedEggs } from '../firebase-app.js';
 import { initNav } from '../nav.js';
-import { LEGACY_EGGS, renderEggs, mapFirestoreEgg } from '../eggs.js';
+import { renderEggs, mapFirestoreEgg } from '../eggs.js';
 
 var container = document.getElementById('eggs-feed');
+
+function showEmptyFeed() {
+  if (!container) {
+    return;
+  }
+  container.innerHTML = '<p class="empty-state">Пока пусто — снеси первое яйцо</p>';
+}
 
 async function loadFeed() {
   if (!container) {
@@ -12,10 +19,15 @@ async function loadFeed() {
   try {
     var userEggs = await fetchPublishedEggs(50);
     var mapped = userEggs.map(mapFirestoreEgg);
-    var allEggs = LEGACY_EGGS.concat(mapped);
-    renderEggs(container, allEggs);
+
+    if (!mapped.length) {
+      showEmptyFeed();
+      return;
+    }
+
+    renderEggs(container, mapped);
   } catch (error) {
-    renderEggs(container, LEGACY_EGGS);
+    showEmptyFeed();
     console.error(error);
   }
 }
