@@ -1,4 +1,4 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -37,7 +37,7 @@ if (!config || !config.apiKey) {
   throw new Error('Firebase config missing');
 }
 
-export var app = initializeApp(config);
+export var app = getApps().length ? getApps()[0] : initializeApp(config);
 export var auth = getAuth(app);
 export var db = getFirestore(app);
 
@@ -195,15 +195,32 @@ function sortEggs(docs) {
     });
 }
 
-export async function fetchPublishedEggs(max) {
-  var q = query(
-    collection(db, 'eggs'),
-    where('published', '==', true),
-    limit(max || 50)
-  );
+export async function fetchPublishedEggs(max, retries) {
+  var attempts = retries || 3;
+  var lastError = null;
 
-  var snap = await getDocs(q);
-  return sortEggs(snap.docs).slice(0, max || 50);
+  while (attempts > 0) {
+    try {
+      var q = query(
+        collection(db, 'eggs'),
+        where('published', '==', true),
+        limit(max || 50)
+      );
+
+      var snap = await getDocs(q);
+      return sortEggs(snap.docs).slice(0, max || 50);
+    } catch (error) {
+      lastError = error;
+      attempts -= 1;
+      if (attempts > 0) {
+        await new Promise(function (resolve) {
+          setTimeout(resolve, 400);
+        });
+      }
+    }
+  }
+
+  throw lastError;
 }
 
 export async function fetchUserEggs(uid) {
