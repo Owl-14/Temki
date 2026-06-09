@@ -225,10 +225,16 @@ body {
   flex-shrink: 0;
 }
 
-.online-counter__count {
+.online-counter__text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.online-counter__text strong {
   color: var(--text);
   font-size: 1rem;
-  min-width: 1ch;
+  font-weight: 700;
 }
 
 @keyframes pulse {

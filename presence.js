@@ -10,9 +10,7 @@ import {
 
 var config = window.FIREBASE_CONFIG;
 var counter = document.getElementById('online-counter');
-var countEl = document.getElementById('online-count');
-var labelEl = document.getElementById('online-label');
-var suffixEl = document.getElementById('online-suffix');
+var textEl = document.getElementById('online-text');
 
 if (!config || !config.apiKey || !config.databaseURL) {
   if (counter) {
@@ -43,13 +41,11 @@ if (!config || !config.apiKey || !config.databaseURL) {
   }
 
   function renderCount(count) {
-    if (!countEl || !labelEl || !suffixEl) {
+    if (!textEl) {
       return;
     }
 
-    countEl.textContent = String(count);
-    labelEl.textContent = 'на сайте щас';
-    suffixEl.textContent = pluralize(count);
+    textEl.innerHTML = 'на сайте щас <strong>' + count + '</strong> ' + pluralize(count);
     if (counter) {
       counter.hidden = false;
     }
