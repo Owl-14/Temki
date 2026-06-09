@@ -5,7 +5,7 @@ import {
   getUserProfile,
   createUserProfile
 } from '../firebase-app.js';
-import { validateUsername, showMessage } from '../utils.js';
+import { validateDisplayName, validateUsername, showMessage } from '../utils.js';
 import { initNav } from '../nav.js';
 
 var messageEl = document.getElementById('auth-message');
@@ -58,10 +58,11 @@ registerForm.addEventListener('submit', async function (event) {
 
   var displayName = registerForm.displayName.value.trim();
   var username = registerForm.username.value.trim();
+  var displayNameError = validateDisplayName(displayName);
   var usernameError = validateUsername(username);
 
-  if (!displayName) {
-    showMessage(messageEl, 'Введи имя', 'error');
+  if (displayNameError) {
+    showMessage(messageEl, displayNameError, 'error');
     return;
   }
   if (usernameError) {

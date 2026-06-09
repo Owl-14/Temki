@@ -52,7 +52,7 @@
 
     <p class="form-message" id="settings-message" hidden></p>
 
-    <form class="form" id="settings-form">
+    <form class="form" id="settings-form" novalidate>
       <div class="form__avatar-row">
         <div class="avatar-preview" id="avatar-preview">
           <span class="avatar-placeholder" aria-hidden="true"></span>
@@ -65,11 +65,12 @@
 
       <label class="form__field">
         <span class="form__label">Имя</span>
-        <input class="form__input" type="text" name="displayName" required maxlength="40">
+        <input class="form__input" type="text" name="displayName" maxlength="40">
+        <span class="form__hint">любые символы, эмодзи — до 40</span>
       </label>
       <label class="form__field">
         <span class="form__label">Юзернейм</span>
-        <input class="form__input" type="text" name="username" required maxlength="20" pattern="[a-zA-Z0-9_]+">
+        <input class="form__input" type="text" name="username" maxlength="20" autocapitalize="off" spellcheck="false">
         <span class="form__hint">латиница, цифры, _ — от 3 до 20</span>
       </label>
       <label class="form__field">

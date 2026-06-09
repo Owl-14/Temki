@@ -7,7 +7,7 @@ import {
   uploadAvatar,
   sendPasswordResetEmail
 } from '../firebase-app.js';
-import { getQueryParam, validateUsername, resizeImageFile, showMessage } from '../utils.js';
+import { getQueryParam, validateDisplayName, validateUsername, resizeImageFile, showMessage } from '../utils.js';
 import { initNav } from '../nav.js';
 
 var messageEl = document.getElementById('settings-message');
@@ -78,10 +78,11 @@ form.addEventListener('submit', async function (event) {
   var displayName = form.displayName.value.trim();
   var username = form.username.value.trim();
   var bio = form.bio.value.trim();
+  var displayNameError = validateDisplayName(displayName);
   var usernameError = validateUsername(username);
 
-  if (!displayName) {
-    showMessage(messageEl, 'Введи имя', 'error');
+  if (displayNameError) {
+    showMessage(messageEl, displayNameError, 'error');
     return;
   }
   if (usernameError) {

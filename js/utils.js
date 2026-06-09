@@ -7,6 +7,18 @@ export function normalizeUsername(value) {
   return String(value || '').trim().toLowerCase();
 }
 
+export function validateDisplayName(name) {
+  var value = String(name || '').trim();
+
+  if (!value) {
+    return 'Введи имя';
+  }
+  if (value.length > 40) {
+    return 'Имя — до 40 символов';
+  }
+  return null;
+}
+
 export function validateUsername(username) {
   var normalized = normalizeUsername(username);
 

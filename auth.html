@@ -58,7 +58,7 @@
 
     <p class="form-message" id="auth-message" hidden></p>
 
-    <form class="form" id="login-form" data-auth-panel="login">
+    <form class="form" id="login-form" data-auth-panel="login" novalidate>
       <label class="form__field">
         <span class="form__label">Email</span>
         <input class="form__input" type="email" name="email" required autocomplete="email">
@@ -73,14 +73,15 @@
       </button>
     </form>
 
-    <form class="form" id="register-form" data-auth-panel="register" hidden>
+    <form class="form" id="register-form" data-auth-panel="register" hidden novalidate>
       <label class="form__field">
         <span class="form__label">Имя</span>
-        <input class="form__input" type="text" name="displayName" required maxlength="40" autocomplete="name">
+        <input class="form__input" type="text" name="displayName" maxlength="40" autocomplete="name">
+        <span class="form__hint">любые символы, эмодзи — до 40</span>
       </label>
       <label class="form__field">
         <span class="form__label">Юзернейм</span>
-        <input class="form__input" type="text" name="username" required maxlength="20" pattern="[a-zA-Z0-9_]+" autocomplete="username">
+        <input class="form__input" type="text" name="username" maxlength="20" autocomplete="username" autocapitalize="off" spellcheck="false">
         <span class="form__hint">латиница, цифры, _ — от 3 до 20</span>
       </label>
       <label class="form__field">
@@ -111,6 +112,6 @@
   <script src="analytics.config.js?v=5"></script>
   <script src="analytics.js?v=5"></script>
   <script type="module" src="js/presence.js?v=1"></script>
-  <script type="module" src="js/pages/auth.js?v=3"></script>
+  <script type="module" src="js/pages/auth.js?v=4"></script>
 </body>
 </html>
