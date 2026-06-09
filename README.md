@@ -22,6 +22,7 @@
 
 Блоки:
 - **[Публичный профиль](docs/blocks/public-profile.md)** — просмотр `@username` без входа
+- **[Надёжность загрузки](docs/RELIABILITY.md)** — правила Firebase, retry, гонки, чеклист
 
 Бренд и термины: **[CONCEPT.md](CONCEPT.md)**
 
