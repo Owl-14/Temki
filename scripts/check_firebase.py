@@ -2,7 +2,7 @@ import json
 import urllib.error
 import urllib.request
 
-API_KEY = "AIzaSyDhzsKHmqA1qSSATx8olF04gStDOwMlBT8"
+API_KEY = "AIzaSyDhzsKHmqA1qSSATx8olFO4gStDOwMlBT8"
 PROJECT = "temki-1409"
 
 
