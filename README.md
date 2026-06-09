@@ -1,82 +1,54 @@
 # Инкубатор
 
-Лендинг — место, где люди собираются и создают свои стартапы и темки.
+Площадка, где выращивают **яйца** — стартапы от идеи до вылупления.
 
-## Проекты
+**Сайт:** https://owl-14.github.io/Temki/  
+**Репозиторий:** https://github.com/Owl-14/Temki
 
-- **Падел** — клуб для предпринимателей, 4 турнира в неделю
-- **Cloacc** — VPN-бот в Telegram
-- **ИИ базис-мебельщик** — ИИ проектировщик мебели
+## Возможности
 
-## GitHub Pages
+- Лента яиц (legacy + пользовательские из Firestore)
+- Регистрация и вход (Firebase Auth)
+- Профиль: имя, @username, bio, аватар
+- «Снести яйцо» — добавить свой стартап
+- Счётчик онлайн в навигации
+- Яндекс.Метрика
 
-Репозиторий: https://github.com/Owl-14/Temki
+## Документация
 
-Сайт: https://owl-14.github.io/Temki/ (после включения Pages в Settings → Pages → branch `main`)
+Полный справочник по страницам, модулям, Firebase и деплою:
 
-## Статистика
+**[docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)**
 
-Подключена [Яндекс.Метрика](https://metrika.yandex.ru) — бесплатно, считает визиты и клики.
+Бренд и термины: **[CONCEPT.md](CONCEPT.md)**
 
-### Настройка (5 минут)
+## Быстрый старт (локально)
 
-1. Зайди на https://metrika.yandex.ru и создай счётчик для `owl-14.github.io/Temki`
-2. Скопируй номер счётчика (число вроде `12345678`)
-3. Вставь его в `analytics.config.js` вместо `0`
-4. Запушь изменения на GitHub
-
-### Что отслеживается
-
-- **Визиты** — автоматически
-- **Клики по ссылкам** — автоматически (`trackLinks`)
-- **Карта кликов** — где на странице жмут
-- **Цели** (отдельно по темкам):
-  - `padel_image` — клик по картинке Падел
-  - `padel_link` — кнопка Падел
-  - `cloacc_image` — клик по картинке Cloacc
-  - `cloacc_link` — кнопка Cloacc
-
-Цели появятся в Метрике сами после первых кликов. Смотри в разделе «Цели» и «Содержание → Переходы по ссылкам».
-
-## Счётчик «Сейчас на сайте»
-
-Метрика не умеет показывать онлайн прямо на странице — только в личном кабинете. Поэтому счётчик онлайн работает через **Firebase Realtime Database** (бесплатно).
-
-### Настройка Firebase (5–10 минут)
-
-1. Создай проект на https://console.firebase.google.com
-2. **Build → Realtime Database → Create Database** (режим test на старте)
-3. **Project settings → Your apps → Web** — зарегистрируй приложение и скопируй `firebaseConfig`
-4. Вставь конфиг в `presence.config.js`:
-
-```js
-window.FIREBASE_CONFIG = {
-  apiKey: "...",
-  authDomain: "...",
-  databaseURL: "https://....firebaseio.com",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
-};
+```powershell
+python -m http.server 5500
 ```
 
-5. В Realtime Database → **Rules** вставь:
+http://localhost:5500
 
-```json
-{
-  "rules": {
-    "presence": {
-      ".read": true,
-      "$uid": {
-        ".write": true,
-        ".validate": "newData.isNumber()"
-      }
-    }
-  }
-}
+## Firebase (`temki-1409`)
+
+| Сервис | Нужен | Ссылка |
+|--------|-------|--------|
+| Auth (Email) | ✅ | [Providers](https://console.firebase.google.com/project/temki-1409/authentication/providers) |
+| Firestore | ✅ | [Database](https://console.firebase.google.com/project/temki-1409/firestore) |
+| Realtime DB | ✅ (онлайн) | [Database](https://console.firebase.google.com/project/temki-1409/database) |
+| Storage | ❌ | Картинки в Firestore |
+
+Конфиг: `firebase.config.js`
+
+## Деплой
+
+```powershell
+git push origin main
 ```
 
-6. Запушь на GitHub
+Правила Firestore (после `firebase login`):
 
-После этого в правом верхнем углу появится бейдж: **«Сейчас на сайте N человек»** с зелёной точкой. Счётчик обновляется в реальном времени.
+```powershell
+.\scripts\deploy_firebase.ps1
+```

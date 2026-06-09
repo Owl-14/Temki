@@ -1,4 +1,4 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getDatabase,
   onDisconnect,
@@ -20,7 +20,7 @@ if (!config || !config.apiKey || !config.databaseURL) {
     heatEl.hidden = true;
   }
 } else {
-  var app = initializeApp(config);
+  var app = getApps().length ? getApps()[0] : initializeApp(config);
   var db = getDatabase(app);
   var sessionId = crypto.randomUUID();
   var presenceRef = ref(db, 'presence/' + sessionId);
