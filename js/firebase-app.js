@@ -224,10 +224,44 @@ export async function fetchPublishedEggs(max, retries) {
 }
 
 export async function fetchUserEggs(uid) {
-  var published = await fetchPublishedEggs(100);
-  return published.filter(function (egg) {
-    return egg.ownerId === uid;
-  });
+  var attempts = 3;
+  var lastError = null;
+
+  while (attempts > 0) {
+    try {
+      var directQuery = query(
+        collection(db, 'eggs'),
+        where('ownerId', '==', uid),
+        where('published', '==', true)
+      );
+      var directSnap = await getDocs(directQuery);
+      return sortEggs(directSnap.docs);
+    } catch (error) {
+      lastError = error;
+
+      try {
+        var published = await fetchPublishedEggs(100, 2);
+        var filtered = published.filter(function (egg) {
+          return egg.ownerId === uid;
+        });
+
+        if (filtered.length) {
+          return filtered;
+        }
+      } catch (fallbackError) {
+        lastError = fallbackError;
+      }
+
+      attempts -= 1;
+      if (attempts > 0) {
+        await new Promise(function (resolve) {
+          setTimeout(resolve, 400);
+        });
+      }
+    }
+  }
+
+  throw lastError;
 }
 
 export function waitForAuth() {

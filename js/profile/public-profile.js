@@ -4,7 +4,7 @@ import {
   waitForAuth
 } from '../firebase-app.js';
 import { escapeHtml } from '../utils.js';
-import { renderEggs, mapFirestoreEgg } from '../eggs.js?v=3';
+import { renderEggs, mapFirestoreEgg } from '../eggs.js';
 
 export function emptyEggsMessage(isOwner) {
   if (isOwner) {
@@ -42,19 +42,23 @@ export function renderOwnerActions(profile, actionsEl, user) {
   actionsEl.innerHTML = '';
 }
 
-export async function loadPublicProfile(username, elements, authUser) {
-  if (!username) {
-    return null;
+function showEggsLoading(elements) {
+  elements.eggs.innerHTML = '<p class="empty-state">Загружаем яйца...</p>';
+}
+
+function showEggsError(elements, onRetry) {
+  elements.eggs.innerHTML =
+    '<p class="empty-state">Не удалось загрузить яйца. ' +
+    '<button class="btn btn--warm profile-eggs-retry" type="button">Повторить</button></p>';
+
+  var retryBtn = elements.eggs.querySelector('.profile-eggs-retry');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', onRetry);
   }
+}
 
-  var profile = await getUserByUsername(username);
-
-  if (!profile) {
-    return null;
-  }
-
-  renderProfileHeader(profile, elements.header);
-  renderOwnerActions(profile, elements.actions, authUser);
+export async function loadProfileEggs(profile, elements, authUser) {
+  showEggsLoading(elements);
 
   try {
     var eggs = await fetchUserEggs(profile.uid);
@@ -69,14 +73,32 @@ export async function loadPublicProfile(username, elements, authUser) {
       var isOwner = user && user.uid === profile.uid;
       elements.eggs.innerHTML =
         '<p class="empty-state">' + emptyEggsMessage(isOwner) + '</p>';
-      return profile;
+      return;
     }
 
     renderEggs(elements.eggs, mapped);
   } catch (error) {
     console.error(error);
-    elements.eggs.innerHTML = '<p class="empty-state">Не удалось загрузить яйца</p>';
+    showEggsError(elements, function () {
+      loadProfileEggs(profile, elements, authUser);
+    });
   }
+}
+
+export async function loadPublicProfile(username, elements, authUser) {
+  if (!username) {
+    return null;
+  }
+
+  var profile = await getUserByUsername(username);
+
+  if (!profile) {
+    return null;
+  }
+
+  renderProfileHeader(profile, elements.header);
+  renderOwnerActions(profile, elements.actions, authUser);
+  await loadProfileEggs(profile, elements, authUser);
 
   return profile;
 }

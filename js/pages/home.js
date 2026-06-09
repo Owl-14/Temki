@@ -1,6 +1,6 @@
 import { fetchPublishedEggs } from '../firebase-app.js';
 import { initNav } from '../nav.js';
-import { renderEggs, mapFirestoreEgg } from '../eggs.js?v=3';
+import { renderEggs, mapFirestoreEgg } from '../eggs.js';
 
 var container = document.getElementById('eggs-feed');
 var loading = false;

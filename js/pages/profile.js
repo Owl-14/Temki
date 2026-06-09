@@ -6,6 +6,7 @@ import { loadPublicProfile } from '../profile/public-profile.js';
 var username = getQueryParam('u');
 var profileView = document.getElementById('profile-view');
 var notFound = document.getElementById('profile-not-found');
+var profileTask = Promise.resolve();
 
 var elements = {
   header: {
@@ -45,7 +46,14 @@ onAuthStateChanged(auth, function (user) {
     return;
   }
 
-  renderProfile(user).catch(showNotFound);
+  profileTask = profileTask
+    .then(function () {
+      return renderProfile(user);
+    })
+    .catch(function (error) {
+      console.error(error);
+      showNotFound();
+    });
 });
 
 initNav();
