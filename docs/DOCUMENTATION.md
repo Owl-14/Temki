@@ -74,6 +74,8 @@
 | `index.html` | `/` | Главная: hero, лента яиц, счётчик в nav | `home.js`, `presence.js`, `effects.js` |
 | `auth.html` | `/auth.html` | Вход и регистрация | `auth.js`, `presence.js` |
 | `profile.html` | `/profile.html?u=username` | Публичный профиль и яйца пользователя | `profile.js`, `presence.js`, `effects.js` |
+
+**Блок «публичный профиль»:** [docs/blocks/public-profile.md](blocks/public-profile.md)
 | `settings.html` | `/settings.html` | Редактирование своего профиля | `settings.js`, `presence.js` |
 | `lay-egg.html` | `/lay-egg.html` | Форма «Снести яйцо» | `lay-egg.js`, `presence.js` |
 
@@ -153,11 +155,22 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 
 Счётчик «тут щас **N**» в pill «Инкубатор». Пишет timestamp в `presence/{sessionId}`, слушает всю ветку `presence`, считает активных за 45 с.
 
+### `js/profile/public-profile.js` — публичный профиль
+
+| Экспорт | Назначение |
+|---------|------------|
+| `loadPublicProfile(username, elements)` | Загрузка профиля и яиц по `@username` |
+| `renderProfileHeader(profile, elements)` | Аватар, имя, bio |
+| `bindOwnerActions(profile, actionsEl)` | Кнопки владельца только для своего uid |
+| `emptyEggsMessage(isOwner)` | Текст пустого списка яиц |
+
+Подробнее: [blocks/public-profile.md](blocks/public-profile.md)
+
 ### `js/pages/*.js` — логика страниц
 
 | Файл | Страница | Основной поток |
 |------|----------|----------------|
-| `home.js` | `index.html` | `fetchPublishedEggs` + `LEGACY_EGGS` → `#eggs-feed` |
+| `home.js` | `index.html` | `fetchPublishedEggs` → `#eggs-feed` |
 | `auth.js` | `auth.html` | Вход → профиль; регистрация → `createUserProfile` → settings |
 | `settings.js` | `settings.html` | Профиль, аватар (data URL), сброс пароля |
 | `profile.js` | `profile.html` | Публичный профиль по `?u=`, яйца автора |

@@ -20,6 +20,9 @@
 
 **[docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)**
 
+Блоки:
+- **[Публичный профиль](docs/blocks/public-profile.md)** — просмотр `@username` без входа
+
 Бренд и термины: **[CONCEPT.md](CONCEPT.md)**
 
 ## Быстрый старт (локально)
