@@ -70,8 +70,10 @@ export function renderEggCard(egg) {
   return '<article class="egg" data-tilt>' +
     '<div class="egg__shell">' +
       '<div class="egg__warmth" aria-hidden="true"></div>' +
-      '<span class="egg__status">' + escapeHtml(statusLabel(egg.status)) + '</span>' +
-      heatBadge +
+      '<div class="egg__badges">' +
+        '<span class="egg__status">' + escapeHtml(statusLabel(egg.status)) + '</span>' +
+        heatBadge +
+      '</div>' +
       renderImage(egg) +
       '<div class="egg__body">' +
         titleHtml +

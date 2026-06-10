@@ -1,7 +1,7 @@
 ﻿import { auth, onAuthStateChanged } from '../core/firebase-app.js';
-import { fetchNotifications, markNotificationRead } from '../platform/platform-api.js';
+import { fetchNotifications, markAllNotificationsRead } from '../platform/platform-api.js';
 import { escapeHtml, formatDate } from '../core/utils.js';
-import { initNav } from '../core/nav.js';
+import { initNav, refreshNavBadge } from '../core/nav.js';
 
 var list = document.getElementById('notifications-list');
 
@@ -13,6 +13,7 @@ async function load(user) {
       list.innerHTML = '<p class="empty-state">Пока тихо в инкубаторе</p>';
       return;
     }
+
     list.innerHTML = items.map(function (n) {
       var link = n.eggId ? 'egg.html?id=' + encodeURIComponent(n.eggId) : '#';
       var unread = n.read ? '' : ' notification-item--unread';
@@ -22,12 +23,11 @@ async function load(user) {
       '</article>';
     }).join('');
 
+    await markAllNotificationsRead(user.uid);
     list.querySelectorAll('.notification-item--unread').forEach(function (el) {
-      el.addEventListener('click', function () {
-        var id = el.getAttribute('data-id');
-        markNotificationRead(id).catch(console.error);
-      });
+      el.classList.remove('notification-item--unread');
     });
+    await refreshNavBadge(user.uid);
   } catch (error) {
     console.error(error);
     list.innerHTML = '<p class="empty-state">Не удалось загрузить</p>';

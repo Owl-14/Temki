@@ -284,20 +284,28 @@ async function loadEggExtras(eggId, egg, elements, user, profile) {
 
   await renderEggStats(eggId, egg, elements);
 
+  var isOwner = user && user.uid === egg.ownerId;
+
   if (user) {
     elements.commentGuest.hidden = true;
     elements.commentForm.hidden = false;
     if (elements.questionGuest) {
       elements.questionGuest.hidden = true;
     }
+    if (elements.questionOwnerHint) {
+      elements.questionOwnerHint.hidden = !isOwner;
+    }
     if (elements.questionForm) {
-      elements.questionForm.hidden = false;
+      elements.questionForm.hidden = isOwner;
     }
   } else {
     elements.commentGuest.hidden = false;
     elements.commentForm.hidden = true;
     if (elements.questionGuest) {
       elements.questionGuest.hidden = false;
+    }
+    if (elements.questionOwnerHint) {
+      elements.questionOwnerHint.hidden = true;
     }
     if (elements.questionForm) {
       elements.questionForm.hidden = true;
@@ -308,6 +316,10 @@ async function loadEggExtras(eggId, egg, elements, user, profile) {
 async function tryRecordView(eggId, user, elements, egg) {
   if (!user) {
     trackQuestAction('views');
+    return null;
+  }
+
+  if (egg && user.uid === egg.ownerId) {
     return null;
   }
 
@@ -324,9 +336,11 @@ async function tryRecordView(eggId, user, elements, egg) {
     console.error('recordEggView:', error.code || error.message, error);
     throw error;
   }
-  trackQuestAction('views');
+  if (!result || !result.ownEgg) {
+    trackQuestAction('views');
+  }
 
-  if (result && result.counted) {
+  if (result && result.counted && !result.ownEgg) {
     try {
       await bumpEggHeat(eggId, 1);
       await addUserHeat(user.uid, 1, 'view');
@@ -349,7 +363,7 @@ async function tryRecordView(eggId, user, elements, egg) {
   return result;
 }
 
-function bindCommentForm(eggId, elements) {
+function bindCommentForm(eggId, egg, elements) {
   if (elements.commentForm.dataset.bound === '1') {
     return;
   }
@@ -374,14 +388,17 @@ function bindCommentForm(eggId, elements) {
 
     try {
       var profile = await getUserProfile(user.uid);
+      var isOwner = egg && user.uid === egg.ownerId;
       await addEggComment(eggId, profile, text);
-      trackQuestAction('comments');
-      try {
-        await bumpEggHeat(eggId, 1);
-        await addUserHeat(user.uid, 2, 'comment');
-        await awardBadge(user.uid, 'first_comment');
-      } catch (e) {
-        console.error(e);
+      if (!isOwner) {
+        trackQuestAction('comments');
+        try {
+          await bumpEggHeat(eggId, 1);
+          await addUserHeat(user.uid, 2, 'comment');
+          await awardBadge(user.uid, 'first_comment');
+        } catch (e) {
+          console.error(e);
+        }
       }
       elements.commentInput.value = '';
       showMessage(elements.commentMessage, '', 'info');
@@ -556,7 +573,7 @@ export async function initEggPage(eggId, elements) {
   }
 
   renderEggPage(egg, elements);
-  bindCommentForm(eggId, elements);
+  bindCommentForm(eggId, egg, elements);
   bindCommentsInteractions(eggId, elements);
   bindTabs();
 
@@ -596,7 +613,7 @@ export async function initEggPage(eggId, elements) {
 
     try {
       await loadEggExtras(eggId, egg, elements, user, profile);
-      bindQuestionForm(eggId, elements.questionForm, elements.questionMessage, user, profile, async function () {
+      bindQuestionForm(eggId, elements.questionForm, elements.questionMessage, user, profile, egg, async function () {
         await loadQuestionsSection(eggId, elements.questions, user, egg);
       });
     } catch (error) {

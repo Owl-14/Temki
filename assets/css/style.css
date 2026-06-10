@@ -492,11 +492,19 @@ body {
   z-index: 2;
 }
 
-.egg__status {
+.egg__badges {
   position: absolute;
   top: 14px;
   right: 14px;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: calc(100% - 28px);
+}
+
+.egg__status {
   padding: 5px 10px;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 0.68rem;
@@ -508,6 +516,20 @@ body {
   border-radius: 999px;
   background: rgba(8, 8, 14, 0.72);
   backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+.egg__heat {
+  padding: 4px 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--accent-warm);
+  border: 1px solid var(--border-warm);
+  border-radius: 999px;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
 }
 
 .egg__image-link,
@@ -1594,7 +1616,6 @@ body.lay-egg-warming-active {
 .egg-page__stats { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; color: var(--text-muted); font-size: 0.9rem; }
 .egg-page__hint { color: var(--text-muted); font-size: 0.9rem; }
 .egg-page__answer { margin-top: 8px; padding: 10px; border-left: 2px solid var(--accent-warm); background: rgba(251, 146, 60, 0.06); }
-.egg__heat { position: absolute; top: 12px; right: 12px; font-size: 0.75rem; color: var(--accent-warm); z-index: 2; }
 
 .chamber-filters {
   display: flex;

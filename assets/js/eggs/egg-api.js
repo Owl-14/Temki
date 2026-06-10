@@ -61,6 +61,10 @@ export async function recordEggView(eggId, user, profile) {
 
     var currentCount = normalizeViewCount(eggSnap.data().viewCount);
 
+    if (eggSnap.data().ownerId === user.uid) {
+      return { counted: false, viewCount: currentCount, ownEgg: true };
+    }
+
     if (viewSnap.exists()) {
       if (currentCount === 0) {
         transaction.update(eggRef, { viewCount: 1 });

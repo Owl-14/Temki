@@ -11,7 +11,8 @@ import {
   limit,
   getDocs,
   runTransaction,
-  orderBy
+  orderBy,
+  writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 export var EGG_TAGS = ['ai', 'боты', 'fintech', 'мобайл', 'saas', 'маркетплейс', 'игры', 'другое'];
@@ -109,6 +110,13 @@ export async function addEggQuestion(eggId, profile, text) {
   if (!trimmed || trimmed.length > 500) {
     throw new Error('QUESTION_INVALID');
   }
+  var eggSnap = await getDoc(doc(db, 'eggs', eggId));
+  if (!eggSnap.exists()) {
+    throw new Error('EGG_NOT_FOUND');
+  }
+  if (eggSnap.data().ownerId === profile.uid) {
+    throw new Error('OWN_EGG');
+  }
   await addDoc(collection(db, 'egg_questions'), {
     eggId: eggId,
     authorId: profile.uid,
@@ -117,16 +125,13 @@ export async function addEggQuestion(eggId, profile, text) {
     text: trimmed,
     createdAt: serverTimestamp()
   });
-  var eggSnap = await getDoc(doc(db, 'eggs', eggId));
-  if (eggSnap.exists()) {
-    await createNotification({
-      uid: eggSnap.data().ownerId,
-      type: 'new_question',
-      eggId: eggId,
-      fromUid: profile.uid,
-      text: '@' + profile.username + ' задал вопрос'
-    });
-  }
+  await createNotification({
+    uid: eggSnap.data().ownerId,
+    type: 'new_question',
+    eggId: eggId,
+    fromUid: profile.uid,
+    text: '@' + profile.username + ' задал вопрос'
+  });
   await addUserHeat(profile.uid, 2, 'question');
   await bumpEggHeat(eggId, 1);
   await awardBadge(profile.uid, 'first_question');
@@ -296,6 +301,22 @@ export async function fetchNotifications(uid) {
 
 export async function markNotificationRead(notifId) {
   await updateDoc(doc(db, 'notifications', notifId), { read: true });
+}
+
+export async function markAllNotificationsRead(uid) {
+  var items = await fetchNotifications(uid);
+  var unread = items.filter(function (n) {
+    return !n.read;
+  });
+  if (!unread.length) {
+    return 0;
+  }
+  var batch = writeBatch(db);
+  unread.forEach(function (n) {
+    batch.update(doc(db, 'notifications', n.id), { read: true });
+  });
+  await batch.commit();
+  return unread.length;
 }
 
 export async function countUnreadNotifications(uid) {

@@ -28,6 +28,7 @@ service cloud.firestore {
 
     function isViewCountBump() {
       return resource.data.published == true
+        && resource.data.ownerId != request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount'])
         && request.resource.data.viewCount is int
         && request.resource.data.viewCount == eggViewCount() + 1;
@@ -65,6 +66,7 @@ service cloud.firestore {
       allow read: if isAuth();
       allow create: if isAuth()
         && request.resource.data.uid == request.auth.uid
+        && eggOwner(request.resource.data.eggId) != request.auth.uid
         && request.resource.data.eggId is string
         && viewId == request.resource.data.eggId + '_' + request.auth.uid;
       allow update, delete: if false;
@@ -120,6 +122,7 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isAuth()
         && request.resource.data.authorId == request.auth.uid
+        && eggOwner(request.resource.data.eggId) != request.auth.uid
         && request.resource.data.eggId is string
         && request.resource.data.text is string
         && request.resource.data.text.size() > 0

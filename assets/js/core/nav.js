@@ -71,6 +71,39 @@ function renderUserNav(slot, profile, unread) {
   });
 }
 
+export async function refreshNavBadge(uid) {
+  if (!uid) {
+    return;
+  }
+
+  var bell = document.querySelector('.nav__bell');
+  if (!bell) {
+    return;
+  }
+
+  var unread = 0;
+  try {
+    unread = await countUnreadNotifications(uid);
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+
+  var badge = bell.querySelector('.nav__bell-count');
+  if (unread > 0) {
+    if (badge) {
+      badge.textContent = String(unread);
+    } else {
+      bell.insertAdjacentHTML('beforeend', '<span class="nav__bell-count">' + unread + '</span>');
+    }
+    return;
+  }
+
+  if (badge) {
+    badge.remove();
+  }
+}
+
 export function initNav() {
   var slot = document.getElementById('nav-auth-slot');
 
@@ -100,5 +133,15 @@ export function initNav() {
     }
 
     renderUserNav(slot, profile, unread);
+
+    if (document.getElementById('notifications-list')) {
+      refreshNavBadge(user.uid);
+    }
+  });
+
+  window.addEventListener('pageshow', function () {
+    if (auth.currentUser) {
+      refreshNavBadge(auth.currentUser.uid);
+    }
   });
 }

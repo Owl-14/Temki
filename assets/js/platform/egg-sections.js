@@ -206,7 +206,7 @@ export async function loadInvestSection(eggId, container, user, profile, egg) {
   });
 }
 
-export function bindQuestionForm(eggId, form, messageEl, user, profile, onDone) {
+export function bindQuestionForm(eggId, form, messageEl, user, profile, egg, onDone) {
   if (!form || form.dataset.bound === '1') {
     return;
   }
@@ -215,6 +215,10 @@ export function bindQuestionForm(eggId, form, messageEl, user, profile, onDone) 
     event.preventDefault();
     if (!user || !profile) {
       showMessage(messageEl, 'Погрейся, чтобы задать вопрос', 'error');
+      return;
+    }
+    if (egg && user.uid === egg.ownerId) {
+      showMessage(messageEl, 'На своём яйце вопросы задают другие', 'error');
       return;
     }
     var text = form.querySelector('textarea').value.trim();
@@ -231,6 +235,10 @@ export function bindQuestionForm(eggId, form, messageEl, user, profile, onDone) 
         await onDone();
       }
     } catch (error) {
+      if (error && error.message === 'OWN_EGG') {
+        showMessage(messageEl, 'На своём яйце вопросы задают другие', 'error');
+        return;
+      }
       showMessage(messageEl, 'Не удалось отправить', 'error');
     }
   });

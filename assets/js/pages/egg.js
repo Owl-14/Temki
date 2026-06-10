@@ -23,6 +23,7 @@ var elements = {
   milestones: document.getElementById('egg-milestones'),
   questions: document.getElementById('egg-questions'),
   questionGuest: document.getElementById('egg-question-guest'),
+  questionOwnerHint: document.getElementById('egg-question-owner'),
   questionForm: document.getElementById('egg-question-form'),
   questionMessage: document.getElementById('egg-question-message'),
   comments: document.getElementById('egg-comments'),
