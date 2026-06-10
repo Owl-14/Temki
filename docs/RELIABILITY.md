@@ -23,9 +23,9 @@ var app = getApps().length ? getApps()[0] : initializeApp(config);
 **Порядок скриптов в HTML:**
 
 ```html
-<script src="firebase.config.js?v=N"></script>
-<script type="module" src="js/presence.js"></script>
-<script type="module" src="js/pages/home.js"></script>
+<script src="../config/firebase.config.js?v=N"></script>
+<script type="module" src="../assets/js/core/presence.js"></script>
+<script type="module" src="../assets/js/pages/home.js"></script>
 ```
 
 `firebase.config.js` **всегда до** ES-модулей.
@@ -180,11 +180,11 @@ Storage требует Blaze. Аватары и обложки — **data URL** 
 
 | Файл | Не ломать |
 |------|-----------|
-| `js/firebase-app.js` | init app, все Firestore-запросы, retry |
-| `js/pages/home.js` | лента, loading, retry |
-| `js/profile/public-profile.js` | публичный профиль, яйца |
-| `js/pages/profile.js` | очередь auth-загрузок |
-| `js/presence.js` | только `getApps()[0]` |
+| `assets/js/core/firebase-app.js` | init app, все Firestore-запросы, retry |
+| `assets/js/pages/home.js` | лента, loading, retry |
+| `assets/js/profile/public-profile.js` | публичный профиль, яйца |
+| `assets/js/pages/profile.js` | очередь auth-загрузок |
+| `assets/js/core/presence.js` | только `getApps()[0]` |
 | `firebase/firestore.rules` | read users всем, eggs — published |
 | `firebase/firestore.indexes.json` | индекс ownerId+published |
 

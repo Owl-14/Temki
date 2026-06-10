@@ -17,12 +17,13 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 Write-Host "Проект: temki-1409"
 Write-Host ""
 
-if (-not (Get-Command firebase -ErrorAction SilentlyContinue)) {
+$firebaseCmd = Join-Path $npmGlobal "firebase.cmd"
+if (-not (Test-Path $firebaseCmd)) {
     Write-Host "Устанавливаю firebase-tools..."
     npm install -g firebase-tools
 }
 
-$login = firebase login:list 2>&1 | Out-String
+$login = & $firebaseCmd login:list 2>&1 | Out-String
 if ($login -match "No authorized accounts") {
     Write-Host "Сначала войди в Firebase:"
     Write-Host "  firebase login"
@@ -32,7 +33,7 @@ if ($login -match "No authorized accounts") {
 }
 
 Write-Host "Деплой правил Firestore и Storage..."
-firebase deploy --only firestore:rules,storage --project temki-1409
+& $firebaseCmd deploy --only firestore:rules,storage --project temki-1409
 
 Write-Host ""
 Write-Host "Готово. Проверь консоль:"

@@ -4,99 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Инкубатор</title>
-  <meta name="description" content="Инкубатор — место, где выращивают яйца: стартапы от идеи до вылупления">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="canonical" href="pages/index.html">
+  <script>
+    var target = 'pages/index.html' + window.location.search + window.location.hash;
+    window.location.replace(target);
+  </script>
 </head>
 <body>
-  <div class="scene" aria-hidden="true">
-    <div class="scene__heat"></div>
-    <div class="scene__grid"></div>
-    <div class="scene__egg scene__egg--1"></div>
-    <div class="scene__egg scene__egg--2"></div>
-    <div class="scene__egg scene__egg--3"></div>
-    <div class="scene__egg scene__egg--4"></div>
-    <div class="scene__egg scene__egg--5"></div>
-    <div class="scene__egg scene__egg--6"></div>
-    <div class="scene__egg scene__egg--7"></div>
-    <div class="scene__egg scene__egg--8"></div>
-    <div class="scene__orb scene__orb--1"></div>
-    <div class="scene__orb scene__orb--2"></div>
-  </div>
-
-  <nav class="nav">
-    <div class="nav__brand">
-      <span class="online-counter__heat" id="online-heat" hidden aria-hidden="true"></span>
-      <a class="nav__logo" href="index.html">
-        <svg class="nav__icon" viewBox="0 0 24 28" aria-hidden="true">
-          <ellipse cx="12" cy="15" rx="9" ry="12" fill="none" stroke="url(#egg-grad)" stroke-width="1.5"/>
-          <ellipse cx="12" cy="15" rx="5" ry="7" fill="url(#egg-glow)" opacity="0.35"/>
-          <defs>
-            <linearGradient id="egg-grad" x1="0" y1="0" x2="24" y2="28">
-              <stop offset="0%" stop-color="#fbbf24"/>
-              <stop offset="100%" stop-color="#fb923c"/>
-            </linearGradient>
-            <radialGradient id="egg-glow" cx="50%" cy="60%">
-              <stop offset="0%" stop-color="#fb923c"/>
-              <stop offset="100%" stop-color="transparent"/>
-            </radialGradient>
-          </defs>
-        </svg>
-        Инкубатор
-      </a>
-      <p class="online-counter__text" id="online-text" hidden>тут щас <strong>0</strong></p>
-    </div>
-    <div class="nav__actions" id="nav-auth-slot"></div>
-  </nav>
-
-  <section class="hero" id="home">
-    <div class="hero__visual" aria-hidden="true">
-      <div class="hero__egg">
-        <div class="hero__egg-core"></div>
-      </div>
-    </div>
-    <p class="hero__tag">инкубация · v1</p>
-    <h1 class="hero__title">Добро пожаловать в инкубатор</h1>
-    <p class="hero__lead">Место, где люди собираются и выращивают яйца — каждый стартап начинается с яйца.</p>
-    <p class="hero__text">
-      Здесь идеи лежат в инкубаторе, набирают силу и вылупляются в проекты — от клубов и ботов
-      до AI-инструментов. Заходи, смотри яйца, и снеси своё.
-    </p>
-    <a class="btn btn--primary hero__cta" href="#projects">
-      <span class="btn__shine" aria-hidden="true"></span>
-      <span class="btn__text">Смотреть яйца</span>
-      <span class="btn__icon" aria-hidden="true">↓</span>
-    </a>
-  </section>
-
-  <section class="chamber" id="projects">
-    <header class="section-header">
-      <p class="section-header__label">Инкубация</p>
-      <h2 class="section-header__title">Яйца в инкубаторе</h2>
-      <p class="section-header__subtitle">Всё, что сейчас греется — до вылупления</p>
-      <div class="section-header__temp" aria-hidden="true">
-        <span class="section-header__temp-bar"></span>
-        <span class="section-header__temp-text">стабильное тепло</span>
-      </div>
-    </header>
-
-    <div class="eggs" id="eggs-feed"></div>
-  </section>
-
-  <footer class="footer">
-    <p>Инкубатор — греем яйца до вылупления</p>
-  </footer>
-
-  <script src="effects.js?v=7"></script>
-  <script src="firebase.config.js?v=2"></script>
-  <script src="analytics.config.js?v=5"></script>
-  <script src="analytics.js?v=5"></script>
-  <script type="module" src="js/presence.js?v=1"></script>
-  <script type="module" src="js/pages/home.js?v=4"></script>
-  <noscript>
-    <div><img src="https://mc.yandex.ru/watch/109729158" style="position:absolute; left:-9999px;" alt=""></div>
-  </noscript>
+  <p><a href="pages/index.html">Перейти в инкубатор</a></p>
 </body>
 </html>

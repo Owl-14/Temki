@@ -11,6 +11,7 @@
 |--------|------|--------|
 | Публичный профиль | [blocks/public-profile.md](blocks/public-profile.md) | `profile.html`, яйца автора, «Редактировать» |
 | Яйца | [eggs/README.md](eggs/README.md) | Просмотр, редактирование, комментарии, просмотры |
+| **Платформа** | [platform/README.md](platform/README.md) | Видение, UI, геймификация, инвестиции, roadmap |
 
 ### Яйца — детально
 
@@ -26,10 +27,11 @@
 
 ## Вне `docs/`
 
-| Файл | Назначение |
+| Путь | Назначение |
 |------|------------|
-| `CONCEPT.md` | Бренд и терминология |
-| `PROFILE_PLAN.md` | Исторический план профилей |
+| [README.md](../README.md) | Карта папок проекта |
+| [meta/CONCEPT.md](../meta/CONCEPT.md) | Бренд и терминология |
+| [meta/PROFILE_PLAN.md](../meta/PROFILE_PLAN.md) | Исторический план профилей |
 
 ## Как поддерживать актуальность
 

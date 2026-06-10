@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Снести яйцо — Инкубатор</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=13">
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene__heat"></div>
+    <div class="scene__grid"></div>
+    <div class="scene__egg scene__egg--1"></div>
+    <div class="scene__egg scene__egg--2"></div>
+    <div class="scene__orb scene__orb--1"></div>
+    <div class="scene__orb scene__orb--2"></div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav__brand">
+      <span class="online-counter__heat" id="online-heat" hidden aria-hidden="true"></span>
+      <a class="nav__logo" href="index.html">
+        <svg class="nav__icon" viewBox="0 0 24 28" aria-hidden="true">
+          <ellipse cx="12" cy="15" rx="9" ry="12" fill="none" stroke="url(#egg-grad)" stroke-width="1.5"/>
+          <ellipse cx="12" cy="15" rx="5" ry="7" fill="url(#egg-glow)" opacity="0.35"/>
+          <defs>
+            <linearGradient id="egg-grad" x1="0" y1="0" x2="24" y2="28">
+              <stop offset="0%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#fb923c"/>
+            </linearGradient>
+            <radialGradient id="egg-glow" cx="50%" cy="60%">
+              <stop offset="0%" stop-color="#fb923c"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+          </defs>
+        </svg>
+        Инкубатор
+      </a>
+      <p class="online-counter__text" id="online-text" hidden>тут щас <strong>0</strong></p>
+    </div>
+    <div class="nav__actions" id="nav-auth-slot"></div>
+  </nav>
+
+  <main class="page page--narrow">
+    <header class="page__header">
+      <h1 class="page__title">Снести яйцо</h1>
+      <p class="page__lead">Добавь свой стартап в инкубатор — он начнёт греться</p>
+    </header>
+
+    <p class="form-message" id="lay-egg-message" hidden></p>
+
+    <form class="form" id="lay-egg-form">
+      <div class="form__cover-row">
+        <div class="cover-preview" id="egg-cover-preview">
+          <img src="../assets/images/egg-placeholder.svg" alt="Обложка яйца">
+        </div>
+        <label class="btn btn--warm form__file-btn">
+          <span class="btn__text">Загрузить обложку</span>
+          <input type="file" id="egg-cover-input" accept="image/*" hidden>
+        </label>
+      </div>
+
+      <label class="form__field">
+        <span class="form__label">Название</span>
+        <input class="form__input" type="text" name="title" required maxlength="60">
+      </label>
+      <label class="form__field">
+        <span class="form__label">Описание</span>
+        <textarea class="form__input form__textarea" name="description" required maxlength="500" rows="4"></textarea>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Ссылка</span>
+        <input class="form__input" type="url" name="link" placeholder="https://t.me/...">
+        <span class="form__hint">Telegram, сайт — необязательно</span>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Демо / продукт</span>
+        <input class="form__input" type="url" name="demoUrl" placeholder="https://...">
+      </label>
+
+      <fieldset class="form__fieldset" id="lay-egg-tags-field">
+        <legend class="form__label">Теги</legend>
+      </fieldset>
+
+      <fieldset class="form__fieldset" id="lay-egg-seeking-field">
+        <legend class="form__label">Что ищу</legend>
+      </fieldset>
+
+      <button class="btn btn--primary form__submit" type="submit">
+        <span class="btn__shine" aria-hidden="true"></span>
+        <span class="btn__text">Положить в инкубатор</span>
+      </button>
+    </form>
+  </main>
+
+  <div id="lay-egg-warming" class="lay-egg-warming" aria-live="polite">
+    <div class="lay-egg-warming__backdrop"></div>
+    <div class="lay-egg-warming__stage">
+      <div class="lay-egg-warming__egg">
+        <div class="lay-egg-warming__shell">
+          <div class="lay-egg-warming__glow" aria-hidden="true"></div>
+          <div class="lay-egg-warming__avatar-wrap" id="warming-avatar-wrap"></div>
+          <div class="lay-egg-warming__heat-rise" aria-hidden="true"></div>
+          <div class="lay-egg-warming__cold-tint" aria-hidden="true"></div>
+          <div class="lay-egg-warming__frost" aria-hidden="true"></div>
+          <div class="lay-egg-warming__heat-bar" aria-hidden="true"></div>
+        </div>
+      </div>
+      <p class="lay-egg-warming__text" id="warming-text">Греем яйцо...</p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Инкубатор — греем яйца до вылупления</p>
+  </footer>
+
+  <script src="../config/firebase.config.js?v=2"></script>
+  <script src="../assets/vendor/analytics.config.js?v=5"></script>
+  <script src="../assets/vendor/analytics.js?v=5"></script>
+  <script type="module" src="../assets/js/core/presence.js?v=1"></script>
+  <script type="module" src="../assets/js/pages/lay-egg.js?v=4"></script>
+</body>
+</html>
