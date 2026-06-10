@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Зал славы — Инкубатор</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=14">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav__brand"><a class="nav__logo" href="index.html">Инкубатор</a></div>
+    <div class="nav__actions" id="nav-auth-slot"></div>
+  </nav>
+  <main class="page">
+    <h1 class="page__title">Зал славы</h1>
+    <p class="page__lead">Топ по теплу — люди и яйца</p>
+    <section class="hall-section">
+      <h2>Люди</h2>
+      <ol id="hall-users"></ol>
+    </section>
+    <section class="hall-section">
+      <h2>Яйца</h2>
+      <ol id="hall-eggs"></ol>
+    </section>
+  </main>
+  <script src="../config/firebase.config.js?v=2"></script>
+  <script type="module" src="../assets/js/pages/hall.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Яйцо — Инкубатор</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=14">
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene__heat"></div>
+    <div class="scene__grid"></div>
+    <div class="scene__egg scene__egg--1"></div>
+    <div class="scene__egg scene__egg--2"></div>
+    <div class="scene__orb scene__orb--1"></div>
+    <div class="scene__orb scene__orb--2"></div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav__brand">
+      <span class="online-counter__heat" id="online-heat" hidden aria-hidden="true"></span>
+      <a class="nav__logo" href="index.html">
+        <svg class="nav__icon" viewBox="0 0 24 28" aria-hidden="true">
+          <ellipse cx="12" cy="15" rx="9" ry="12" fill="none" stroke="url(#egg-grad)" stroke-width="1.5"/>
+          <ellipse cx="12" cy="15" rx="5" ry="7" fill="url(#egg-glow)" opacity="0.35"/>
+          <defs>
+            <linearGradient id="egg-grad" x1="0" y1="0" x2="24" y2="28">
+              <stop offset="0%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#fb923c"/>
+            </linearGradient>
+            <radialGradient id="egg-glow" cx="50%" cy="60%">
+              <stop offset="0%" stop-color="#fb923c"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+          </defs>
+        </svg>
+        Инкубатор
+      </a>
+      <p class="online-counter__text" id="online-text" hidden>тут щас <strong>0</strong></p>
+    </div>
+    <div class="nav__actions" id="nav-auth-slot"></div>
+  </nav>
+
+  <main class="page">
+    <div id="egg-not-found" class="empty-state" hidden>
+      <h1 class="page__title">Яйцо не найдено</h1>
+      <p class="page__lead">Такого яйца нет в инкубаторе</p>
+      <a class="btn btn--warm" href="index.html">На главную</a>
+    </div>
+
+    <article id="egg-view" class="egg-page" hidden>
+      <header class="egg-page__hero">
+        <div class="egg-page__cover" id="egg-cover"></div>
+        <div class="egg-page__meta">
+          <span class="egg-page__status" id="egg-status"></span>
+          <h1 class="egg-page__title" id="egg-title"></h1>
+          <p class="egg-page__owner" id="egg-owner"></p>
+          <p class="egg-page__views" id="egg-views"></p>
+          <p class="egg-page__heat" id="egg-heat"></p>
+        </div>
+      </header>
+
+      <div class="egg-page__cta">
+        <a class="btn btn--warm" id="egg-link" href="#" target="_blank" rel="noopener noreferrer" hidden>
+          <span class="btn__text">Ссылка</span>
+        </a>
+        <a class="btn btn--ghost" id="egg-demo" href="#" target="_blank" rel="noopener noreferrer" hidden>
+          <span class="btn__text">Демо</span>
+        </a>
+      </div>
+
+      <div class="egg-page__tags" id="egg-tags"></div>
+      <div class="egg-page__seeking" id="egg-seeking"></div>
+
+      <nav class="egg-page__tabs" aria-label="Разделы яйца">
+        <button type="button" class="egg-page__tab is-active" data-egg-tab="desc">Описание</button>
+        <button type="button" class="egg-page__tab" data-egg-tab="milestones">Вехи</button>
+        <button type="button" class="egg-page__tab" data-egg-tab="questions">Вопросы</button>
+        <button type="button" class="egg-page__tab" data-egg-tab="comments">Комментарии</button>
+        <button type="button" class="egg-page__tab" data-egg-tab="try">Попробовать</button>
+        <button type="button" class="egg-page__tab" data-egg-tab="invest">Тепло</button>
+      </nav>
+
+      <section class="egg-page__section" data-egg-panel="desc">
+        <p class="egg-page__description" id="egg-description"></p>
+        <div class="egg-page__owner-actions" id="egg-owner-actions" hidden></div>
+        <div class="egg-page__stats" id="egg-stats"></div>
+      </section>
+
+      <section class="egg-page__section" data-egg-panel="milestones" hidden>
+        <div class="egg-page__updates" id="egg-milestones"></div>
+      </section>
+
+      <section class="egg-page__section" data-egg-panel="questions" hidden>
+        <p class="egg-page__guest" id="egg-question-guest" hidden>
+          <a href="auth.html">Погрейся</a>, чтобы задать вопрос
+        </p>
+        <form class="form egg-page__comment-form" id="egg-question-form" hidden novalidate>
+          <label class="form__field">
+            <textarea class="form__input form__textarea" maxlength="500" rows="2" placeholder="Вопрос создателю..."></textarea>
+          </label>
+          <p class="form-message" id="egg-question-message" hidden></p>
+          <button class="btn btn--primary" type="submit">
+            <span class="btn__text">Задать вопрос</span>
+          </button>
+        </form>
+        <div class="egg-page__questions" id="egg-questions"></div>
+      </section>
+
+      <section class="egg-page__section" data-egg-panel="comments" hidden>
+        <p class="egg-page__guest" id="egg-comment-guest" hidden>
+          <a href="auth.html">Погрейся</a>, чтобы комментировать
+        </p>
+        <form class="form egg-page__comment-form" id="egg-comment-form" hidden novalidate>
+          <label class="form__field">
+            <textarea class="form__input form__textarea" id="egg-comment-input" maxlength="500" rows="3" placeholder="Написать комментарий..."></textarea>
+          </label>
+          <p class="form-message" id="egg-comment-message" hidden></p>
+          <button class="btn btn--primary" type="submit">
+            <span class="btn__text">Отправить</span>
+          </button>
+        </form>
+        <div class="egg-page__comments" id="egg-comments"></div>
+      </section>
+
+      <section class="egg-page__section" data-egg-panel="try" hidden>
+        <div id="egg-try-block"></div>
+      </section>
+
+      <section class="egg-page__section" data-egg-panel="invest" hidden>
+        <p class="egg-page__hint">Фаза 1: интерес без денег — связь с создателем</p>
+        <div id="egg-invest-block"></div>
+      </section>
+
+      <section class="egg-page__section" hidden>
+        <h2 class="egg-page__heading">История обновлений</h2>
+        <div class="egg-page__updates" id="egg-updates"></div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <p>Инкубатор — греем яйца до вылупления</p>
+  </footer>
+
+  <script src="../config/firebase.config.js?v=2"></script>
+  <script src="../assets/vendor/analytics.config.js?v=5"></script>
+  <script src="../assets/vendor/analytics.js?v=5"></script>
+  <script type="module" src="../assets/js/core/presence.js?v=1"></script>
+  <script type="module" src="../assets/js/pages/egg.js?v=7"></script>
+</body>
+</html>

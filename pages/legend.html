@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Легенда — Инкубатор</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=14">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav__brand"><a class="nav__logo" href="index.html">Инкубатор</a></div>
+    <div class="nav__actions" id="nav-auth-slot"></div>
+  </nav>
+  <main class="page page--narrow legend-page">
+    <h1 class="page__title">Легенда инкубатора</h1>
+    <p class="page__lead">Ты не на борде стартапов — ты в камере, где яйца греются до вылупления</p>
+
+    <section class="legend-stage">
+      <h2>🥚 Греется</h2>
+      <p>Идея в разработке. Создатель снёс яйцо — оно лежит в инкубаторе и набирает тепло.</p>
+    </section>
+    <section class="legend-stage">
+      <h2>🐣 Цыплёнок</h2>
+      <p>Вылупление — продукт запущен. Можно попробовать, задать вопрос, оставить отзыв.</p>
+    </section>
+    <section class="legend-stage">
+      <h2>🐔 Курица</h2>
+      <p>Проект вырос на тепле кормильцев. Стадия для зрелых яиц с интересом инвесторов.</p>
+    </section>
+
+    <section class="legend-stage">
+      <h2>Что можно делать</h2>
+      <ul>
+        <li><strong>Гость</strong> — заглянуть в камеру, читать яйца</li>
+        <li><strong>Погреться</strong> — комментировать, задавать вопросы, тестировать</li>
+        <li><strong>Основатель</strong> — снести яйцо, отмечать вехи, вылупление</li>
+        <li><strong>Кормилец</strong> — выразить интерес к теплу (без денег на старте)</li>
+      </ul>
+    </section>
+
+    <a class="btn btn--warm" href="auth.html">Погреться в инкубаторе</a>
+  </main>
+  <script src="../config/firebase.config.js?v=2"></script>
+  <script type="module">
+    import { initNav } from '../assets/js/core/nav.js';
+    initNav();
+  </script>
+</body>
+</html>

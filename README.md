@@ -1,58 +1,32 @@
 # Инкубатор
 
-Площадка, где выращивают **яйца** — стартапы от идеи до вылупления.
+Статический сайт + Firebase. Стартапы как яйца: греются, вылупляются, становятся курицами.
 
-**Сайт:** https://owl-14.github.io/Temki/  
-**Репозиторий:** https://github.com/Owl-14/Temki
+**Прод:** https://owl-14.github.io/Temki/  
+**Документация:** [docs/README.md](docs/README.md)
 
-## Возможности
+## Карта проекта
 
-- Лента яиц из Firestore (от аккаунтов пользователей)
-- Регистрация и вход (Firebase Auth)
-- Профиль: имя, @username, bio, аватар
-- «Снести яйцо» — добавить свой стартап
-- Счётчик онлайн в навигации
-- Яндекс.Метрика
+| Папка | За что отвечает |
+|-------|-----------------|
+| [pages/](pages/README.md) | HTML-страницы сайта |
+| [assets/](assets/README.md) | CSS, JS, картинки, аналитика |
+| [config/](config/README.md) | Ключи Firebase и presence |
+| [firebase/](firebase/README.md) | Правила Firestore / Storage |
+| [docs/](docs/README.md) | Подробная документация |
+| [scripts/](scripts/README.md) | Деплой и проверки |
+| [meta/](meta/README.md) | Бренд и исторические планы |
 
-## Документация
-
-Полный справочник по страницам, модулям, Firebase и деплою:
-
-**[docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)**
-
-Блоки:
-- **[Публичный профиль](docs/blocks/public-profile.md)** — просмотр `@username` без входа
-- **[Надёжность загрузки](docs/RELIABILITY.md)** — правила Firebase, retry, гонки, чеклист
-
-Бренд и термины: **[CONCEPT.md](CONCEPT.md)**
-
-## Быстрый старт (локально)
+## Быстрый старт
 
 ```powershell
+cd "d:\cursor project vpn\site"
 python -m http.server 5500
 ```
 
-http://localhost:5500
-
-## Firebase (`temki-1409`)
-
-| Сервис | Нужен | Ссылка |
-|--------|-------|--------|
-| Auth (Email) | ✅ | [Providers](https://console.firebase.google.com/project/temki-1409/authentication/providers) |
-| Firestore | ✅ | [Database](https://console.firebase.google.com/project/temki-1409/firestore) |
-| Realtime DB | ✅ (онлайн) | [Database](https://console.firebase.google.com/project/temki-1409/database) |
-| Storage | ❌ | Картинки в Firestore |
-
-Конфиг: `firebase.config.js`
+Открыть: http://localhost:5500/pages/index.html
 
 ## Деплой
 
-```powershell
-git push origin main
-```
-
-Правила Firestore (после `firebase login`):
-
-```powershell
-.\scripts\deploy_firebase.ps1
-```
+- **Сайт:** GitHub Pages (push в `main`)
+- **Правила Firebase:** `scripts/deploy_firebase.ps1`

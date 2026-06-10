@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Камера — Инкубатор</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=14">
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene__heat"></div>
+    <div class="scene__grid"></div>
+    <div class="scene__egg scene__egg--1"></div>
+    <div class="scene__egg scene__egg--2"></div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav__brand">
+      <a class="nav__logo" href="index.html">Инкубатор</a>
+      <p class="online-counter__text" id="online-text" hidden>тут щас <strong>0</strong></p>
+    </div>
+    <div class="nav__actions" id="nav-auth-slot"></div>
+  </nav>
+
+  <main class="page">
+    <header class="page__header">
+      <h1 class="page__title">Камера</h1>
+      <p class="page__lead">Поиск и фильтры по яйцам в инкубаторе</p>
+    </header>
+
+    <form class="chamber-filters" id="chamber-filters">
+      <label class="form__field">
+        <span class="form__label">Поиск</span>
+        <input class="form__input" type="search" name="search" placeholder="Название или @username">
+      </label>
+      <label class="form__field">
+        <span class="form__label">Статус</span>
+        <select class="form__input" name="status">
+          <option value="">Все</option>
+          <option value="greetsya">Греется</option>
+          <option value="tsyplenok">Цыплята</option>
+          <option value="kuritsa">Курицы</option>
+        </select>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Тег</span>
+        <select class="form__input" name="tag" id="chamber-tag"></select>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Ищут</span>
+        <select class="form__input" name="seeking">
+          <option value="">Любое</option>
+          <option value="testers">Тестеров</option>
+          <option value="feedback">Фидбек</option>
+          <option value="invest">Тепло</option>
+        </select>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Сортировка</span>
+        <select class="form__input" name="sort">
+          <option value="new">Новые</option>
+          <option value="hot">Горячие</option>
+        </select>
+      </label>
+      <button class="btn btn--warm" type="submit">Найти</button>
+    </form>
+
+    <div class="eggs" id="chamber-feed"></div>
+  </main>
+
+  <footer class="footer"><p>Инкубатор — греем яйца до вылупления</p></footer>
+
+  <script src="../config/firebase.config.js?v=2"></script>
+  <script type="module" src="../assets/js/core/presence.js?v=1"></script>
+  <script type="module" src="../assets/js/pages/chamber.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Инвесторам — Инкубатор</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=14">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav__brand"><a class="nav__logo" href="index.html">Инкубатор</a></div>
+    <div class="nav__actions" id="nav-auth-slot"></div>
+  </nav>
+  <main class="page">
+    <header class="page__header">
+      <h1 class="page__title">Кормильцам тепла</h1>
+      <p class="page__lead">Фаза 1: интерес без денег. Смотри метрики и связывайся с создателями.</p>
+    </header>
+
+    <form class="chamber-filters" id="investor-filters">
+      <label class="form__field">
+        <span class="form__label">Статус</span>
+        <select class="form__input" name="status">
+          <option value="">Все</option>
+          <option value="tsyplenok">Цыплята</option>
+          <option value="kuritsa">Курицы</option>
+        </select>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Сортировка</span>
+        <select class="form__input" name="sort">
+          <option value="hot">По теплу</option>
+          <option value="new">Новые</option>
+        </select>
+      </label>
+      <button class="btn btn--warm" type="submit">Показать</button>
+    </form>
+
+    <div class="investor-grid" id="investor-grid"></div>
+  </main>
+  <script src="../config/firebase.config.js?v=2"></script>
+  <script type="module" src="../assets/js/pages/investors.js?v=1"></script>
+</body>
+</html>

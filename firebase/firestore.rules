@@ -4,184 +4,192 @@ service cloud.firestore {
 
   match /databases/{database}/documents {
 
+    function isAuth() {
+      return request.auth != null;
+    }
 
+    function eggOwner(eggId) {
+      return get(/databases/$(database)/documents/eggs/$(eggId)).data.ownerId;
+    }
+
+    function isEggHeatBump() {
+      return resource.data.published == true
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['heat'])
+        && request.resource.data.heat >= resource.data.get('heat', 0)
+        && request.resource.data.heat <= resource.data.get('heat', 0) + 20;
+    }
+
+    function eggViewCount() {
+      return resource.data.keys().hasAny(['viewCount'])
+        && resource.data.viewCount is int
+        ? resource.data.viewCount
+        : 0;
+    }
+
+    function isViewCountBump() {
+      return resource.data.published == true
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount'])
+        && request.resource.data.viewCount is int
+        && request.resource.data.viewCount == eggViewCount() + 1;
+    }
 
     match /users/{uid} {
-
       allow read: if true;
-
-      allow create: if request.auth != null && request.auth.uid == uid;
-
-      allow update: if request.auth != null && request.auth.uid == uid;
-
+      allow create: if isAuth() && request.auth.uid == uid;
+      allow update: if isAuth() && request.auth.uid == uid;
       allow delete: if false;
-
     }
-
-
 
     match /usernames/{username} {
-
       allow read: if true;
-
-      allow create: if request.auth != null
-
-        && request.resource.data.uid == request.auth.uid;
-
+      allow create: if isAuth() && request.resource.data.uid == request.auth.uid;
       allow update: if false;
-
-      allow delete: if request.auth != null
-
-        && resource.data.uid == request.auth.uid;
-
+      allow delete: if isAuth() && resource.data.uid == request.auth.uid;
     }
-
-
 
     match /eggs/{eggId} {
-
       allow read: if resource.data.published == true
-
-        || (request.auth != null && resource.data.ownerId == request.auth.uid);
-
-      allow create: if request.auth != null
-
+        || (isAuth() && resource.data.ownerId == request.auth.uid);
+      allow create: if isAuth()
         && request.resource.data.ownerId == request.auth.uid
-
         && request.resource.data.published == true;
-
-      allow update: if request.auth != null && (
-
+      allow update: if isAuth() && (
         resource.data.ownerId == request.auth.uid
-
-        || (
-
-          resource.data.published == true
-
-          && request.resource.data.viewCount == resource.data.get('viewCount', 0) + 1
-
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount'])
-
-        )
-
+        || isEggHeatBump()
+        || isViewCountBump()
       );
-
-      allow delete: if request.auth != null
-
-        && resource.data.ownerId == request.auth.uid;
-
+      allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
     }
-
-
 
     match /egg_views/{viewId} {
-
-      allow read: if request.auth != null
-
-        && resource.data.uid == request.auth.uid;
-
-      allow create: if request.auth != null
-
+      allow read: if isAuth();
+      allow create: if isAuth()
         && request.resource.data.uid == request.auth.uid
-
         && request.resource.data.eggId is string
-
         && viewId == request.resource.data.eggId + '_' + request.auth.uid;
-
       allow update, delete: if false;
-
     }
-
-
 
     match /egg_comments/{commentId} {
-
       allow read: if true;
-
-      allow create: if request.auth != null
-
+      allow create: if isAuth()
         && request.resource.data.authorId == request.auth.uid
-
         && request.resource.data.text is string
-
         && request.resource.data.text.size() > 0
-
         && request.resource.data.text.size() <= 500
-
-        && request.resource.data.eggId is string
-
-        && (
-
-          !('replyToUsername' in request.resource.data)
-
-          || request.resource.data.replyToUsername == null
-
-          || request.resource.data.replyToUsername is string
-
-        );
-
-      allow delete: if request.auth != null
-
-        && resource.data.authorId == request.auth.uid;
-
+        && request.resource.data.eggId is string;
+      allow delete: if isAuth() && resource.data.authorId == request.auth.uid;
       allow update: if false;
-
     }
-
-
 
     match /egg_comment_reactions/{reactionId} {
-
       allow read: if true;
-
-      allow create: if request.auth != null
-
+      allow create: if isAuth()
         && request.resource.data.uid == request.auth.uid
-
         && request.resource.data.commentId is string
-
         && request.resource.data.eggId is string
-
         && request.resource.data.vote in ['like', 'dislike']
-
         && reactionId == request.resource.data.commentId + '_' + request.auth.uid;
-
-      allow update: if request.auth != null
-
+      allow update: if isAuth()
         && resource.data.uid == request.auth.uid
-
         && request.resource.data.uid == resource.data.uid
-
-        && request.resource.data.commentId == resource.data.commentId
-
-        && request.resource.data.eggId == resource.data.eggId
-
         && request.resource.data.vote in ['like', 'dislike'];
-
-      allow delete: if request.auth != null
-
-        && resource.data.uid == request.auth.uid;
-
+      allow delete: if isAuth() && resource.data.uid == request.auth.uid;
     }
 
-
-
     match /egg_updates/{updateId} {
-
       allow read: if true;
-
-      allow create: if request.auth != null
-
+      allow create: if isAuth()
         && request.resource.data.eggId is string
-
-        && get(/databases/$(database)/documents/eggs/$(request.resource.data.eggId)).data.ownerId == request.auth.uid;
-
+        && eggOwner(request.resource.data.eggId) == request.auth.uid;
       allow update, delete: if false;
+    }
 
+    match /egg_milestones/{milestoneId} {
+      allow read: if true;
+      allow create: if isAuth()
+        && request.resource.data.eggId is string
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 200
+        && eggOwner(request.resource.data.eggId) == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /egg_questions/{questionId} {
+      allow read: if true;
+      allow create: if isAuth()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.eggId is string
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500;
+      allow update: if isAuth()
+        && request.resource.data.eggId == resource.data.eggId
+        && eggOwner(resource.data.eggId) == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answerText', 'answeredAt']);
+      allow delete: if false;
+    }
+
+    match /egg_testers/{testerId} {
+      allow read: if true;
+      allow create: if isAuth()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.eggId is string
+        && testerId == request.resource.data.eggId + '_' + request.auth.uid;
+      allow update: if isAuth() && (
+        resource.data.uid == request.auth.uid
+        || eggOwner(resource.data.eggId) == request.auth.uid
+      );
+      allow delete: if false;
+    }
+
+    match /follows/{followId} {
+      allow read: if true;
+      allow create: if isAuth()
+        && request.resource.data.followerUid == request.auth.uid
+        && followId == request.resource.data.followerUid + '_' + request.resource.data.targetUid;
+      allow delete: if isAuth() && resource.data.followerUid == request.auth.uid;
+      allow update: if false;
+    }
+
+    match /notifications/{notifId} {
+      allow read: if isAuth() && resource.data.uid == request.auth.uid;
+      allow create: if isAuth();
+      allow update: if isAuth()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if false;
+    }
+
+    match /invest_interest/{interestId} {
+      allow read: if isAuth() && (
+        resource.data.investorUid == request.auth.uid
+        || eggOwner(resource.data.eggId) == request.auth.uid
+      );
+      allow create: if isAuth()
+        && request.resource.data.investorUid == request.auth.uid
+        && interestId == request.resource.data.eggId + '_' + request.auth.uid;
+      allow update: if isAuth()
+        && eggOwner(resource.data.eggId) == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+      allow delete: if false;
+    }
+
+    match /heat_events/{eventId} {
+      allow read: if false;
+      allow create: if isAuth() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /user_badges/{badgeId} {
+      allow read: if true;
+      allow create: if isAuth()
+        && request.resource.data.uid == request.auth.uid
+        && badgeId == request.resource.data.uid + '_' + request.resource.data.badgeId;
+      allow update, delete: if false;
     }
 
   }
 
 }
-
-

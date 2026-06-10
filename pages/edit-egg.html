@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Редактировать яйцо — Инкубатор</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=14">
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene__heat"></div>
+    <div class="scene__grid"></div>
+    <div class="scene__egg scene__egg--1"></div>
+    <div class="scene__egg scene__egg--2"></div>
+    <div class="scene__orb scene__orb--1"></div>
+    <div class="scene__orb scene__orb--2"></div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav__brand">
+      <span class="online-counter__heat" id="online-heat" hidden aria-hidden="true"></span>
+      <a class="nav__logo" href="index.html">
+        <svg class="nav__icon" viewBox="0 0 24 28" aria-hidden="true">
+          <ellipse cx="12" cy="15" rx="9" ry="12" fill="none" stroke="url(#egg-grad)" stroke-width="1.5"/>
+          <ellipse cx="12" cy="15" rx="5" ry="7" fill="url(#egg-glow)" opacity="0.35"/>
+          <defs>
+            <linearGradient id="egg-grad" x1="0" y1="0" x2="24" y2="28">
+              <stop offset="0%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#fb923c"/>
+            </linearGradient>
+            <radialGradient id="egg-glow" cx="50%" cy="60%">
+              <stop offset="0%" stop-color="#fb923c"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+          </defs>
+        </svg>
+        Инкубатор
+      </a>
+      <p class="online-counter__text" id="online-text" hidden>тут щас <strong>0</strong></p>
+    </div>
+    <div class="nav__actions" id="nav-auth-slot"></div>
+  </nav>
+
+  <main class="page page--narrow">
+    <div id="edit-egg-not-found" class="empty-state" hidden>
+      <h1 class="page__title">Яйцо не найдено</h1>
+      <p class="page__lead">Нет доступа или такого яйца нет</p>
+      <a class="btn btn--warm" href="index.html">На главную</a>
+    </div>
+
+    <div id="edit-egg-view" hidden>
+      <header class="page__header">
+        <h1 class="page__title">Редактировать яйцо</h1>
+        <p class="page__lead">Статус: <strong id="edit-egg-status-label">греется</strong></p>
+      </header>
+
+      <p class="form-message" id="edit-egg-message" hidden></p>
+
+      <section class="edit-egg__lifecycle" id="edit-egg-lifecycle">
+        <h2 class="edit-egg__subheading">Стадия жизни</h2>
+        <div class="edit-egg__status-actions" id="edit-egg-status-actions"></div>
+      </section>
+
+      <section class="edit-egg__milestones">
+        <h2 class="edit-egg__subheading">Добавить веху</h2>
+        <form class="form" id="edit-milestone-form" novalidate>
+          <label class="form__field">
+            <input class="form__input" type="text" maxlength="200" placeholder="Например: первая бета, 100 пользователей...">
+          </label>
+          <button class="btn btn--warm btn--sm" type="submit">Отметить веху</button>
+        </form>
+      </section>
+
+      <form class="form" id="edit-egg-form">
+        <div class="form__cover-row">
+          <div class="cover-preview" id="edit-egg-cover-preview">
+            <img src="../assets/images/egg-placeholder.svg" alt="Обложка яйца">
+          </div>
+          <label class="btn btn--warm form__file-btn">
+            <span class="btn__text">Сменить обложку</span>
+            <input type="file" id="edit-egg-cover-input" accept="image/*" hidden>
+          </label>
+        </div>
+
+        <label class="form__field">
+          <span class="form__label">Название</span>
+          <input class="form__input" type="text" name="title" required maxlength="60">
+        </label>
+        <label class="form__field">
+          <span class="form__label">Описание</span>
+          <textarea class="form__input form__textarea" name="description" required maxlength="500" rows="4"></textarea>
+        </label>
+        <label class="form__field">
+          <span class="form__label">Ссылка</span>
+          <input class="form__input" type="url" name="link" placeholder="https://t.me/...">
+        </label>
+        <label class="form__field">
+          <span class="form__label">Демо / продукт</span>
+          <input class="form__input" type="url" name="demoUrl" placeholder="https://...">
+        </label>
+
+        <fieldset class="form__fieldset" id="edit-egg-tags-field">
+          <legend class="form__label">Теги</legend>
+        </fieldset>
+
+        <fieldset class="form__fieldset" id="edit-egg-seeking-field">
+          <legend class="form__label">Что ищу</legend>
+        </fieldset>
+
+        <div class="form__actions-row">
+          <button class="btn btn--primary form__submit" type="submit">
+            <span class="btn__text">Сохранить</span>
+          </button>
+          <a class="btn btn--ghost" id="edit-egg-cancel" href="#">Отмена</a>
+          <button class="btn btn--ghost egg__delete" type="button" id="edit-egg-delete">Удалить</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <div id="hatch-overlay" class="hatch-overlay" aria-live="polite">
+    <div class="hatch-overlay__backdrop"></div>
+    <div class="hatch-overlay__stage">
+      <div class="hatch-overlay__egg"></div>
+      <p class="hatch-overlay__text">Трещина...</p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Инкубатор — греем яйца до вылупления</p>
+  </footer>
+
+  <script src="../config/firebase.config.js?v=2"></script>
+  <script src="../assets/vendor/analytics.config.js?v=5"></script>
+  <script src="../assets/vendor/analytics.js?v=5"></script>
+  <script type="module" src="../assets/js/core/presence.js?v=1"></script>
+  <script type="module" src="../assets/js/pages/edit-egg.js?v=3"></script>
+</body>
+</html>
