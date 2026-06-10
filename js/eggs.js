@@ -38,14 +38,18 @@ function renderLink(egg) {
     '</a>';
 }
 
-function renderEditButton(egg) {
+function renderOwnerButtons(egg) {
   if (!egg.editable || !egg.id) {
     return '';
   }
 
   return '<a class="btn btn--ghost egg__edit" href="edit-egg.html?id=' + encodeURIComponent(egg.id) + '">' +
-    '<span class="btn__text">Редактировать</span>' +
-  '</a>';
+      '<span class="btn__text">Редактировать</span>' +
+    '</a>' +
+    '<button type="button" class="btn btn--ghost egg__delete" data-action="delete-egg" data-egg-id="' +
+      escapeHtml(egg.id) + '">' +
+      '<span class="btn__text">Удалить</span>' +
+    '</button>';
 }
 
 export function renderEggCard(egg) {
@@ -71,7 +75,7 @@ export function renderEggCard(egg) {
         owner +
         description +
         '<div class="egg__actions">' +
-          renderEditButton(egg) +
+          renderOwnerButtons(egg) +
           renderLink(egg) +
         '</div>' +
       '</div>' +

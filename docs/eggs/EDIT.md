@@ -30,6 +30,13 @@ edit-egg.html?id={eggId}
 
 Если обложку не менять — остаётся прежняя.
 
+## Удаление
+
+- Кнопка **«Удалить»** на `edit-egg.html`, в своём профиле и на странице яйца
+- Подтверждение в диалоге
+- `deleteEgg(eggId, uid)` — удаляет документ из `eggs`
+- После удаления — редирект в профиль
+
 ## После сохранения
 
 1. Firestore: `updateDoc` на `eggs/{eggId}` (`title`, `description`, `link`, `imageUrl?`, `updatedAt`)

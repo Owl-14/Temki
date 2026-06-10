@@ -217,6 +217,17 @@ export async function updateEgg(eggId, uid, data, imageBlob) {
   });
 }
 
+export async function deleteEgg(eggId, uid) {
+  var eggRef = doc(db, 'eggs', eggId);
+  var snap = await getDoc(eggRef);
+
+  if (!snap.exists() || snap.data().ownerId !== uid) {
+    throw new Error('EGG_NOT_FOUND');
+  }
+
+  await deleteDoc(eggRef);
+}
+
 function sortEggs(docs) {
   return docs
     .map(function (docSnap) {

@@ -19,7 +19,8 @@ var elements = {
   commentGuest: document.getElementById('egg-comment-guest'),
   commentForm: document.getElementById('egg-comment-form'),
   commentInput: document.getElementById('egg-comment-input'),
-  commentMessage: document.getElementById('egg-comment-message')
+  commentMessage: document.getElementById('egg-comment-message'),
+  ownerActions: document.getElementById('egg-owner-actions')
 };
 
 async function loadEgg() {

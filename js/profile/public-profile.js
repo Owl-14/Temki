@@ -1,6 +1,7 @@
 import {
   getUserByUsername,
   fetchUserEggs,
+  deleteEgg,
   waitForAuth
 } from '../firebase-app.js';
 import { escapeHtml } from '../utils.js';
@@ -79,12 +80,56 @@ export async function loadProfileEggs(profile, elements, authUser) {
     }
 
     renderEggs(elements.eggs, mapped);
+    bindOwnerEggActions(elements.eggs, profile, user, function () {
+      return loadProfileEggs(profile, elements, user);
+    });
   } catch (error) {
     console.error(error);
     showEggsError(elements, function () {
       loadProfileEggs(profile, elements, authUser);
     });
   }
+}
+
+export function bindOwnerEggActions(eggsContainer, profile, authUser, onChanged) {
+  if (!eggsContainer || eggsContainer.dataset.deleteBound === '1') {
+    return;
+  }
+
+  eggsContainer.dataset.deleteBound = '1';
+
+  eggsContainer.addEventListener('click', async function (event) {
+    var button = event.target.closest('[data-action="delete-egg"]');
+
+    if (!button || button.disabled) {
+      return;
+    }
+
+    if (!authUser || authUser.uid !== profile.uid) {
+      return;
+    }
+
+    var eggId = button.getAttribute('data-egg-id');
+
+    if (!eggId) {
+      return;
+    }
+
+    if (!window.confirm('Удалить яйцо из инкубатора? Это нельзя отменить.')) {
+      return;
+    }
+
+    button.disabled = true;
+
+    try {
+      await deleteEgg(eggId, authUser.uid);
+      await onChanged();
+    } catch (error) {
+      console.error(error);
+      button.disabled = false;
+      window.alert('Не удалось удалить яйцо');
+    }
+  });
 }
 
 export async function loadPublicProfile(username, elements, authUser) {
