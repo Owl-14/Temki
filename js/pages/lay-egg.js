@@ -61,13 +61,13 @@ form.addEventListener('submit', async function (event) {
   showMessage(messageEl, 'Кладём яйцо в инкубатор...', 'info');
 
   try {
-    await createEgg(user.uid, profile, {
+    var eggId = await createEgg(user.uid, profile, {
       title: title,
       description: description,
       link: link
     }, pendingCoverBlob);
 
-    window.location.href = 'profile.html?u=' + encodeURIComponent(profile.username);
+    window.location.href = 'egg.html?id=' + encodeURIComponent(eggId);
   } catch (error) {
     showMessage(messageEl, error.message || 'Не удалось создать яйцо', 'error');
   }

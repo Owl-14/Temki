@@ -1,18 +1,26 @@
 import { escapeHtml, statusLabel } from './utils.js';
 
+function eggHref(egg) {
+  if (egg.id) {
+    return 'egg.html?id=' + encodeURIComponent(egg.id);
+  }
+  return null;
+}
+
 function renderImage(egg) {
-  var trackImage = egg.trackImage ? ' data-track="' + egg.trackImage + '"' : '';
   var alt = escapeHtml(egg.title);
   var src = escapeHtml(egg.imageUrl || '');
+  var href = eggHref(egg);
+  var imgClass = 'egg__image' + (egg.contain ? ' egg__image--contain' : '');
 
-  if (egg.link) {
-    return '<a class="egg__image-link" href="' + escapeHtml(egg.link) + '" target="_blank" rel="noopener noreferrer"' + trackImage + '>' +
-      '<img class="egg__image' + (egg.contain ? ' egg__image--contain' : '') + '" src="' + src + '" alt="' + alt + '">' +
+  if (href) {
+    return '<a class="egg__image-link" href="' + href + '">' +
+      '<img class="' + imgClass + '" src="' + src + '" alt="' + alt + '">' +
       '</a>';
   }
 
   return '<div class="egg__image-wrap">' +
-    '<img class="egg__image' + (egg.contain ? ' egg__image--contain' : '') + '" src="' + src + '" alt="' + alt + '">' +
+    '<img class="' + imgClass + '" src="' + src + '" alt="' + alt + '">' +
     '</div>';
 }
 
@@ -30,6 +38,16 @@ function renderLink(egg) {
     '</a>';
 }
 
+function renderEditButton(egg) {
+  if (!egg.editable || !egg.id) {
+    return '';
+  }
+
+  return '<a class="btn btn--ghost egg__edit" href="edit-egg.html?id=' + encodeURIComponent(egg.id) + '">' +
+    '<span class="btn__text">Редактировать</span>' +
+  '</a>';
+}
+
 export function renderEggCard(egg) {
   var description = egg.description
     ? '<p class="egg__description">' + escapeHtml(egg.description) + '</p>'
@@ -39,16 +57,23 @@ export function renderEggCard(egg) {
     ? '<a class="egg__owner" href="profile.html?u=' + escapeHtml(egg.ownerUsername) + '">@' + escapeHtml(egg.ownerUsername) + '</a>'
     : '';
 
+  var titleHtml = egg.id
+    ? '<h3 class="egg__title"><a class="egg__title-link" href="' + eggHref(egg) + '">' + escapeHtml(egg.title) + '</a></h3>'
+    : '<h3 class="egg__title">' + escapeHtml(egg.title) + '</h3>';
+
   return '<article class="egg" data-tilt>' +
     '<div class="egg__shell">' +
       '<div class="egg__warmth" aria-hidden="true"></div>' +
       '<span class="egg__status">' + escapeHtml(statusLabel(egg.status)) + '</span>' +
       renderImage(egg) +
       '<div class="egg__body">' +
-        '<h3 class="egg__title">' + escapeHtml(egg.title) + '</h3>' +
+        titleHtml +
         owner +
         description +
-        renderLink(egg) +
+        '<div class="egg__actions">' +
+          renderEditButton(egg) +
+          renderLink(egg) +
+        '</div>' +
       '</div>' +
     '</div>' +
   '</article>';

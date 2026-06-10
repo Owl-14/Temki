@@ -56,6 +56,37 @@ export function getQueryParam(name) {
   return new URLSearchParams(window.location.search).get(name);
 }
 
+export function formatDate(timestamp) {
+  if (!timestamp || !timestamp.toDate) {
+    return '';
+  }
+
+  return timestamp.toDate().toLocaleString('ru-RU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+export function viewsLabel(count) {
+  var n = count || 0;
+  var mod10 = n % 10;
+  var mod100 = n % 100;
+
+  if (mod100 >= 11 && mod100 <= 14) {
+    return n + ' просмотров';
+  }
+  if (mod10 === 1) {
+    return n + ' просмотр';
+  }
+  if (mod10 >= 2 && mod10 <= 4) {
+    return n + ' просмотра';
+  }
+  return n + ' просмотров';
+}
+
 export var MAX_AVATAR_DATA_URL_BYTES = 280000;
 export var MAX_EGG_DATA_URL_BYTES = 450000;
 
