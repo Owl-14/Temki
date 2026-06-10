@@ -4,15 +4,18 @@ import {
   getUserProfile,
   createEgg
 } from '../firebase-app.js';
+import { startLayEggWarming } from '../lay-egg/warming-animation.js';
 import { resizeImageFile, showMessage } from '../utils.js';
 import { initNav } from '../nav.js';
 
 var messageEl = document.getElementById('lay-egg-message');
 var form = document.getElementById('lay-egg-form');
+var pageHeader = document.querySelector('.page__header');
 var coverInput = document.getElementById('egg-cover-input');
 var coverPreview = document.getElementById('egg-cover-preview');
 var pendingCoverBlob = null;
 var profile = null;
+var isSubmitting = false;
 
 onAuthStateChanged(auth, async function (user) {
   if (!user) {
@@ -41,8 +44,35 @@ coverInput.addEventListener('change', async function () {
   }
 });
 
+function getWarmingImage() {
+  if (profile && profile.avatarUrl) {
+    return profile.avatarUrl;
+  }
+
+  var previewImg = coverPreview.querySelector('img');
+
+  if (previewImg && previewImg.src.indexOf('egg-placeholder') === -1) {
+    return previewImg.src;
+  }
+
+  return null;
+}
+
+function resetFormState() {
+  isSubmitting = false;
+  form.hidden = false;
+  if (pageHeader) {
+    pageHeader.hidden = false;
+  }
+  form.querySelector('.form__submit').disabled = false;
+}
+
 form.addEventListener('submit', async function (event) {
   event.preventDefault();
+
+  if (isSubmitting) {
+    return;
+  }
 
   var user = auth.currentUser;
   if (!user || !profile) {
@@ -58,7 +88,15 @@ form.addEventListener('submit', async function (event) {
     return;
   }
 
-  showMessage(messageEl, 'Кладём яйцо в инкубатор...', 'info');
+  isSubmitting = true;
+  form.querySelector('.form__submit').disabled = true;
+  showMessage(messageEl, '', 'info');
+  form.hidden = true;
+  if (pageHeader) {
+    pageHeader.hidden = true;
+  }
+
+  var warming = startLayEggWarming(getWarmingImage());
 
   try {
     var eggId = await createEgg(user.uid, profile, {
@@ -67,8 +105,11 @@ form.addEventListener('submit', async function (event) {
       link: link
     }, pendingCoverBlob);
 
+    await warming.complete();
     window.location.href = 'egg.html?id=' + encodeURIComponent(eggId);
   } catch (error) {
+    warming.cancel();
+    resetFormState();
     showMessage(messageEl, error.message || 'Не удалось создать яйцо', 'error');
   }
 });

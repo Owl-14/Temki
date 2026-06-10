@@ -7,7 +7,8 @@
 | Документ | О чём |
 |----------|--------|
 | [PAGE.md](PAGE.md) | Страница яйца: URL, блоки UI, сценарии |
-| [EDIT.md](EDIT.md) | Редактирование яйца владельцем |
+| [LAY_EGG.md](LAY_EGG.md) | Создание яйца и анимация прогрева |
+| [EDIT.md](EDIT.md) | Редактирование и удаление яйца |
 | [DATA_MODEL.md](DATA_MODEL.md) | Коллекции Firestore |
 | [VIEWS.md](VIEWS.md) | Уникальные просмотры зарегистрированных |
 | [COMMENTS.md](COMMENTS.md) | Комментарии, ответы, лайки |
@@ -22,11 +23,12 @@
 | `lay-egg.html` | Создание яйца |
 | `js/pages/egg.js` | Точка входа страницы яйца |
 | `js/pages/edit-egg.js` | Точка входа редактирования |
-| `js/pages/lay-egg.js` | Создание яйца |
+| `js/pages/lay-egg.js` | Создание яйца, запуск анимации |
+| `js/lay-egg/warming-animation.js` | Оверлей прогрева `--warm` |
 | `js/egg/egg-detail.js` | Рендер страницы, комментарии, голоса |
 | `js/egg/egg-api.js` | Firestore: яйцо, просмотры, комментарии, реакции |
 | `js/eggs.js` | Карточки в ленте и профиле, ссылки, «Редактировать» |
-| `js/firebase-app.js` | `createEgg`, `updateEgg` |
+| `js/firebase-app.js` | `createEgg`, `updateEgg`, `deleteEgg` |
 | `firebase/firestore.rules` | Правила коллекций яиц |
 
 ## URL

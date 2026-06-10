@@ -1,7 +1,8 @@
 import {
   auth,
   onAuthStateChanged,
-  getUserProfile
+  getUserProfile,
+  deleteEgg
 } from '../firebase-app.js';
 import {
   getEggById,
@@ -348,6 +349,66 @@ function bindCommentsInteractions(eggId, elements) {
   });
 }
 
+function bindEggOwnerActions(egg, elements) {
+  if (!elements.ownerActions || elements.ownerActions.dataset.bound === '1') {
+    return;
+  }
+
+  elements.ownerActions.dataset.bound = '1';
+
+  elements.ownerActions.addEventListener('click', async function (event) {
+    var button = event.target.closest('[data-action="delete-egg"]');
+
+    if (!button || button.disabled) {
+      return;
+    }
+
+    var user = auth.currentUser;
+
+    if (!user || user.uid !== egg.ownerId) {
+      return;
+    }
+
+    if (!window.confirm('Удалить яйцо из инкубатора? Это нельзя отменить.')) {
+      return;
+    }
+
+    button.disabled = true;
+
+    try {
+      await deleteEgg(egg.id, user.uid);
+      window.location.href = 'profile.html?u=' + encodeURIComponent(egg.ownerUsername);
+    } catch (error) {
+      console.error(error);
+      button.disabled = false;
+      window.alert('Не удалось удалить яйцо');
+    }
+  });
+}
+
+function updateOwnerActions(egg, user, elements) {
+  if (!elements.ownerActions) {
+    return;
+  }
+
+  if (!user || user.uid !== egg.ownerId) {
+    elements.ownerActions.hidden = true;
+    elements.ownerActions.innerHTML = '';
+    return;
+  }
+
+  elements.ownerActions.hidden = false;
+  elements.ownerActions.innerHTML =
+    '<a class="btn btn--ghost egg__edit" href="edit-egg.html?id=' + encodeURIComponent(egg.id) + '">' +
+      '<span class="btn__text">Редактировать</span>' +
+    '</a>' +
+    '<button type="button" class="btn btn--ghost egg__delete" data-action="delete-egg">' +
+      '<span class="btn__text">Удалить</span>' +
+    '</button>';
+
+  bindEggOwnerActions(egg, elements);
+}
+
 export async function initEggPage(eggId, elements) {
   var egg = await getEggById(eggId);
 
@@ -363,6 +424,7 @@ export async function initEggPage(eggId, elements) {
 
   onAuthStateChanged(auth, async function (user) {
     try {
+      updateOwnerActions(egg, user, elements);
       await loadEggExtras(eggId, elements, user);
 
       if (user && !viewRecorded) {

@@ -569,9 +569,28 @@ body {
   margin-top: 4px;
 }
 
-.egg__edit {
+.egg__edit,
+.egg__delete {
   padding: 8px 14px;
   font-size: 0.82rem;
+}
+
+.egg__delete {
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #f87171;
+}
+
+.egg__delete:hover {
+  border-color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+}
+
+.egg-page__owner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .form__actions-row {
@@ -1287,6 +1306,196 @@ body {
   text-align: center;
   padding: 48px 24px;
   color: var(--text-muted);
+}
+
+body.lay-egg-warming-active {
+  overflow: hidden;
+}
+
+.lay-egg-warming {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s var(--ease-out);
+}
+
+.lay-egg-warming.is-active {
+  display: flex;
+  pointer-events: auto;
+}
+
+.lay-egg-warming.is-active.is-visible {
+  opacity: 1;
+}
+
+.lay-egg-warming__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 14, 0.88);
+  backdrop-filter: blur(12px);
+}
+
+.lay-egg-warming__stage {
+  --warm: 0;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 24px;
+}
+
+.lay-egg-warming__egg {
+  width: 200px;
+  height: 260px;
+}
+
+.lay-egg-warming__shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--egg-radius);
+  border: 2px solid rgba(120, 155, 200, calc(0.7 - var(--warm) * 0.45));
+  background: rgba(8, 12, 22, calc(0.98 - var(--warm) * 0.08));
+  overflow: hidden;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 calc(var(--warm) * 64px) rgba(251, 146, 60, calc(var(--warm) * 0.4));
+  transform: scale(calc(0.88 + var(--warm) * 0.12));
+}
+
+.lay-egg-warming__egg.is-warming .lay-egg-warming__shell {
+  animation: lay-egg-float 2.4s ease-in-out infinite;
+}
+
+.lay-egg-warming__avatar-wrap {
+  position: absolute;
+  inset: 18% 22% 14%;
+  border-radius: var(--egg-radius);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.lay-egg-warming__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter:
+    grayscale(calc(1 - var(--warm) * 0.15))
+    brightness(calc(0.55 + var(--warm) * 0.5))
+    saturate(calc(0.15 + var(--warm) * 0.85))
+    sepia(calc(var(--warm) * 0.25));
+}
+
+.lay-egg-warming__avatar-placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--egg-radius);
+  background: linear-gradient(160deg, rgba(70, 85, 110, 0.9), rgba(30, 38, 55, 0.95));
+}
+
+.lay-egg-warming__cold-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: rgba(100, 140, 190, calc(0.38 * (1 - var(--warm))));
+  pointer-events: none;
+}
+
+.lay-egg-warming__frost {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 28% 18%, rgba(220, 240, 255, 0.55), transparent 42%),
+    radial-gradient(ellipse at 72% 82%, rgba(180, 210, 245, 0.35), transparent 48%);
+  pointer-events: none;
+  opacity: calc(1 - var(--warm));
+}
+
+.lay-egg-warming__heat-rise {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  height: calc(var(--warm) * 100%);
+  border-radius: inherit;
+  background: linear-gradient(
+    to top,
+    rgba(251, 146, 60, 0.55) 0%,
+    rgba(251, 191, 36, 0.2) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+  opacity: calc(0.25 + var(--warm) * 0.75);
+}
+
+.lay-egg-warming__glow {
+  position: absolute;
+  inset: 8%;
+  z-index: 0;
+  border-radius: var(--egg-radius);
+  background: radial-gradient(
+    ellipse at 50% 80%,
+    rgba(251, 146, 60, 0.7),
+    rgba(251, 191, 36, 0.2) 45%,
+    transparent 70%
+  );
+  opacity: var(--warm);
+  transform: scale(calc(0.85 + var(--warm) * 0.2));
+  pointer-events: none;
+}
+
+.lay-egg-warming__heat-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  z-index: 4;
+  background: linear-gradient(90deg, transparent, #64748b, transparent);
+  background-size: 200% 100%;
+  opacity: calc(0.35 + var(--warm) * 0.65);
+}
+
+.lay-egg-warming__heat-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--accent-amber), var(--accent-warm), transparent);
+  background-size: 200% 100%;
+  opacity: var(--warm);
+  animation: warmth-scan 1s linear infinite;
+}
+
+.lay-egg-warming__text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  opacity: calc(0.75 + var(--warm) * 0.25);
+}
+
+.lay-egg-warming__stage:has(.lay-egg-warming__egg.is-warm) .lay-egg-warming__text,
+.lay-egg-warming__text.is-hot {
+  color: var(--accent-warm);
+}
+
+@keyframes lay-egg-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
 }
 
 @media (max-width: 640px) {

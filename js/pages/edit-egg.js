@@ -2,7 +2,8 @@ import {
   auth,
   onAuthStateChanged,
   getUserProfile,
-  updateEgg
+  updateEgg,
+  deleteEgg
 } from '../firebase-app.js';
 import { getEggById } from '../egg/egg-api.js';
 import { getQueryParam, resizeImageFile, showMessage } from '../utils.js';
@@ -119,6 +120,30 @@ form.addEventListener('submit', async function (event) {
       return;
     }
     showMessage(messageEl, error.message || 'Не удалось сохранить', 'error');
+  }
+});
+
+document.getElementById('edit-egg-delete').addEventListener('click', async function () {
+  var user = auth.currentUser;
+
+  if (!user || !profile || !egg) {
+    return;
+  }
+
+  if (!window.confirm('Удалить яйцо из инкубатора? Это нельзя отменить.')) {
+    return;
+  }
+
+  var deleteBtn = document.getElementById('edit-egg-delete');
+  deleteBtn.disabled = true;
+  showMessage(messageEl, 'Удаляем...', 'info');
+
+  try {
+    await deleteEgg(eggId, user.uid);
+    window.location.href = 'profile.html?u=' + encodeURIComponent(profile.username);
+  } catch (error) {
+    deleteBtn.disabled = false;
+    showMessage(messageEl, 'Не удалось удалить', 'error');
   }
 });
 

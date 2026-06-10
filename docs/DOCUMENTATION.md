@@ -127,6 +127,7 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 | `uploadAvatar(uid, blob)` | Blob → data URL (в Firestore, не Storage) |
 | `createEgg(uid, profile, data, imageBlob)` | Новое яйцо в ленте + запись в `egg_updates` |
 | `updateEgg(eggId, uid, data, imageBlob)` | Редактирование яйца владельцем + `egg_updates` |
+| `deleteEgg(eggId, uid)` | Удаление яйца владельцем |
 | `fetchPublishedEggs(max)` | Все опубликованные яйца |
 | `fetchUserEggs(uid)` | Яйца одного автора |
 | `waitForAuth()` | Promise с текущим пользователем |
@@ -175,7 +176,13 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 
 Рендер hero, истории, плоского списка комментариев с @-ответами и голосованием.
 
-Подробнее: [eggs/README.md](eggs/README.md)
+### `js/lay-egg/warming-animation.js`
+
+| Экспорт | Назначение |
+|---------|------------|
+| `startLayEggWarming(imageUrl)` | Оверлей прогрева, `--warm` 0→1, возвращает `{ complete, cancel }` |
+
+Подробнее: [eggs/README.md](eggs/README.md), [eggs/LAY_EGG.md](eggs/LAY_EGG.md)
 
 ### `js/presence.js`
 
@@ -201,7 +208,7 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 | `auth.js` | `auth.html` | Вход → профиль; регистрация → `createUserProfile` → settings |
 | `settings.js` | `settings.html` | Профиль, аватар (data URL), сброс пароля |
 | `profile.js` | `profile.html` | Публичный профиль по `?u=`, яйца автора |
-| `lay-egg.js` | `lay-egg.html` | Создание яйца → редирект на `egg.html?id=` |
+| `lay-egg.js` | `lay-egg.html` | Создание яйца, анимация прогрева → `egg.html?id=` |
 | `edit-egg.js` | `edit-egg.html` | Редактирование яйца → `updateEgg` → страница яйца |
 | `egg.js` | `egg.html` | Загрузка яйца, просмотр, комментарии, история |
 
@@ -332,6 +339,7 @@ Firebase Storage требует Blaze. Вместо него:
 | Кнопки | `.btn`, `.btn--primary`, `.btn--warm` | CTA |
 | Яйца | `.egg`, `.egg__*`, `.egg__actions`, `.egg__edit` | Карточки стартапов |
 | Страница яйца | `.egg-page__*` | Hero, комментарии, голоса |
+| Прогрев яйца | `.lay-egg-warming__*` | Оверлей после «Снести яйцо» |
 | Формы | `.form`, `.auth-tabs`, `.form-message` | Auth, settings, lay-egg, edit-egg |
 | Профиль | `.profile-header`, `.profile-eggs` | Страница профиля |
 | Страницы | `.page`, `.page--narrow` | Общий layout внутренних страниц |
@@ -403,7 +411,8 @@ git push origin main
 - [ ] `/auth.html` — регистрация нового email
 - [ ] `/settings.html` — имя, username, аватар сохраняются
 - [ ] `/profile.html?u=USERNAME` — профиль и яйца; на своём — «Редактировать»
-- [ ] `/lay-egg.html` — яйцо на главной и в профиле
+- [ ] `/lay-egg.html` — анимация прогрева, яйцо на главной и в профиле
+- [ ] Удаление яйца из профиля / edit-egg / страницы яйца
 - [ ] `/egg.html?id=...` — страница яйца, просмотры, комментарии
 - [ ] `/edit-egg.html?id=...` — сохранение названия и описания
 - [ ] https://owl-14.github.io/Temki/ — то же после деплоя
@@ -435,6 +444,7 @@ site/
 ├── js/
 │   ├── firebase-app.js, utils.js, nav.js, eggs.js, presence.js
 │   ├── egg/     (egg-api.js, egg-detail.js)
+│   ├── lay-egg/ (warming-animation.js)
 │   ├── profile/ (public-profile.js)
 │   └── pages/   (home, auth, settings, profile, lay-egg, egg, edit-egg)
 ├── images/      (egg-placeholder.svg и др.)

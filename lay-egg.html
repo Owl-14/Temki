@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
   <div class="scene" aria-hidden="true">
@@ -84,6 +84,23 @@
     </form>
   </main>
 
+  <div id="lay-egg-warming" class="lay-egg-warming" aria-live="polite">
+    <div class="lay-egg-warming__backdrop"></div>
+    <div class="lay-egg-warming__stage">
+      <div class="lay-egg-warming__egg">
+        <div class="lay-egg-warming__shell">
+          <div class="lay-egg-warming__glow" aria-hidden="true"></div>
+          <div class="lay-egg-warming__avatar-wrap" id="warming-avatar-wrap"></div>
+          <div class="lay-egg-warming__heat-rise" aria-hidden="true"></div>
+          <div class="lay-egg-warming__cold-tint" aria-hidden="true"></div>
+          <div class="lay-egg-warming__frost" aria-hidden="true"></div>
+          <div class="lay-egg-warming__heat-bar" aria-hidden="true"></div>
+        </div>
+      </div>
+      <p class="lay-egg-warming__text" id="warming-text">Греем яйцо...</p>
+    </div>
+  </div>
+
   <footer class="footer">
     <p>Инкубатор — греем яйца до вылупления</p>
   </footer>
@@ -92,6 +109,6 @@
   <script src="analytics.config.js?v=5"></script>
   <script src="analytics.js?v=5"></script>
   <script type="module" src="js/presence.js?v=1"></script>
-  <script type="module" src="js/pages/lay-egg.js?v=1"></script>
+  <script type="module" src="js/pages/lay-egg.js?v=4"></script>
 </body>
 </html>

@@ -17,7 +17,8 @@
 | Документ | Тема |
 |----------|------|
 | [eggs/PAGE.md](eggs/PAGE.md) | Страница `egg.html` |
-| [eggs/EDIT.md](eggs/EDIT.md) | Редактирование `edit-egg.html` |
+| [eggs/LAY_EGG.md](eggs/LAY_EGG.md) | Создание `lay-egg.html`, анимация прогрева |
+| [eggs/EDIT.md](eggs/EDIT.md) | Редактирование и удаление `edit-egg.html` |
 | [eggs/COMMENTS.md](eggs/COMMENTS.md) | Комментарии, ответы, лайки |
 | [eggs/VIEWS.md](eggs/VIEWS.md) | Уникальные просмотры |
 | [eggs/UPDATES.md](eggs/UPDATES.md) | История обновлений |
