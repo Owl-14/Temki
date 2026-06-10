@@ -62,15 +62,17 @@ export async function loadProfileEggs(profile, elements, authUser) {
 
   try {
     var eggs = await fetchUserEggs(profile.uid);
+    var user = authUser !== undefined ? authUser : await waitForAuth();
+    var isOwner = user && user.uid === profile.uid;
+
     var mapped = eggs.map(function (egg) {
       var card = mapFirestoreEgg(egg);
       card.ownerUsername = null;
+      card.editable = isOwner;
       return card;
     });
 
     if (!mapped.length) {
-      var user = authUser !== undefined ? authUser : await waitForAuth();
-      var isOwner = user && user.uid === profile.uid;
       elements.eggs.innerHTML =
         '<p class="empty-state">' + emptyEggsMessage(isOwner) + '</p>';
       return;

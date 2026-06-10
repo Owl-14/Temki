@@ -173,11 +173,48 @@ export async function createEgg(uid, profile, data, imageBlob) {
     imageUrl: imageUrl,
     status: 'greetsya',
     published: true,
+    viewCount: 0,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
 
+  await addDoc(collection(db, 'egg_updates'), {
+    eggId: eggRef.id,
+    type: 'created',
+    message: 'Яйцо добавлено в инкубатор',
+    createdAt: serverTimestamp()
+  });
+
   return eggRef.id;
+}
+
+export async function updateEgg(eggId, uid, data, imageBlob) {
+  var eggRef = doc(db, 'eggs', eggId);
+  var snap = await getDoc(eggRef);
+
+  if (!snap.exists() || snap.data().ownerId !== uid) {
+    throw new Error('EGG_NOT_FOUND');
+  }
+
+  var updates = {
+    title: data.title.trim(),
+    description: data.description.trim(),
+    link: data.link ? data.link.trim() : null,
+    updatedAt: serverTimestamp()
+  };
+
+  if (imageBlob) {
+    updates.imageUrl = await blobToSizedDataUrl(imageBlob, MAX_EGG_DATA_URL_BYTES);
+  }
+
+  await updateDoc(eggRef, updates);
+
+  await addDoc(collection(db, 'egg_updates'), {
+    eggId: eggId,
+    type: 'edited',
+    message: 'Описание обновлено',
+    createdAt: serverTimestamp()
+  });
 }
 
 function sortEggs(docs) {

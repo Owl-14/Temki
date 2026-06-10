@@ -2,6 +2,16 @@ $ErrorActionPreference = "Stop"
 
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
+$nodeDir = "C:\Program Files\nodejs"
+if (Test-Path $nodeDir) {
+    $env:Path = $nodeDir + ";" + $env:Path
+}
+
+$npmGlobal = Join-Path $env:APPDATA "npm"
+if (Test-Path $npmGlobal) {
+    $env:Path = $npmGlobal + ";" + $env:Path
+}
+
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host "Проект: temki-1409"

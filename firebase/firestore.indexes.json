@@ -7,6 +7,13 @@
         { "fieldPath": "ownerId", "order": "ASCENDING" },
         { "fieldPath": "published", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "egg_comment_reactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "eggId", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

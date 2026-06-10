@@ -10,6 +10,8 @@
 
 ## Содержание
 
+**Оглавление всей документации:** [docs/README.md](README.md)
+
 0. **[Надёжность загрузки (обязательно)](RELIABILITY.md)** — правила, чтобы лента и профили не падали
 1. [Статус и что должно быть включено в Firebase](#1-статус-и-что-должно-быть-включено-в-firebase)
 2. [Архитектура](#2-архитектура)
@@ -46,7 +48,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  GitHub Pages (статика)                                     │
-│  index · auth · profile · settings · lay-egg                │
+│  index · auth · profile · egg · edit-egg · settings · lay-egg │
 └──────────────────────────┬──────────────────────────────────┘
                            │
          ┌─────────────────┼─────────────────┐
@@ -75,10 +77,14 @@
 | `index.html` | `/` | Главная: hero, лента яиц, счётчик в nav | `home.js`, `presence.js`, `effects.js` |
 | `auth.html` | `/auth.html` | Вход и регистрация | `auth.js`, `presence.js` |
 | `profile.html` | `/profile.html?u=username` | Публичный профиль и яйца пользователя | `profile.js`, `presence.js`, `effects.js` |
-
-**Блок «публичный профиль»:** [docs/blocks/public-profile.md](blocks/public-profile.md)
+| `egg.html` | `/egg.html?id={eggId}` | Страница яйца: описание, просмотры, история, комментарии | `egg.js`, `presence.js` |
 | `settings.html` | `/settings.html` | Редактирование своего профиля | `settings.js`, `presence.js` |
 | `lay-egg.html` | `/lay-egg.html` | Форма «Снести яйцо» | `lay-egg.js`, `presence.js` |
+| `edit-egg.html` | `/edit-egg.html?id={eggId}` | Редактирование яйца (только владелец) | `edit-egg.js`, `presence.js` |
+
+**Блок «публичный профиль»:** [docs/blocks/public-profile.md](blocks/public-profile.md)
+
+**Яйца (просмотр, редактирование, комментарии):** [docs/eggs/README.md](eggs/README.md)
 
 ### Блоки на главной (`index.html`)
 
@@ -88,7 +94,7 @@
 | **Навигация** | `.nav`, `#nav-auth-slot` | Логотип + счётчик онлайн + вход/профиль |
 | **Hero** | `.hero`, `#home` | Заголовок, текст, CTA «Смотреть яйца» |
 | **Камера яиц** | `.chamber`, `#projects` | Секция ленты стартапов |
-| **Лента** | `#eggs-feed` | Карточки: legacy + из Firestore |
+| **Лента** | `#eggs-feed` | Карточки яиц из Firestore |
 | **Подвал** | `.footer` | Футер |
 
 ### Навигация (все страницы)
@@ -119,7 +125,8 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 | `createUserProfile(uid, data)` | Создание профиля + резерв username (транзакция) |
 | `updateUserProfile(uid, data, currentUsername)` | Обновление, смена username |
 | `uploadAvatar(uid, blob)` | Blob → data URL (в Firestore, не Storage) |
-| `createEgg(uid, profile, data, imageBlob)` | Новое яйцо в ленте |
+| `createEgg(uid, profile, data, imageBlob)` | Новое яйцо в ленте + запись в `egg_updates` |
+| `updateEgg(eggId, uid, data, imageBlob)` | Редактирование яйца владельцем + `egg_updates` |
 | `fetchPublishedEggs(max)` | Все опубликованные яйца |
 | `fetchUserEggs(uid)` | Яйца одного автора |
 | `waitForAuth()` | Promise с текущим пользователем |
@@ -132,7 +139,10 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 | `validateUsername()` | 3–20 символов, `a-z0-9_`, запрещённые имена |
 | `statusLabel(status)` | `greetsya` → «греется», `tsyplenok` → «цыплёнок», `kuritsa` → «курица» |
 | `escapeHtml()` | Защита от XSS в шаблонах |
-| `getQueryParam(name)` | Чтение `?u=` и др. |
+| `getQueryParam(name)` | Чтение `?u=`, `?id=` и др. |
+| `formatDate(timestamp)` | Дата для комментариев и истории |
+| `viewsLabel(count)` | «N просмотр / просмотра / просмотров» |
+| `validateDisplayName()` | Имя при регистрации (любые символы) |
 | `resizeImageFile(file, maxSize)` | Сжатие в webp через canvas |
 | `blobToDataUrl()` / `blobToSizedDataUrl()` | Картинка → строка для Firestore |
 | `showMessage(el, text, type)` | Сообщения форм (info/success/error) |
@@ -147,10 +157,25 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 
 | Экспорт | Назначение |
 |---------|------------|
-| `LEGACY_EGGS` | Хардкод: Падел, Cloacc, Bazis |
-| `renderEggCard(egg)` | HTML одной карточки |
+| `renderEggCard(egg)` | HTML карточки (ссылки на `egg.html`, кнопка «Редактировать» если `editable`) |
 | `renderEggs(container, eggs)` | Вставка в DOM + `initEggTilt` |
 | `mapFirestoreEgg(data)` | Документ Firestore → формат карточки |
+
+### `js/egg/egg-api.js` — API страницы яйца
+
+| Экспорт | Назначение |
+|---------|------------|
+| `getEggById(eggId)` | Чтение яйца |
+| `recordEggView(eggId, user, profile)` | Уникальный просмотр (+1) |
+| `fetchEggComments` / `addEggComment` | Комментарии и ответы (`replyToUsername`) |
+| `fetchEggCommentReactions` / `setCommentVote` | Лайки и дизлайки |
+| `fetchEggUpdates` | История обновлений |
+
+### `js/egg/egg-detail.js` — UI страницы яйца
+
+Рендер hero, истории, плоского списка комментариев с @-ответами и голосованием.
+
+Подробнее: [eggs/README.md](eggs/README.md)
 
 ### `js/presence.js`
 
@@ -162,7 +187,8 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 |---------|------------|
 | `loadPublicProfile(username, elements)` | Загрузка профиля и яиц по `@username` |
 | `renderProfileHeader(profile, elements)` | Аватар, имя, bio |
-| `bindOwnerActions(profile, actionsEl)` | Кнопки владельца только для своего uid |
+| `renderOwnerActions(profile, actionsEl, user)` | «Снести яйцо», «Настройки» — только владельцу |
+| `loadProfileEggs(...)` | Яйца автора; `editable: true` для владельца |
 | `emptyEggsMessage(isOwner)` | Текст пустого списка яиц |
 
 Подробнее: [blocks/public-profile.md](blocks/public-profile.md)
@@ -175,7 +201,9 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 | `auth.js` | `auth.html` | Вход → профиль; регистрация → `createUserProfile` → settings |
 | `settings.js` | `settings.html` | Профиль, аватар (data URL), сброс пароля |
 | `profile.js` | `profile.html` | Публичный профиль по `?u=`, яйца автора |
-| `lay-egg.js` | `lay-egg.html` | Создание яйца с обложкой |
+| `lay-egg.js` | `lay-egg.html` | Создание яйца → редирект на `egg.html?id=` |
+| `edit-egg.js` | `edit-egg.html` | Редактирование яйца → `updateEgg` → страница яйца |
+| `egg.js` | `egg.html` | Загрузка яйца, просмотр, комментарии, история |
 
 ### `effects.js`
 
@@ -227,13 +255,23 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
   imageUrl,   // null, placeholder или data URL
   status,     // greetsya | tsyplenok | kuritsa
   published,  // true = в ленте
+  viewCount,  // уникальные просмотры зарегистрированных
   createdAt, updatedAt
 }
 ```
 
+Коллекции яйца — см. [docs/eggs/DATA_MODEL.md](eggs/DATA_MODEL.md):
+
+| Коллекция | Назначение |
+|-----------|------------|
+| `egg_views` | Уникальные просмотры (1 на пользователя) |
+| `egg_comments` | Комментарии и ответы (`replyToUsername`) |
+| `egg_comment_reactions` | Лайки / дизлайки на комментарии |
+| `egg_updates` | История: создание, редактирование |
+
 ### Правила
 
-- `firebase/firestore.rules` — чтение профилей всем; писать — только владелец
+- `firebase/firestore.rules` — профили, яйца, просмотры, комментарии, история
 - `firebase/storage.rules` — на будущее (сейчас Storage не используется)
 
 Деплой правил (после `firebase login`):
@@ -241,6 +279,15 @@ Dropdown: Профиль · Снести яйцо · Настройки · Вы�
 ```powershell
 .\scripts\deploy_firebase.ps1
 ```
+
+На Windows, если `firebase` не в PATH:
+
+```powershell
+$env:Path = "C:\Program Files\nodejs;$env:APPDATA\npm;" + $env:Path
+firebase.cmd deploy --only firestore:rules --project temki-1409
+```
+
+Скрипт `scripts/deploy_firebase.ps1` сам добавляет пути к Node и npm.
 
 ### Realtime Database
 
@@ -267,7 +314,7 @@ Firebase Storage требует Blaze. Вместо него:
 | Аватар | ~280 KB | `users.avatarUrl` |
 | Обложка яйца | ~450 KB | `eggs.imageUrl` |
 
-Статические картинки (Падел, Cloacc, Bazis) — в `images/`, в git.
+Плейсхолдер обложки: `images/egg-placeholder.svg`.
 
 ---
 
@@ -283,8 +330,9 @@ Firebase Storage требует Blaze. Вместо него:
 | Онлайн | `.online-counter__*` | Текст и точка в pill |
 | Hero | `.hero`, `.hero__*` | Главный экран |
 | Кнопки | `.btn`, `.btn--primary`, `.btn--warm` | CTA |
-| Яйца | `.egg`, `.egg__*` | Карточки стартапов |
-| Формы | `.form`, `.auth-tabs`, `.form-message` | Auth, settings, lay-egg |
+| Яйца | `.egg`, `.egg__*`, `.egg__actions`, `.egg__edit` | Карточки стартапов |
+| Страница яйца | `.egg-page__*` | Hero, комментарии, голоса |
+| Формы | `.form`, `.auth-tabs`, `.form-message` | Auth, settings, lay-egg, edit-egg |
 | Профиль | `.profile-header`, `.profile-eggs` | Страница профиля |
 | Страницы | `.page`, `.page--narrow` | Общий layout внутренних страниц |
 
@@ -300,7 +348,7 @@ Firebase Storage требует Blaze. Вместо него:
 | `analytics.config.js` | `window.ANALYTICS_COUNTER_ID = 109729158` |
 | `analytics.js` | Инициализация, `trackLinks`, цели |
 
-Цели на legacy-яйцах: `padel_image`, `padel_link`, `cloacc_image`, `cloacc_link` (атрибут `data-track`).
+Цели по кликам: атрибут `data-track` на ссылках (если задан в карточке).
 
 ---
 
@@ -350,12 +398,14 @@ git push origin main
 
 ## 12. Чеклист «всё работает»
 
-- [ ] http://localhost:5500 — главная, legacy-яйца видны
+- [ ] http://localhost:5500 — главная, лента яиц из Firestore
 - [ ] Счётчик «тут щас N» появляется в nav
 - [ ] `/auth.html` — регистрация нового email
 - [ ] `/settings.html` — имя, username, аватар сохраняются
-- [ ] `/profile.html?u=USERNAME` — профиль и яйца
-- [ ] `/lay-egg.html` — яйцо появляется на главной и в профиле
+- [ ] `/profile.html?u=USERNAME` — профиль и яйца; на своём — «Редактировать»
+- [ ] `/lay-egg.html` — яйцо на главной и в профиле
+- [ ] `/egg.html?id=...` — страница яйца, просмотры, комментарии
+- [ ] `/edit-egg.html?id=...` — сохранение названия и описания
 - [ ] https://owl-14.github.io/Temki/ — то же после деплоя
 
 ### Типичные ошибки
@@ -373,19 +423,26 @@ git push origin main
 
 ```
 site/
-├── index.html, auth.html, profile.html, settings.html, lay-egg.html
+├── index.html, auth.html, profile.html, settings.html
+├── lay-egg.html, egg.html, edit-egg.html
 ├── style.css, effects.js
 ├── firebase.config.js, analytics.config.js, analytics.js
 ├── firebase.json, .firebaserc
 ├── firebase/
 │   ├── firestore.rules
+│   ├── firestore.indexes.json
 │   └── storage.rules
 ├── js/
 │   ├── firebase-app.js, utils.js, nav.js, eggs.js, presence.js
-│   └── pages/   (home, auth, settings, profile, lay-egg)
-├── images/      (статика + egg-placeholder.svg)
+│   ├── egg/     (egg-api.js, egg-detail.js)
+│   ├── profile/ (public-profile.js)
+│   └── pages/   (home, auth, settings, profile, lay-egg, egg, edit-egg)
+├── images/      (egg-placeholder.svg и др.)
 ├── scripts/     (deploy_firebase.ps1, check_firebase.py)
-├── docs/        (эта документация)
-├── CONCEPT.md   (бренд)
+├── docs/
+│   ├── DOCUMENTATION.md, RELIABILITY.md
+│   ├── blocks/  (public-profile.md)
+│   └── eggs/    (PAGE, EDIT, COMMENTS, VIEWS, DATA_MODEL, UPDATES)
+├── CONCEPT.md
 └── PROFILE_PLAN.md
 ```
