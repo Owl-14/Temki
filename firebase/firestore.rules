@@ -36,11 +36,15 @@ service cloud.firestore {
         && request.resource.data.viewCount == eggViewCount() + 1;
     }
 
+    match /pending_profiles/{uid} {
+      allow read, write, delete: if request.auth != null && request.auth.uid == uid;
+    }
+
     match /users/{uid} {
       allow read: if true;
       allow create: if isVerified() && request.auth.uid == uid;
       allow update: if isVerified() && request.auth.uid == uid;
-      allow delete: if false;
+      allow delete: if isVerified() && request.auth.uid == uid;
     }
 
     match /usernames/{username} {
@@ -164,7 +168,7 @@ service cloud.firestore {
       allow update: if isVerified()
         && resource.data.uid == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
-      allow delete: if false;
+      allow delete: if isVerified() && resource.data.uid == request.auth.uid;
     }
 
     match /invest_interest/{interestId} {
@@ -192,7 +196,8 @@ service cloud.firestore {
       allow create: if isVerified()
         && request.resource.data.uid == request.auth.uid
         && badgeId == request.resource.data.uid + '_' + request.resource.data.badgeId;
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if isVerified() && resource.data.uid == request.auth.uid;
     }
 
   }

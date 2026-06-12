@@ -1065,6 +1065,106 @@ body {
   justify-content: center;
 }
 
+.settings-danger {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.settings-danger__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: #fca5a5;
+}
+
+.settings-danger__hint {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.btn--danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  background: rgba(127, 29, 29, 0.25);
+  color: #fecaca;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: rgba(153, 27, 27, 0.45);
+  border-color: rgba(248, 113, 113, 0.65);
+}
+
+.btn--danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.confirm-modal[hidden] {
+  display: none !important;
+}
+
+.confirm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 10, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.confirm-modal__panel {
+  position: relative;
+  width: min(100%, 420px);
+  padding: 28px 24px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: var(--surface);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  animation: fade-up 0.35s var(--ease-out) both;
+}
+
+.confirm-modal__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  line-height: 1.35;
+}
+
+.confirm-modal__text {
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.confirm-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
 .btn--ghost {
   border: 1px solid var(--border);
   background: transparent;

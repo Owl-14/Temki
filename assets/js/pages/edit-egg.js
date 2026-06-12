@@ -8,6 +8,7 @@
 } from '../core/firebase-app.js';
 import { getEggById } from '../eggs/egg-api.js';
 import { getQueryParam, resizeImageFile, showMessage, statusLabel } from '../core/utils.js';
+import { confirmDeleteEgg } from '../core/confirm-modal.js';
 import {
   EGG_TAGS,
   SEEKING_OPTIONS,
@@ -318,7 +319,8 @@ document.getElementById('edit-egg-delete').addEventListener('click', async funct
   if (!user || !profile || !egg) {
     return;
   }
-  if (!window.confirm('Удалить яйцо из инкубатора? Это нельзя отменить.')) {
+  var confirmed = await confirmDeleteEgg();
+  if (!confirmed) {
     return;
   }
   var deleteBtn = document.getElementById('edit-egg-delete');

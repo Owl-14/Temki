@@ -7,6 +7,7 @@
 import { fetchUserBadges, toggleFollow, isFollowing, fetchFollowerCount } from '../platform/platform-api.js';
 import { renderBadges } from '../platform/egg-sections.js';
 import { escapeHtml } from '../core/utils.js';
+import { confirmDeleteEgg } from '../core/confirm-modal.js';
 import { renderEggs, mapFirestoreEgg } from '../core/eggs.js';
 
 export function emptyEggsMessage(isOwner) {
@@ -192,7 +193,8 @@ export function bindOwnerEggActions(eggsContainer, profile, authUser, onChanged)
       return;
     }
 
-    if (!window.confirm('Удалить яйцо из инкубатора? Это нельзя отменить.')) {
+    var confirmed = await confirmDeleteEgg();
+    if (!confirmed) {
       return;
     }
 

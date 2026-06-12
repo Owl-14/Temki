@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/style.css?v=15">
+  <link rel="stylesheet" href="../assets/css/style.css?v=26">
 </head>
 <body>
   <div class="scene" aria-hidden="true">
@@ -87,17 +87,35 @@
         Сбросить пароль по email
       </button>
     </form>
+
+    <section class="settings-danger" id="settings-danger" hidden>
+      <h2 class="settings-danger__title">Опасная зона</h2>
+      <p class="settings-danger__hint">Удаление безвозвратно сотрёт профиль, тег и все твои яйца.</p>
+      <button class="btn btn--danger" type="button" id="delete-account-btn">Удалить аккаунт</button>
+    </section>
   </main>
 
   <footer class="footer">
     <p>Инкубатор — греем яйца до вылупления</p>
   </footer>
 
+  <div class="confirm-modal" id="delete-account-modal" hidden role="dialog" aria-modal="true" aria-labelledby="delete-account-modal-title">
+    <div class="confirm-modal__backdrop" data-close-delete-modal></div>
+    <div class="confirm-modal__panel">
+      <h2 class="confirm-modal__title" id="delete-account-modal-title">Вы точно хотите удалить аккаунт?</h2>
+      <p class="confirm-modal__text">Профиль, тег и все яйца будут удалены без возможности восстановления.</p>
+      <div class="confirm-modal__actions">
+        <button class="btn btn--ghost" type="button" id="delete-account-cancel">Отмена</button>
+        <button class="btn btn--danger" type="button" id="delete-account-confirm">Да, удалить аккаунт</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../config/firebase.config.js?v=2"></script>
   <script src="../config/brand.config.js?v=1"></script>
   <script src="../assets/vendor/analytics.config.js?v=5"></script>
   <script src="../assets/vendor/analytics.js?v=5"></script>
   <script type="module" src="../assets/js/core/presence.js?v=1"></script>
-  <script type="module" src="../assets/js/pages/settings.js?v=7"></script>
+  <script type="module" src="../assets/js/pages/settings.js?v=9"></script>
 </body>
 </html>

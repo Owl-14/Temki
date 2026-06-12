@@ -8,7 +8,9 @@
   requestPasswordReset,
   redirectIfUnverified,
   getPendingProfile,
-  finalizePendingProfile
+  fetchPendingProfile,
+  finalizePendingProfile,
+  deleteUserAccount
 } from '../core/firebase-app.js';
 import { getQueryParam, validateDisplayName, validateUsername, resizeImageFile, showMessage } from '../core/utils.js';
 import { AUTH_EMAIL_RESET_SUBJECT, authEmailInboxHint } from '../core/brand.js';
@@ -19,6 +21,11 @@ var form = document.getElementById('settings-form');
 var avatarPreview = document.getElementById('avatar-preview');
 var avatarInput = document.getElementById('avatar-input');
 var resetPasswordBtn = document.getElementById('reset-password-btn');
+var deleteAccountBtn = document.getElementById('delete-account-btn');
+var dangerSection = document.getElementById('settings-danger');
+var deleteAccountModal = document.getElementById('delete-account-modal');
+var deleteAccountCancel = document.getElementById('delete-account-cancel');
+var deleteAccountConfirm = document.getElementById('delete-account-confirm');
 var currentProfile = null;
 var pendingAvatarBlob = null;
 
@@ -58,6 +65,9 @@ onAuthStateChanged(auth, async function (user) {
     form.username.value = currentProfile.username || '';
     form.bio.value = currentProfile.bio || '';
     renderAvatar(currentProfile.avatarUrl);
+    if (dangerSection) {
+      dangerSection.hidden = false;
+    }
 
     if (getQueryParam('done') === '1') {
       showMessage(messageEl, 'Аккаунт создан. Можно добавить аватарку.', 'success');
@@ -66,7 +76,7 @@ onAuthStateChanged(auth, async function (user) {
   }
 
   var onboarding = getQueryParam('onboarding') === '1';
-  var pending = getPendingProfile(user.uid);
+  var pending = await fetchPendingProfile(user.uid);
 
   if (pending) {
     form.displayName.value = pending.displayName || '';
@@ -176,5 +186,98 @@ resetPasswordBtn.addEventListener('click', async function () {
     showMessage(messageEl, error.message || 'Не удалось отправить письмо', 'error');
   }
 });
+
+function openDeleteAccountModal() {
+  if (!deleteAccountModal) {
+    return;
+  }
+  deleteAccountModal.hidden = false;
+  if (deleteAccountConfirm) {
+    deleteAccountConfirm.disabled = false;
+    deleteAccountConfirm.focus();
+  }
+}
+
+function closeDeleteAccountModal() {
+  if (!deleteAccountModal) {
+    return;
+  }
+  deleteAccountModal.hidden = true;
+  if (deleteAccountBtn) {
+    deleteAccountBtn.focus();
+  }
+}
+
+async function runDeleteAccount() {
+  var user = auth.currentUser;
+  if (!user) {
+    return;
+  }
+
+  if (deleteAccountConfirm) {
+    deleteAccountConfirm.disabled = true;
+  }
+  if (deleteAccountCancel) {
+    deleteAccountCancel.disabled = true;
+  }
+  if (deleteAccountBtn) {
+    deleteAccountBtn.disabled = true;
+  }
+  closeDeleteAccountModal();
+  showMessage(messageEl, 'Удаляем аккаунт...', 'info');
+
+  try {
+    await deleteUserAccount(user);
+    window.location.href = 'index.html';
+  } catch (error) {
+    if (deleteAccountBtn) {
+      deleteAccountBtn.disabled = false;
+    }
+    if (deleteAccountConfirm) {
+      deleteAccountConfirm.disabled = false;
+    }
+    if (deleteAccountCancel) {
+      deleteAccountCancel.disabled = false;
+    }
+    if (error.code === 'auth/requires-recent-login') {
+      showMessage(messageEl, 'Нужен повторный вход — выйди и войди снова, затем удали аккаунт', 'error');
+      return;
+    }
+    console.error(error);
+    showMessage(messageEl, error.message || 'Не удалось удалить аккаунт', 'error');
+  }
+}
+
+if (deleteAccountBtn) {
+  deleteAccountBtn.addEventListener('click', function () {
+    openDeleteAccountModal();
+  });
+}
+
+if (deleteAccountCancel) {
+  deleteAccountCancel.addEventListener('click', function () {
+    closeDeleteAccountModal();
+  });
+}
+
+if (deleteAccountConfirm) {
+  deleteAccountConfirm.addEventListener('click', function () {
+    runDeleteAccount();
+  });
+}
+
+if (deleteAccountModal) {
+  deleteAccountModal.querySelectorAll('[data-close-delete-modal]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      closeDeleteAccountModal();
+    });
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !deleteAccountModal.hidden) {
+      closeDeleteAccountModal();
+    }
+  });
+}
 
 initNav();
