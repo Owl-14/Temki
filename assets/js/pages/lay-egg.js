@@ -80,10 +80,6 @@ coverInput.addEventListener('change', async function () {
 });
 
 function getWarmingImage() {
-  if (profile && profile.avatarUrl) {
-    return profile.avatarUrl;
-  }
-
   var previewImg = coverPreview.querySelector('img');
 
   if (previewImg && previewImg.src.indexOf('egg-placeholder') === -1) {
