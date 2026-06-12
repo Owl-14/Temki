@@ -179,7 +179,6 @@ export async function addEggQuestion(eggId, profile, text) {
   });
   await addUserHeat(profile.uid, 2, 'question');
   await bumpEggHeat(eggId, 1);
-  await awardBadge(profile.uid, 'first_question');
 }
 
 export async function answerEggQuestion(questionId, eggId, uid, answerText) {
@@ -257,7 +256,6 @@ export async function submitTesterFeedback(eggId, uid, rating, feedback) {
     feedbackAt: serverTimestamp()
   });
   await addUserHeat(uid, 5, 'test');
-  await awardBadge(uid, 'first_test');
   await bumpEggHeat(eggId, 3);
 }
 
@@ -469,7 +467,6 @@ export async function expressInvestInterest(eggId, profile, message) {
       text: '@' + profile.username + ' интересуется теплом'
     });
   }
-  await awardBadge(profile.uid, 'investor');
   await bumpEggHeat(eggId, 5);
   return { already: false };
 }
@@ -521,6 +518,52 @@ export async function bumpEggHeat(eggId, amount) {
   });
 }
 
+export var INCUBATOR_VOICE_COMMENTS = 5;
+
+export async function countUserCommentsOnOthersEggs(uid) {
+  var snap = await getDocs(query(
+    collection(db, 'egg_comments'),
+    where('authorId', '==', uid),
+    limit(200)
+  ));
+
+  var eggOwners = {};
+  var count = 0;
+
+  for (var i = 0; i < snap.docs.length; i++) {
+    var data = snap.docs[i].data();
+    var eggId = data.eggId;
+    if (!eggOwners.hasOwnProperty(eggId)) {
+      var eggSnap = await getDoc(doc(db, 'eggs', eggId));
+      eggOwners[eggId] = eggSnap.exists() ? eggSnap.data().ownerId : null;
+    }
+    if (eggOwners[eggId] !== uid) {
+      count += 1;
+    }
+    if (count >= INCUBATOR_VOICE_COMMENTS) {
+      break;
+    }
+  }
+
+  return count;
+}
+
+/** Бейдж «Голос инкубатора» — после 5 комментариев под чужими яйцами */
+export async function maybeAwardIncubatorVoiceBadge(uid) {
+  var badgeRef = doc(db, 'user_badges', uid + '_first_comment');
+  var existing = await getDoc(badgeRef);
+  if (existing.exists()) {
+    return false;
+  }
+
+  var count = await countUserCommentsOnOthersEggs(uid);
+  if (count < INCUBATOR_VOICE_COMMENTS) {
+    return false;
+  }
+
+  return awardBadge(uid, 'first_comment');
+}
+
 export async function awardBadge(uid, badgeId) {
   var badgeRef = doc(db, 'user_badges', uid + '_' + badgeId);
   var snap = await getDoc(badgeRef);
@@ -547,12 +590,8 @@ export async function fetchUserBadges(uid) {
 
 export var BADGE_LABELS = {
   first_comment: 'Голос инкубатора',
-  first_question: 'Любопытный',
-  first_test: 'Дегустатор',
   laid_egg: 'Снес своё',
-  hatched: 'Вылупился',
-  hen: 'Курица',
-  investor: 'Кормилец тепла'
+  hatched: 'Вылупился'
 };
 
 export async function fetchEggsFiltered(options) {
