@@ -85,7 +85,7 @@
 | `pages/auth.html` | `/pages/auth.html` | Вход и регистрация | `assets/js/pages/auth.js` |
 | `pages/profile.html` | `/pages/profile.html?u=` | Публичный профиль | `assets/js/pages/profile.js` |
 | `pages/egg.html` | `/pages/egg.html?id=` | Страница яйца | `assets/js/pages/egg.js` |
-| `pages/settings.html` | `/pages/settings.html` | Настройки профиля | `assets/js/pages/settings.js` |
+| `settings.html` | `/pages/settings.html` | Настройки профиля, удаление аккаунта | `assets/js/pages/settings.js` |
 | `pages/lay-egg.html` | `/pages/lay-egg.html` | Снести яйцо | `assets/js/pages/lay-egg.js` |
 | `pages/edit-egg.html` | `/pages/edit-egg.html?id=` | Редактирование, вылупление | `assets/js/pages/edit-egg.js` |
 | `pages/chamber.html` | `/pages/chamber.html` | Камера, фильтры | `assets/js/pages/chamber.js` |

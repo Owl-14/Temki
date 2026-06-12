@@ -11,6 +11,7 @@
   getUserProfile,
   savePendingProfile,
   getPendingProfile,
+  fetchPendingProfile,
   finalizePendingProfile
 } from '../core/firebase-app.js';
 import {
@@ -36,6 +37,15 @@ var resetForm = document.getElementById('reset-form');
 var verifyPanel = document.getElementById('auth-verify-panel');
 var verifyEmailEl = document.getElementById('verify-email');
 var verifyResendBtn = document.getElementById('verify-resend-btn');
+var verifyResendBtnText = verifyResendBtn
+  ? verifyResendBtn.querySelector('.btn__text')
+  : null;
+var verifyResendCooldownTimer = null;
+var VERIFY_RESEND_COOLDOWN_SEC = 60;
+var VERIFY_RESEND_COOLDOWN_KEY = 'auth_verify_resend_until';
+var verifyResendDefaultLabel = verifyResendBtnText
+  ? verifyResendBtnText.textContent.trim()
+  : 'Отправить ещё раз';
 var verifyCheckBtn = document.getElementById('verify-check-btn');
 var verifyLogoutBtn = document.getElementById('verify-logout-btn');
 var forgotBtn = document.getElementById('auth-forgot-btn');
@@ -193,11 +203,84 @@ function switchAuthTab(target) {
   }
 }
 
+function getVerifyResendUntil() {
+  try {
+    var until = parseInt(localStorage.getItem(VERIFY_RESEND_COOLDOWN_KEY), 10);
+    return until > Date.now() ? until : 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+function setVerifyResendUntil(until) {
+  try {
+    if (until > Date.now()) {
+      localStorage.setItem(VERIFY_RESEND_COOLDOWN_KEY, String(until));
+    } else {
+      localStorage.removeItem(VERIFY_RESEND_COOLDOWN_KEY);
+    }
+  } catch (error) {
+    /* ignore */
+  }
+}
+
+function updateVerifyResendCooldownUI(until) {
+  if (!verifyResendBtn) {
+    return;
+  }
+
+  if (verifyResendCooldownTimer) {
+    clearInterval(verifyResendCooldownTimer);
+    verifyResendCooldownTimer = null;
+  }
+
+  function tick() {
+    var leftSec = Math.ceil((until - Date.now()) / 1000);
+    if (leftSec <= 0) {
+      verifyResendBtn.disabled = false;
+      if (verifyResendBtnText) {
+        verifyResendBtnText.textContent = verifyResendDefaultLabel;
+      }
+      setVerifyResendUntil(0);
+      if (verifyResendCooldownTimer) {
+        clearInterval(verifyResendCooldownTimer);
+        verifyResendCooldownTimer = null;
+      }
+      return;
+    }
+
+    verifyResendBtn.disabled = true;
+    if (verifyResendBtnText) {
+      verifyResendBtnText.textContent = 'Отправить через ' + leftSec + ' сек';
+    }
+  }
+
+  tick();
+  verifyResendCooldownTimer = setInterval(tick, 1000);
+}
+
+function startVerifyResendCooldown(seconds) {
+  var duration = typeof seconds === 'number' ? seconds : VERIFY_RESEND_COOLDOWN_SEC;
+  var until = Date.now() + duration * 1000;
+  setVerifyResendUntil(until);
+  updateVerifyResendCooldownUI(until);
+}
+
+function restoreVerifyResendCooldown() {
+  var until = getVerifyResendUntil();
+  if (until) {
+    updateVerifyResendCooldownUI(until);
+    return true;
+  }
+  return false;
+}
+
 function showVerifyPanel(email) {
   if (verifyEmailEl) {
     verifyEmailEl.textContent = email || '';
   }
   switchAuthTab('verify');
+  restoreVerifyResendCooldown();
 }
 
 async function continueAfterAuth(user) {
@@ -206,17 +289,32 @@ async function continueAfterAuth(user) {
     return;
   }
 
-  var profile = await finalizePendingProfile(user);
-  if (!profile) {
-    profile = await getUserProfile(user.uid);
-  }
+  try {
+    var profile = await finalizePendingProfile(user);
+    if (!profile) {
+      profile = await getUserProfile(user.uid);
+    }
 
-  if (!profile || !profile.username) {
+    if (!profile || !profile.username) {
+      window.location.href = 'settings.html?onboarding=1';
+      return;
+    }
+
+    window.location.href = 'profile.html?u=' + encodeURIComponent(profile.username);
+  } catch (error) {
+    console.error(error);
+    if (error.message === 'USERNAME_TAKEN') {
+      var pending = await fetchPendingProfile(user.uid);
+      showMessage(
+        messageEl,
+        'Тег @' + (pending && pending.username ? pending.username : '') + ' уже занят — выбери другой в настройках',
+        'error'
+      );
+    } else {
+      showMessage(messageEl, 'Не удалось создать профиль — допиши данные в настройках', 'error');
+    }
     window.location.href = 'settings.html?onboarding=1';
-    return;
   }
-
-  window.location.href = 'profile.html?u=' + encodeURIComponent(profile.username);
 }
 
 async function completeEmailVerification(user) {
@@ -232,7 +330,7 @@ async function completeEmailVerification(user) {
     return true;
   } catch (error) {
     if (error.message === 'USERNAME_TAKEN') {
-      var pending = getPendingProfile(user.uid);
+      var pending = await fetchPendingProfile(user.uid);
       showMessage(
         messageEl,
         'Email подтверждён, но @' + (pending && pending.username ? pending.username : 'username') + ' уже занят — выбери другой в настройках',
@@ -272,6 +370,10 @@ if (resetBackBtn) {
 
 if (verifyResendBtn) {
   verifyResendBtn.addEventListener('click', async function () {
+    if (getVerifyResendUntil()) {
+      return;
+    }
+
     var user = auth.currentUser;
     if (!user) {
       showMessage(messageEl, 'Сессия истекла — войди снова', 'error');
@@ -284,11 +386,18 @@ if (verifyResendBtn) {
 
     try {
       await requestEmailVerification(user);
+      startVerifyResendCooldown();
       showMessage(messageEl, authEmailInboxHint(AUTH_EMAIL_VERIFY_SUBJECT), 'success');
     } catch (error) {
+      if (error.code === 'auth/too-many-requests') {
+        startVerifyResendCooldown(120);
+      } else {
+        verifyResendBtn.disabled = false;
+        if (verifyResendBtnText) {
+          verifyResendBtnText.textContent = verifyResendDefaultLabel;
+        }
+      }
       showMessage(messageEl, mapAuthError(error), 'error');
-    } finally {
-      verifyResendBtn.disabled = false;
     }
   });
 }
@@ -422,7 +531,7 @@ registerForm.addEventListener('submit', async function (event) {
 
   try {
     var cred = await createUserWithEmailAndPassword(auth, email, password);
-    savePendingProfile(cred.user.uid, {
+    await savePendingProfile(cred.user.uid, {
       displayName: displayName,
       username: username,
       bio: registerForm.bio.value
@@ -430,6 +539,7 @@ registerForm.addEventListener('submit', async function (event) {
     await requestEmailVerification(cred.user);
 
     showVerifyPanel(cred.user.email);
+    startVerifyResendCooldown();
     showMessage(
       messageEl,
       'Подтверди email — после этого создадим профиль. ' + authEmailInboxHint(AUTH_EMAIL_VERIFY_SUBJECT),
@@ -451,19 +561,29 @@ registerForm.addEventListener('submit', async function (event) {
 });
 
 onAuthStateChanged(auth, async function (user) {
-  if (!user || !needsEmailVerification(user)) {
+  if (!user) {
     return;
   }
 
-  showVerifyPanel(user.email);
-
-  try {
-    var refreshed = await reloadAuthUser();
-    if (refreshed && !needsEmailVerification(refreshed)) {
-      await completeEmailVerification(refreshed);
+  if (needsEmailVerification(user)) {
+    showVerifyPanel(user.email);
+    try {
+      var refreshed = await reloadAuthUser();
+      if (refreshed && !needsEmailVerification(refreshed)) {
+        await completeEmailVerification(refreshed);
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
+    return;
+  }
+
+  var profile = await getUserProfile(user.uid);
+  if (!profile) {
+    var pending = await fetchPendingProfile(user.uid);
+    if (pending) {
+      await continueAfterAuth(user);
+    }
   }
 });
 
@@ -496,7 +616,7 @@ function mapAuthError(error) {
     return 'Нужен вход в аккаунт';
   }
   if (error.code === 'auth/too-many-requests') {
-    return 'Слишком много попыток — попробуй позже';
+    return 'Слишком много попыток — подожди 15–30 мин или используй другой email';
   }
   if (error.code === 'auth/weak-password') {
     return 'Слишком слабый пароль';

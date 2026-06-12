@@ -7,7 +7,8 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
   sendEmailVerification,
-  reload
+  reload,
+  deleteUser
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore,
@@ -157,7 +158,7 @@ export function redirectIfUnverified(user) {
 
 var PENDING_PROFILE_KEY = 'incubator_pending_profile';
 
-export function savePendingProfile(uid, data) {
+export function savePendingProfileLocal(uid, data) {
   if (!uid) {
     return;
   }
@@ -171,6 +172,34 @@ export function savePendingProfile(uid, data) {
       savedAt: Date.now()
     })
   );
+}
+
+/** @deprecated alias */
+export function savePendingProfile(uid, data) {
+  savePendingProfileLocal(uid, data);
+  return backupPendingProfile(uid, data);
+}
+
+async function backupPendingProfile(uid, data) {
+  var user = auth.currentUser;
+  if (!user || user.uid !== uid) {
+    return;
+  }
+  try {
+    await setDoc(
+      doc(db, 'pending_profiles', uid),
+      {
+        uid: uid,
+        displayName: String(data.displayName || '').trim(),
+        username: String(data.username || '').trim(),
+        bio: String(data.bio || '').trim(),
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+  } catch (error) {
+    console.warn('pending profile backup failed', error);
+  }
 }
 
 export function getPendingProfile(uid) {
@@ -189,8 +218,35 @@ export function getPendingProfile(uid) {
   }
 }
 
-export function clearPendingProfile() {
+/** localStorage, затем Firestore `pending_profiles/{uid}` */
+export async function fetchPendingProfile(uid) {
+  var local = getPendingProfile(uid);
+  if (local) {
+    return local;
+  }
+  try {
+    var snap = await getDoc(doc(db, 'pending_profiles', uid));
+    if (!snap.exists()) {
+      return null;
+    }
+    var data = snap.data();
+    return {
+      uid: uid,
+      displayName: String(data.displayName || '').trim(),
+      username: String(data.username || '').trim(),
+      bio: String(data.bio || '').trim()
+    };
+  } catch (error) {
+    console.warn('fetchPendingProfile failed', error);
+    return null;
+  }
+}
+
+export function clearPendingProfile(uid) {
   localStorage.removeItem(PENDING_PROFILE_KEY);
+  if (uid) {
+    deleteDoc(doc(db, 'pending_profiles', uid)).catch(function () {});
+  }
 }
 
 /**
@@ -202,13 +258,16 @@ export async function finalizePendingProfile(user) {
     return null;
   }
 
+  // Rules смотрят email_verified в JWT — после verify нужен свежий токен
+  await user.getIdToken(true);
+
   var existing = await getUserProfile(user.uid);
   if (existing) {
-    clearPendingProfile();
+    clearPendingProfile(user.uid);
     return existing;
   }
 
-  var pending = getPendingProfile(user.uid);
+  var pending = await fetchPendingProfile(user.uid);
   if (!pending) {
     return null;
   }
@@ -218,7 +277,7 @@ export async function finalizePendingProfile(user) {
     username: pending.username,
     bio: pending.bio
   });
-  clearPendingProfile();
+  clearPendingProfile(user.uid);
   return profile;
 }
 
@@ -493,6 +552,54 @@ export async function fetchUserEggs(uid) {
   }
 
   throw lastError;
+}
+
+async function deleteDocsFromQuery(q) {
+  var snap = await getDocs(q);
+  if (!snap.empty) {
+    await Promise.all(snap.docs.map(function (docSnap) {
+      return deleteDoc(docSnap.ref);
+    }));
+  }
+}
+
+/**
+ * Удаляет профиль Firestore, яйца пользователя, подписки (исходящие), уведомления и Auth-аккаунт.
+ */
+export async function deleteUserAccount(user) {
+  if (!user) {
+    throw new Error('AUTH_REQUIRED');
+  }
+
+  await user.getIdToken(true);
+
+  var uid = user.uid;
+  var profile = await getUserProfile(uid);
+
+  var eggsSnap = await getDocs(query(collection(db, 'eggs'), where('ownerId', '==', uid)));
+  await Promise.all(eggsSnap.docs.map(function (docSnap) {
+    return deleteDoc(docSnap.ref);
+  }));
+
+  await deleteDocsFromQuery(query(collection(db, 'follows'), where('followerUid', '==', uid)));
+  await deleteDocsFromQuery(query(collection(db, 'notifications'), where('uid', '==', uid)));
+
+  var badgesSnap = await getDocs(query(collection(db, 'user_badges'), limit(500)));
+  var badgePrefix = uid + '_';
+  await Promise.all(badgesSnap.docs.filter(function (docSnap) {
+    return docSnap.id.indexOf(badgePrefix) === 0;
+  }).map(function (docSnap) {
+    return deleteDoc(docSnap.ref);
+  }));
+
+  clearPendingProfile(uid);
+
+  if (profile && profile.username) {
+    await deleteDoc(doc(db, 'usernames', profile.username));
+  }
+
+  await deleteDoc(doc(db, 'users', uid));
+  await deleteUser(user);
 }
 
 export function waitForAuth() {

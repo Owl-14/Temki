@@ -30,6 +30,7 @@ import {
 } from '../platform/egg-sections.js';
 import { trackQuestAction, trackEggViewQuest } from '../platform/quests.js';
 import { escapeHtml, formatDate, viewsLabel, statusLabel, showMessage } from '../core/utils.js';
+import { confirmDeleteEgg } from '../core/confirm-modal.js';
 
 var commentState = {
   eggId: null,
@@ -503,7 +504,8 @@ function bindEggOwnerActions(egg, elements) {
       return;
     }
 
-    if (!window.confirm('Удалить яйцо из инкубатора? Это нельзя отменить.')) {
+    var confirmed = await confirmDeleteEgg();
+    if (!confirmed) {
       return;
     }
 

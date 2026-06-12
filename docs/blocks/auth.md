@@ -22,10 +22,12 @@
 
 1. Заполни форму **Регистрация** → **Создать аккаунт**
 2. Ошибки показываются **под полем** и обновляются при вводе (имя, **тег**, email, пароль)
-3. Создаётся только **Firebase Auth** (логин/пароль); данные профиля сохраняются **локально** (`localStorage`) до verify
+3. Создаётся только **Firebase Auth** (логин/пароль); данные профиля сохраняются в **localStorage** + **`pending_profiles/{uid}`** до verify
 4. На email — письмо с ссылкой подтверждения
-5. После **emailVerified** → `finalizePendingProfile()` создаёт `users/{uid}` и резервирует `@username`
-6. Пока email **не подтверждён** — нет профиля, **нет тепла**, комментариев, подписок (Firestore: `email_verified`)
+5. После **emailVerified** → `finalizePendingProfile()` создаёт `users/{uid}` и резервирует `@username` из данных регистрации
+6. Данные регистрации дублируются в **localStorage** и **`pending_profiles/{uid}`** (Firestore, без `email_verified`) — чтобы профиль создался даже после перехода по ссылке из письма в другой вкладке
+7. Перед записью в Firestore вызывается **`getIdToken(true)`** — иначе rules могут отклонить create с `permission-denied`
+8. Пока email **не подтверждён** — нет профиля, **нет тепла**, комментариев, подписок (Firestore: `email_verified` на `users` / `usernames`)
 
 **Firestore rules:** все записи (кроме read публичных данных) требуют `request.auth.token.email_verified == true`.
 
@@ -33,7 +35,7 @@
 
 | Кнопка | Действие |
 |--------|----------|
-| **Отправить ещё раз** | `requestEmailVerification(currentUser)` |
+| **Отправить ещё раз** | `requestEmailVerification(currentUser)` — кнопка неактивна **60 сек** после отправки (таймер на кнопке) |
 | **Я подтвердил — проверить** | `reloadAuthUser()` → если `emailVerified`, редирект в профиль |
 | **Выйти** | `signOut` → форма входа |
 
@@ -55,7 +57,7 @@
 | **Спам / «Промоакции»** | Ищи письма от **Инкубатор**; verification: `Verify your email for Инкубатор`, reset: `Инкубатор — сброс пароля` |
 | **Другой email** | Тот же адрес, что при регистрации — [Users](https://console.firebase.google.com/project/temki-1409/authentication/users) |
 | **Шаблон не настроен** | [AUTH_EMAILS.md](AUTH_EMAILS.md) → Templates в консоли |
-| **Слишком много запросов** | Подожди 15–30 мин (`auth/too-many-requests`) |
+| **Слишком много запросов** | Подожди 15–30 мин (`auth/too-many-requests`); кнопка «Отправить ещё раз» сама блокируется на 60 сек |
 | **Email/Password выключен** | [Sign-in method](https://console.firebase.google.com/project/temki-1409/authentication/providers) |
 | **Домен не авторизован** | [Authorized domains](https://console.firebase.google.com/project/temki-1409/authentication/settings): `localhost`, `127.0.0.1`, `owl-14.github.io` |
 
@@ -72,6 +74,16 @@
 | `validateEmail(email)` | Проверка формата в `utils.js` |
 
 Continue URL для писем → `pages/auth.html` на текущем хосте.
+
+## Удаление аккаунта
+
+Страница **Настройки** (`settings.html`), блок «Опасная зона» — виден только при созданном профиле.
+
+1. Кнопка **Удалить аккаунт** → модальное окно на сайте: «Вы точно хотите удалить аккаунт?»
+2. **Отмена** / клик по фону / Escape — закрыть без удаления
+3. **Да, удалить аккаунт** — только тогда запускается `deleteUserAccount()`: яйца, подписки, уведомления, бейджи, `users/{uid}`, `usernames/{tag}`, Firebase Auth
+
+При `auth/requires-recent-login` — нужно выйти и войти снова.
 
 ## Старые аккаунты
 
