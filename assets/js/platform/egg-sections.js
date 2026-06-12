@@ -261,8 +261,10 @@ export function renderBadges(badges) {
   if (!badges || !badges.length) {
     return '';
   }
-  return badges.map(function (b) {
-    var label = BADGE_LABELS[b.badgeId] || b.badgeId;
+  return badges.filter(function (b) {
+    return BADGE_LABELS[b.badgeId];
+  }).map(function (b) {
+    var label = BADGE_LABELS[b.badgeId];
     return '<span class="profile-badge" title="' + escapeHtml(label) + '">' + escapeHtml(label) + '</span>';
   }).join('');
 }

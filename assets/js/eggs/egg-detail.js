@@ -19,7 +19,7 @@ import {
   fetchEggQuestions,
   bumpEggHeat,
   addUserHeat,
-  awardBadge
+  maybeAwardIncubatorVoiceBadge
 } from '../platform/platform-api.js';
 import {
   renderTagSpans,
@@ -372,7 +372,7 @@ function bindCommentForm(eggId, egg, elements) {
         try {
           await bumpEggHeat(eggId, 1);
           await addUserHeat(user.uid, 2, 'comment');
-          await awardBadge(user.uid, 'first_comment');
+          await maybeAwardIncubatorVoiceBadge(user.uid);
         } catch (e) {
           console.error(e);
         }
@@ -473,6 +473,14 @@ function bindCommentsInteractions(eggId, elements) {
     try {
       var profile = await getUserProfile(user.uid);
       await addEggComment(eggId, profile, text, replyToUsername);
+      var eggData = await getEggById(eggId);
+      if (eggData && eggData.ownerId !== user.uid) {
+        try {
+          await maybeAwardIncubatorVoiceBadge(user.uid);
+        } catch (e) {
+          console.error(e);
+        }
+      }
       form.hidden = true;
       textarea.value = '';
       showMessage(messageEl, '', 'info');

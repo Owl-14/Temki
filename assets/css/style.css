@@ -1302,7 +1302,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 16px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .profile-header__followers {
@@ -1831,10 +1831,18 @@ body.lay-egg-warming-active {
 
   .nav__logo {
     font-size: 0.95rem;
+    min-width: 0;
   }
 
   .online-counter__text {
-    display: none;
+    display: block;
+    font-size: 0.72rem;
+    padding-left: 8px;
+    flex-shrink: 0;
+  }
+
+  .online-counter__text strong {
+    font-size: 0.88rem;
   }
 
   .nav__toggle {
@@ -1921,6 +1929,17 @@ body.lay-egg-warming-active {
   .profile-header__actions {
     justify-content: center;
     width: 100%;
+  }
+
+  .profile-header__badges:not(:empty) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .profile-header__badges .profile-badge {
+    margin: 0;
   }
 
   .profile-header__actions .btn {
@@ -2059,6 +2078,16 @@ body.lay-egg-warming-active {
 @media (max-width: 480px) {
   .nav__brand {
     padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .online-counter__text {
+    font-size: 0.68rem;
+    padding-left: 6px;
+  }
+
+  .online-counter__text strong {
+    font-size: 0.82rem;
   }
 
   .egg__body {
@@ -2512,7 +2541,11 @@ body.lay-egg-warming-active {
   color: var(--accent-warm);
 }
 .profile-header__heat { color: var(--accent-warm); }
-.profile-header__badges { margin-top: 12px; }
+
+.profile-header__badges:not(:empty) {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
 
 .notification-item, .activity-item {
   padding: 14px 0;
