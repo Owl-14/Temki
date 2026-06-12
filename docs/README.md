@@ -11,7 +11,7 @@
 |--------|------|--------|
 | Публичный профиль | [blocks/public-profile.md](blocks/public-profile.md) | `profile.html`, яйца автора, «Редактировать» |
 | Яйца | [eggs/README.md](eggs/README.md) | Просмотр, редактирование, комментарии, просмотры |
-| **Платформа** | [platform/README.md](platform/README.md) | Видение, UI, геймификация, инвестиции, roadmap |
+| **Платформа** | [platform/README.md](platform/README.md) | Видение, роли, UI, геймификация, инвестиции, roadmap |
 
 ### Яйца — детально
 

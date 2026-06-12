@@ -1,5 +1,5 @@
-﻿import { auth, onAuthStateChanged, fetchPublishedEggs } from '../core/firebase-app.js';
-import { fetchHotEggs, fetchRecentlyHatched } from '../platform/platform-api.js';
+﻿import { auth, onAuthStateChanged } from '../core/firebase-app.js';
+import { fetchHotEggs, fetchRecentlyHatched, fetchIncubatingEggs, fetchChicks } from '../platform/platform-api.js';
 import { renderQuestsWidget } from '../platform/quests.js';
 import { initNav } from '../core/nav.js';
 import { renderEggs, mapFirestoreEgg } from '../core/eggs.js';
@@ -7,6 +7,7 @@ import { renderEggs, mapFirestoreEgg } from '../core/eggs.js';
 var container = document.getElementById('eggs-feed');
 var hotContainer = document.getElementById('hot-feed');
 var hatchedContainer = document.getElementById('hatched-feed');
+var chicksContainer = document.getElementById('chicks-feed');
 var questsWidget = document.getElementById('quests-widget');
 var loading = false;
 
@@ -63,7 +64,7 @@ async function loadHatched() {
   try {
     var hatched = await fetchRecentlyHatched(6);
     if (!hatched.length) {
-      showEmptyFeed(hatchedContainer, 'Пока никто не вылупился');
+      showEmptyFeed(hatchedContainer, 'Пока нет отобранных вылуплений — нужен продукт по ссылке и интерес сообщества');
       return;
     }
     renderEggs(hatchedContainer, hatched.map(mapFirestoreEgg));
@@ -82,8 +83,8 @@ async function loadFeed() {
   showLoadingFeed(container);
 
   try {
-    var userEggs = await fetchPublishedEggs(50);
-    var mapped = userEggs.map(mapFirestoreEgg);
+    var incubating = await fetchIncubatingEggs(50);
+    var mapped = incubating.map(mapFirestoreEgg);
 
     if (!mapped.length) {
       showEmptyFeed(container, 'Пока пусто — снеси первое яйцо');
@@ -96,6 +97,24 @@ async function loadFeed() {
     console.error(error);
   } finally {
     loading = false;
+  }
+}
+
+async function loadChicks() {
+  if (!chicksContainer) {
+    return;
+  }
+  showLoadingFeed(chicksContainer, 'Ищем цыплят...');
+  try {
+    var chicks = await fetchChicks(50);
+    if (!chicks.length) {
+      showEmptyFeed(chicksContainer, 'Пока никто не вылупился');
+      return;
+    }
+    renderEggs(chicksContainer, chicks.map(mapFirestoreEgg));
+  } catch (error) {
+    console.error(error);
+    showEmptyFeed(chicksContainer, 'Не удалось загрузить');
   }
 }
 
@@ -112,3 +131,4 @@ initNav();
 loadHot();
 loadHatched();
 loadFeed();
+loadChicks();

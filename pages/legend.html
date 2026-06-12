@@ -1,45 +1,90 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Легенда — Инкубатор</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=14">
+  <meta name="description" content="Инкубатор — стартовая площадка, где идеи превращаются в работающие проекты. Стадии роста, роли участников.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=15">
 </head>
 <body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene__heat"></div>
+    <div class="scene__grid"></div>
+    <div class="scene__egg scene__egg--1"></div>
+    <div class="scene__egg scene__egg--2"></div>
+    <div class="scene__orb scene__orb--1"></div>
+    <div class="scene__orb scene__orb--2"></div>
+  </div>
+
   <nav class="nav">
-    <div class="nav__brand"><a class="nav__logo" href="index.html">Инкубатор</a></div>
+    <div class="nav__brand">
+      <a class="nav__logo" href="index.html">
+        <svg class="nav__icon" viewBox="0 0 24 28" aria-hidden="true">
+          <ellipse cx="12" cy="15" rx="9" ry="12" fill="none" stroke="url(#egg-grad)" stroke-width="1.5"/>
+          <ellipse cx="12" cy="15" rx="5" ry="7" fill="url(#egg-glow)" opacity="0.35"/>
+          <defs>
+            <linearGradient id="egg-grad" x1="0" y1="0" x2="24" y2="28">
+              <stop offset="0%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#fb923c"/>
+            </linearGradient>
+            <radialGradient id="egg-glow" cx="50%" cy="60%">
+              <stop offset="0%" stop-color="#fb923c"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+          </defs>
+        </svg>
+        Инкубатор
+      </a>
+    </div>
     <div class="nav__actions" id="nav-auth-slot"></div>
   </nav>
+
   <main class="page page--narrow legend-page">
-    <h1 class="page__title">Легенда инкубатора</h1>
-    <p class="page__lead">Ты не на борде стартапов — ты в камере, где яйца греются до вылупления</p>
-
-    <section class="legend-stage">
-      <h2>🥚 Греется</h2>
-      <p>Идея в разработке. Создатель снёс яйцо — оно лежит в инкубаторе и набирает тепло.</p>
-    </section>
-    <section class="legend-stage">
-      <h2>🐣 Цыплёнок</h2>
-      <p>Вылупление — продукт запущен. Можно попробовать, задать вопрос, оставить отзыв.</p>
-    </section>
-    <section class="legend-stage">
-      <h2>🐔 Курица</h2>
-      <p>Проект вырос на тепле кормильцев. Стадия для зрелых яиц с интересом инвесторов.</p>
+    <section class="legend-intro">
+      <h1 class="page__title">Инкубатор — площадка для запуска и роста</h1>
+      <p>Это не доска объявлений. Это стартовая площадка, где сырые идеи превращаются в работающие проекты. Мы создали среду, где стартапы проходят путь от первого наброска до масштабируемого бизнеса.</p>
     </section>
 
     <section class="legend-stage">
-      <h2>Что можно делать</h2>
-      <ul>
-        <li><strong>Гость</strong> — заглянуть в камеру, читать яйца</li>
-        <li><strong>Погреться</strong> — комментировать, задавать вопросы, тестировать</li>
-        <li><strong>Основатель</strong> — снести яйцо, отмечать вехи, вылупление</li>
-        <li><strong>Кормилец</strong> — выразить интерес к теплу (без денег на старте)</li>
+      <h2 class="legend-stage__title">Стадии твоего проекта</h2>
+    </section>
+
+    <section class="legend-stage">
+      <h3 class="legend-stage__heading">🥚 В разработке</h3>
+      <p>Идея в стадии формирования. Основатель прорабатывает продукт, проверяет гипотезы и настраивает фокус. Здесь проект набирает критическую массу перед выходом в свет.</p>
+    </section>
+
+    <section class="legend-stage">
+      <h3 class="legend-stage__heading">🐣 Запущен</h3>
+      <p>Продукт готов. Пройден первый этап, есть на что посмотреть. Время собирать отзывы, исправлять ошибки и дорабатывать функционал под запросы первых пользователей.</p>
+    </section>
+
+    <section class="legend-stage">
+      <h3 class="legend-stage__heading">🐔 Масштабируется</h3>
+      <p>Проект прошел проверку рынком. Стадия для тех, кто готов к серьезному росту, поиску партнеров и привлечению капитала.</p>
+    </section>
+
+    <section class="legend-stage">
+      <h2 class="legend-stage__title">Твоя роль в экосистеме</h2>
+      <ul class="legend-roles">
+        <li><strong>Наблюдатель</strong> — исследуй рынок, следи за новинками и находи идеи, которые вдохновляют.</li>
+        <li><strong>Участник</strong> — помогай проектам стать лучше: тестируй, задавай острые вопросы, давай честную обратную связь. Стань соавтором успеха.</li>
+        <li><strong>Основатель</strong> — выкладывай идею, фиксируй ключевые вехи развития и превращай проект в глобальный бизнес.</li>
+        <li><strong>Партнер</strong> — находи перспективные команды раньше остальных. Выражай поддержку, следи за развитием и будь первым, когда проект будет готов к масштабированию.</li>
       </ul>
     </section>
 
-    <a class="btn btn--warm" href="auth.html">Погреться в инкубаторе</a>
+    <a class="btn btn--warm legend-page__cta" href="auth.html">Погреться в инкубаторе</a>
   </main>
+
+  <footer class="footer">
+    <p>Инкубатор — греем яйца до вылупления</p>
+  </footer>
+
   <script src="../config/firebase.config.js?v=2"></script>
   <script type="module">
     import { initNav } from '../assets/js/core/nav.js';

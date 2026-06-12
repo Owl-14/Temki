@@ -11,7 +11,8 @@ import {
   EGG_TAGS,
   SEEKING_OPTIONS,
   changeEggStatus,
-  addMilestone
+  addMilestone,
+  hasExternalProductUrl
 } from '../platform/platform-api.js';
 import { playHatchAnimation } from '../platform/hatch-animation.js';
 import { initNav } from '../core/nav.js';
@@ -67,17 +68,71 @@ function renderTagSeekingFields(data) {
     }).join('');
 }
 
+function getFormProductUrls() {
+  return {
+    link: form.link.value.trim(),
+    demoUrl: form.demoUrl.value.trim()
+  };
+}
+
+function isHatchFormReady() {
+  var urls = getFormProductUrls();
+  if (!hasExternalProductUrl(urls)) {
+    return false;
+  }
+  var publicCheck = document.getElementById('hatch-check-public');
+  var scenarioCheck = document.getElementById('hatch-check-scenario');
+  return !!(publicCheck && publicCheck.checked && scenarioCheck && scenarioCheck.checked);
+}
+
+function updateHatchButtonState() {
+  var hatchBtn = document.getElementById('hatch-btn');
+  var urlHint = document.getElementById('hatch-url-hint');
+  if (!hatchBtn) {
+    return;
+  }
+  var hasUrl = hasExternalProductUrl(getFormProductUrls());
+  hatchBtn.disabled = !isHatchFormReady();
+  if (urlHint) {
+    urlHint.hidden = hasUrl;
+  }
+}
+
+function bindHatchControls() {
+  ['hatch-check-public', 'hatch-check-scenario'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', updateHatchButtonState);
+    }
+  });
+  form.link.addEventListener('input', updateHatchButtonState);
+  form.demoUrl.addEventListener('input', updateHatchButtonState);
+}
+
 function renderStatusActions(currentStatus) {
   statusLabelEl.textContent = statusLabel(currentStatus);
   var html = '';
 
   if (currentStatus === 'greetsya') {
-    html = '<button type="button" class="btn btn--warm" id="hatch-btn">🐣 Отметить вылупление</button>';
+    html =
+      '<div class="edit-egg__hatch-checklist">' +
+        '<p class="edit-egg__hint">Перед вылуплением заполни ссылку на продукт в форме ниже и подтверди условия:</p>' +
+        '<p class="edit-egg__hatch-url-hint" id="hatch-url-hint" hidden>Нужна ссылка или «Демо / продукт»</p>' +
+        '<label class="form__checkbox edit-egg__hatch-check">' +
+          '<input type="checkbox" id="hatch-check-public"> Продукт доступен незнакомым людям (не только друзьям)' +
+        '</label>' +
+        '<label class="form__checkbox edit-egg__hatch-check">' +
+          '<input type="checkbox" id="hatch-check-scenario"> Работает минимум один сценарий — не заглушка' +
+        '</label>' +
+      '</div>' +
+      '<div class="edit-egg__hatch-row">' +
+        '<button type="button" class="btn btn--warm" id="hatch-btn" disabled>🐣 Отметить вылупление</button>' +
+        '<a class="edit-egg__hatch-rules" href="hatch-rules.html" target="_blank" rel="noopener">Правила вылупления</a>' +
+      '</div>';
   } else if (currentStatus === 'tsyplenok') {
-    html = '<p class="edit-egg__hint">Цыплёнок на свободе. Статус «курица» — после инвестиций.</p>' +
-      '<button type="button" class="btn btn--ghost" id="hen-btn">Стало курицей</button>';
+    html = '<p class="edit-egg__hint">Цыплёнок на свободе. Статус «курица» назначает администратор.</p>';
   } else {
-    html = '<p class="edit-egg__hint">Курица — финальная стадия с теплом кормильцев</p>';
+    html = '<p class="edit-egg__hint">Курица — стадия с теплом кормильцев, назначается администратором.</p>';
   }
 
   statusActions.innerHTML = html;
@@ -85,11 +140,8 @@ function renderStatusActions(currentStatus) {
   var hatchBtn = document.getElementById('hatch-btn');
   if (hatchBtn) {
     hatchBtn.addEventListener('click', handleHatch);
-  }
-
-  var henBtn = document.getElementById('hen-btn');
-  if (henBtn) {
-    henBtn.addEventListener('click', handleHen);
+    bindHatchControls();
+    updateHatchButtonState();
   }
 }
 
@@ -98,36 +150,48 @@ async function handleHatch() {
   if (!user || !egg) {
     return;
   }
-  if (!window.confirm('Отметить вылупление? Яйцо станет цыплёнком.')) {
+  if (!isHatchFormReady()) {
+    showMessage(messageEl, 'Заполни ссылку на продукт и отметь условия вылупления', 'error');
+    updateHatchButtonState();
     return;
   }
+  if (!window.confirm('Отметить вылупление? Яйцо станет цыплёнком. Это нельзя отменить.')) {
+    return;
+  }
+
+  var title = form.title.value.trim();
+  var description = form.description.value.trim();
+  var urls = getFormProductUrls();
+
+  if (!title || !description) {
+    showMessage(messageEl, 'Название и описание обязательны', 'error');
+    return;
+  }
+
+  showMessage(messageEl, 'Готовим вылупление...', 'info');
+
   try {
-    await playHatchAnimation();
+    await updateEgg(eggId, user.uid, {
+      title: title,
+      description: description,
+      link: urls.link,
+      demoUrl: urls.demoUrl,
+      tags: getSelectedTags(),
+      seeking: getSelectedSeeking()
+    }, pendingCoverBlob);
+
+    egg = await getEggById(eggId);
+    await playHatchAnimation(egg.imageUrl || null);
     var result = await changeEggStatus(eggId, user.uid, 'tsyplenok');
     egg.status = result.status;
     renderStatusActions(egg.status);
-    showMessage(messageEl, 'Вылупилось!', 'info');
+    showMessage(messageEl, 'Вылупилось! В ленту на главной попадёшь после интереса сообщества.', 'info');
   } catch (error) {
     console.error(error);
-    showMessage(messageEl, 'Не удалось сменить статус', 'error');
-  }
-}
-
-async function handleHen() {
-  var user = auth.currentUser;
-  if (!user || !egg) {
-    return;
-  }
-  if (!window.confirm('Отметить статус «курица»?')) {
-    return;
-  }
-  try {
-    var result = await changeEggStatus(eggId, user.uid, 'kuritsa');
-    egg.status = result.status;
-    renderStatusActions(egg.status);
-    showMessage(messageEl, 'Стало курицей!', 'info');
-  } catch (error) {
-    console.error(error);
+    if (error.message === 'HATCH_NO_URL') {
+      showMessage(messageEl, 'Нужна ссылка на внешний продукт', 'error');
+      return;
+    }
     showMessage(messageEl, 'Не удалось сменить статус', 'error');
   }
 }
