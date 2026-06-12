@@ -13,7 +13,7 @@
 | `edit-egg.js` | `edit-egg.html` |
 | `chamber.js` | `chamber.html` |
 | `my-eggs.js` | `my-eggs.html` |
-| `hall.js` | `hall.html` |
+| `hall.js` | `hall.html` — `HALL_COPY` (тексты UI), лидерборды, карточки `.hall-user-card` |
 | `activity.js` | `activity.html` |
 | `notifications.js` | `notifications.html` |
 | `investors.js` | `investors.html` |

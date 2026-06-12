@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/style.css?v=15">
+  <link rel="stylesheet" href="../assets/css/style.css?v=19">
 </head>
 <body>
   <div class="scene" aria-hidden="true">
@@ -62,35 +62,73 @@
       <label class="form__field">
         <span class="form__label">Email</span>
         <input class="form__input" type="email" name="email" required autocomplete="email">
+        <span class="form__field-error" hidden role="alert"></span>
       </label>
       <label class="form__field">
         <span class="form__label">Пароль</span>
         <input class="form__input" type="password" name="password" required autocomplete="current-password">
+        <span class="form__field-error" hidden role="alert"></span>
       </label>
+      <p class="auth-forgot">
+        <button class="auth-forgot__btn" type="button" id="auth-forgot-btn">Забыл пароль?</button>
+      </p>
       <button class="btn btn--primary form__submit" type="submit">
         <span class="btn__shine" aria-hidden="true"></span>
         <span class="btn__text">Войти</span>
       </button>
     </form>
 
+    <form class="form" id="reset-form" data-auth-panel="reset" hidden novalidate>
+      <p class="form__hint auth-reset__lead">Отправим ссылку для нового пароля. Письмо от <strong>Инкубатор</strong> — тема «Инкубатор — сброс пароля». Проверь «Спам», если не видишь во «Входящих».</p>
+      <label class="form__field">
+        <span class="form__label">Email</span>
+        <input class="form__input" type="email" name="email" required autocomplete="email">
+        <span class="form__field-error" hidden role="alert"></span>
+      </label>
+      <button class="btn btn--primary form__submit" type="submit">
+        <span class="btn__shine" aria-hidden="true"></span>
+        <span class="btn__text">Отправить письмо</span>
+      </button>
+      <button class="btn btn--ghost form__secondary" type="button" id="reset-back-btn">Назад ко входу</button>
+    </form>
+
+    <div class="auth-verify" id="auth-verify-panel" data-auth-panel="verify" hidden>
+      <p class="form__hint auth-verify__lead">
+        Мы отправили письмо на <strong id="verify-email"></strong>.
+        Перейди по ссылке — профиль в инкубаторе создастся только после подтверждения.
+      </p>
+      <p class="form__hint" id="auth-verify-email-hint">Проверь «Спам». Отправитель — <strong>Инкубатор</strong>, тема «Verify your email for Инкубатор».</p>
+      <button class="btn btn--primary form__submit" type="button" id="verify-resend-btn">
+        <span class="btn__shine" aria-hidden="true"></span>
+        <span class="btn__text">Отправить ещё раз</span>
+      </button>
+      <button class="btn btn--warm form__submit" type="button" id="verify-check-btn">Я подтвердил — проверить</button>
+      <button class="btn btn--ghost form__secondary" type="button" id="verify-logout-btn">Выйти</button>
+    </div>
+
     <form class="form" id="register-form" data-auth-panel="register" hidden novalidate>
       <label class="form__field">
         <span class="form__label">Имя</span>
         <input class="form__input" type="text" name="displayName" maxlength="40" autocomplete="name">
-        <span class="form__hint">любые символы, эмодзи — до 40</span>
+        <span class="form__field-error" hidden role="alert"></span>
+        <span class="form__hint">любые символы — до 40</span>
       </label>
       <label class="form__field">
-        <span class="form__label">Юзернейм</span>
+        <span class="form__label">Тег</span>
         <input class="form__input" type="text" name="username" maxlength="20" autocomplete="username" autocapitalize="off" spellcheck="false">
-        <span class="form__hint">латиница, цифры, _ — от 3 до 20</span>
+        <span class="form__field-error" hidden role="alert"></span>
+        <span class="form__hint">латиница — от 3 до 20</span>
       </label>
       <label class="form__field">
         <span class="form__label">Email</span>
         <input class="form__input" type="email" name="email" required autocomplete="email">
+        <span class="form__field-error" hidden role="alert"></span>
+        <span class="form__hint">на этот адрес придёт письмо для подтверждения</span>
       </label>
       <label class="form__field">
         <span class="form__label">Пароль</span>
         <input class="form__input" type="password" name="password" required minlength="8" autocomplete="new-password">
+        <span class="form__field-error" hidden role="alert"></span>
         <span class="form__hint">минимум 8 символов</span>
       </label>
       <label class="form__field">
@@ -109,9 +147,10 @@
   </footer>
 
   <script src="../config/firebase.config.js?v=2"></script>
+  <script src="../config/brand.config.js?v=1"></script>
   <script src="../assets/vendor/analytics.config.js?v=5"></script>
   <script src="../assets/vendor/analytics.js?v=5"></script>
   <script type="module" src="../assets/js/core/presence.js?v=1"></script>
-  <script type="module" src="../assets/js/pages/auth.js?v=4"></script>
+  <script type="module" src="../assets/js/pages/auth.js?v=12"></script>
 </body>
 </html>

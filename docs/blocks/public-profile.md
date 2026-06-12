@@ -22,6 +22,7 @@
 | Имя | `users/{uid}.displayName` |
 | Юзернейм | `users/{uid}.username` |
 | О себе | `users/{uid}.bio` |
+| Подписчики | `follows` where `targetUid == uid` (счётчик в шапке) |
 | Яйца | `eggs` where `ownerId == uid` and `published == true` |
 
 ## Что скрыто от чужих
@@ -55,6 +56,8 @@
 4. **Прямая ссылка** — `profile.html?u=...`
 
 Наблюдатель может открыть любой `@username` по ссылке или с ленты.
+
+**Подписка:** кнопка «Подписаться» / «Отписаться» для авторизованных участников; **счётчик подписчиков** под био. Лента обновлений — [FOLLOWS.md](../platform/FOLLOWS.md), страница `activity.html`.
 
 ---
 

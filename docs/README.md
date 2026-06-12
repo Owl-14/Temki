@@ -10,10 +10,16 @@
 | Раздел | Путь | О чём |
 |--------|------|--------|
 | Публичный профиль | [blocks/public-profile.md](blocks/public-profile.md) | `profile.html`, яйца автора, «Редактировать» |
+| Вход / сброс пароля | [blocks/auth.md](blocks/auth.md) | `auth.html`, Firebase Auth |
+| Письма Auth (тема, русский текст) | [blocks/AUTH_EMAILS.md](blocks/AUTH_EMAILS.md) | Firebase Console → Templates |
 | Яйца | [eggs/README.md](eggs/README.md) | Просмотр, редактирование, комментарии, просмотры |
-| **Платформа** | [platform/README.md](platform/README.md) | Видение, роли, UI, геймификация, инвестиции, roadmap |
+| **Платформа** | [platform/README.md](platform/README.md) | Видение, роли, UI, геймификация, зал славы, roadmap |
 
-### Яйца — детально
+### Платформа — зал славы и главная
+
+| Документ | Тема |
+|----------|------|
+| [platform/HALL.md](platform/HALL.md) | Зал славы, карточки людей, перенос лент с главной, `HALL_COPY` |
 
 | Документ | Тема |
 |----------|------|

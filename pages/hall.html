@@ -1,29 +1,69 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Зал славы — Инкубатор</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=15">
+  <title>Hall of Fame</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=24">
 </head>
 <body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene__heat"></div>
+    <div class="scene__grid"></div>
+    <div class="scene__egg scene__egg--1"></div>
+    <div class="scene__egg scene__egg--2"></div>
+  </div>
+
   <nav class="nav">
-    <div class="nav__brand"><a class="nav__logo" href="index.html">Инкубатор</a></div>
+    <div class="nav__brand">
+      <a class="nav__logo" href="index.html" id="hall-nav-logo"></a>
+      <p class="online-counter__text" id="online-text" hidden></p>
+    </div>
     <div class="nav__actions" id="nav-auth-slot"></div>
   </nav>
+
+  <!-- Static copy in hall.js (HALL_COPY) - keep this file ASCII-only -->
   <main class="page">
-    <h1 class="page__title">Зал славы</h1>
-    <p class="page__lead">Топ по теплу — люди и яйца</p>
+    <header class="page__header">
+      <h1 class="page__title" id="hall-page-title"></h1>
+      <p class="page__lead" id="hall-page-lead"></p>
+    </header>
+
     <section class="hall-section">
-      <h2>Люди</h2>
-      <ol id="hall-users"></ol>
+      <h2 class="hall-section__title" id="hall-users-heading"></h2>
+      <div class="hall-users" id="hall-users"></div>
     </section>
+
     <section class="hall-section">
-      <h2>Яйца</h2>
+      <h2 class="hall-section__title" id="hall-eggs-heading"></h2>
       <ol id="hall-eggs"></ol>
     </section>
+
+    <section class="hall-section hall-section--feed chamber--hot">
+      <header class="section-header">
+        <h2 class="section-header__title" id="hall-hot-heading"></h2>
+        <p class="section-header__subtitle" id="hall-hot-subtitle"></p>
+      </header>
+      <div class="eggs" id="hall-hot-feed"></div>
+    </section>
+
+    <section class="hall-section hall-section--feed chamber--hatched">
+      <header class="section-header">
+        <h2 class="section-header__title" id="hall-hatched-heading"></h2>
+      </header>
+      <div class="eggs" id="hall-hatched-feed"></div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <p id="hall-footer-text"></p>
+  </footer>
+
   <script src="../config/firebase.config.js?v=2"></script>
-  <script type="module" src="../assets/js/pages/hall.js?v=1"></script>
+  <script type="module" src="../assets/js/core/presence.js?v=1"></script>
+  <script type="module" src="../assets/js/pages/hall.js?v=5"></script>
 </body>
 </html>

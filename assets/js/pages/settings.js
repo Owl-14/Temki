@@ -5,9 +5,13 @@
   createUserProfile,
   updateUserProfile,
   uploadAvatar,
-  sendPasswordResetEmail
+  requestPasswordReset,
+  redirectIfUnverified,
+  getPendingProfile,
+  finalizePendingProfile
 } from '../core/firebase-app.js';
 import { getQueryParam, validateDisplayName, validateUsername, resizeImageFile, showMessage } from '../core/utils.js';
+import { AUTH_EMAIL_RESET_SUBJECT, authEmailInboxHint } from '../core/brand.js';
 import { initNav } from '../core/nav.js';
 
 var messageEl = document.getElementById('settings-message');
@@ -31,26 +35,49 @@ onAuthStateChanged(auth, async function (user) {
     window.location.href = 'auth.html';
     return;
   }
-
-  currentProfile = await getUserProfile(user.uid);
-  var onboarding = getQueryParam('onboarding') === '1';
-
-  if (!currentProfile) {
-    document.getElementById('settings-title').textContent = onboarding
-      ? 'Допиши профиль'
-      : 'Создай профиль';
-    renderAvatar(null);
+  if (redirectIfUnverified(user)) {
     return;
   }
 
-  form.displayName.value = currentProfile.displayName || '';
-  form.username.value = currentProfile.username || '';
-  form.bio.value = currentProfile.bio || '';
-  renderAvatar(currentProfile.avatarUrl);
+  currentProfile = await getUserProfile(user.uid);
 
-  if (getQueryParam('done') === '1') {
-    showMessage(messageEl, 'Аккаунт создан. Можно добавить аватарку.', 'success');
+  if (!currentProfile) {
+    try {
+      currentProfile = await finalizePendingProfile(user);
+    } catch (error) {
+      if (error.message === 'USERNAME_TAKEN') {
+        showMessage(messageEl, 'Этот юзернейм уже занят — выбери другой', 'error');
+      } else {
+        console.error(error);
+      }
+    }
   }
+
+  if (currentProfile) {
+    form.displayName.value = currentProfile.displayName || '';
+    form.username.value = currentProfile.username || '';
+    form.bio.value = currentProfile.bio || '';
+    renderAvatar(currentProfile.avatarUrl);
+
+    if (getQueryParam('done') === '1') {
+      showMessage(messageEl, 'Аккаунт создан. Можно добавить аватарку.', 'success');
+    }
+    return;
+  }
+
+  var onboarding = getQueryParam('onboarding') === '1';
+  var pending = getPendingProfile(user.uid);
+
+  if (pending) {
+    form.displayName.value = pending.displayName || '';
+    form.username.value = pending.username || '';
+    form.bio.value = pending.bio || '';
+  }
+
+  document.getElementById('settings-title').textContent = onboarding || pending
+    ? 'Заверши профиль'
+    : 'Создай профиль';
+  renderAvatar(null);
 });
 
 avatarInput.addEventListener('change', async function () {
@@ -143,10 +170,10 @@ resetPasswordBtn.addEventListener('click', async function () {
   }
 
   try {
-    await sendPasswordResetEmail(auth, user.email);
-    showMessage(messageEl, 'Письмо для сброса пароля отправлено', 'success');
+    await requestPasswordReset(user.email);
+    showMessage(messageEl, authEmailInboxHint(AUTH_EMAIL_RESET_SUBJECT), 'success');
   } catch (error) {
-    showMessage(messageEl, error.message, 'error');
+    showMessage(messageEl, error.message || 'Не удалось отправить письмо', 'error');
   }
 });
 

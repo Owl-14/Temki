@@ -19,19 +19,101 @@ export function validateDisplayName(name) {
   return null;
 }
 
-export function validateUsername(username) {
+export function validateUsername(username, label) {
+  var fieldLabel = label || 'Юзернейм';
   var normalized = normalizeUsername(username);
 
   if (normalized.length < 3 || normalized.length > 20) {
-    return 'Юзернейм: от 3 до 20 символов';
+    return fieldLabel + ': от 3 до 20 символов';
   }
   if (!/^[a-z0-9_]+$/.test(normalized)) {
-    return 'Только латиница, цифры и _';
+    return fieldLabel + ': только латиница';
   }
   if (RESERVED_USERNAMES.indexOf(normalized) !== -1) {
-    return 'Этот юзернейм занят системой';
+    return 'Этот ' + fieldLabel.toLowerCase() + ' занят системой';
   }
   return null;
+}
+
+export function validateEmail(email) {
+  var value = String(email || '').trim().toLowerCase();
+
+  if (!value) {
+    return 'Укажи email';
+  }
+  if (value.length > 254) {
+    return 'Слишком длинный email';
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    return 'Некорректный email';
+  }
+  return null;
+}
+
+export function validatePassword(password, minLength) {
+  var min = minLength || 8;
+  var value = String(password || '');
+
+  if (!value) {
+    return 'Введи пароль';
+  }
+  if (value.length < min) {
+    return 'Пароль минимум ' + min + ' символов';
+  }
+  return null;
+}
+
+export function setFormFieldError(formEl, fieldName, message) {
+  if (!formEl) {
+    return;
+  }
+
+  var input = formEl.querySelector('[name="' + fieldName + '"]');
+  if (!input) {
+    return;
+  }
+
+  var wrapper = input.closest('.form__field');
+  if (!wrapper) {
+    return;
+  }
+
+  var errorEl = wrapper.querySelector('.form__field-error');
+  if (!errorEl) {
+    return;
+  }
+
+  if (message) {
+    wrapper.classList.add('form__field--invalid');
+    input.setAttribute('aria-invalid', 'true');
+    errorEl.textContent = message;
+    errorEl.hidden = false;
+  } else {
+    wrapper.classList.remove('form__field--invalid');
+    input.removeAttribute('aria-invalid');
+    errorEl.textContent = '';
+    errorEl.hidden = true;
+  }
+}
+
+export function clearFormFieldErrors(formEl) {
+  if (!formEl) {
+    return;
+  }
+
+  formEl.querySelectorAll('.form__field').forEach(function (wrapper) {
+    wrapper.classList.remove('form__field--invalid');
+    var input = wrapper.querySelector('.form__input, .form__textarea');
+    var errorEl = wrapper.querySelector('.form__field-error');
+
+    if (input) {
+      input.removeAttribute('aria-invalid');
+    }
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.hidden = true;
+    }
+  });
 }
 
 export function statusLabel(status) {

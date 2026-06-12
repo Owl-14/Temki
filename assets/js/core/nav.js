@@ -2,15 +2,16 @@
   auth,
   signOut,
   onAuthStateChanged,
-  getUserProfile
+  getUserProfile,
+  needsEmailVerification
 } from './firebase-app.js';
 import { countUnreadNotifications } from '../platform/platform-api.js';
 import { escapeHtml } from './utils.js';
 
 var NAV_LINKS =
   '<a class="nav__link" href="chamber.html">Камера</a>' +
-  '<a class="nav__link" href="index.html#hot">Горячие</a>' +
-  '<a class="nav__link" href="legend.html">Легенда</a>';
+  '<a class="nav__link" href="hall.html">Зал славы</a>' +
+  '<a class="nav__link" href="legend.html">Концепция</a>';
 
 function ensureNavMobileShell() {
   var nav = document.querySelector('.nav');
@@ -175,6 +176,12 @@ export function initNav() {
   onAuthStateChanged(auth, async function (user) {
     if (!user) {
       renderGuestNav(slot);
+      return;
+    }
+
+    if (needsEmailVerification(user)) {
+      slot.innerHTML = NAV_LINKS +
+        '<a class="nav__link" href="auth.html?verify=1">Подтверди email</a>';
       return;
     }
 

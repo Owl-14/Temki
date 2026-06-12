@@ -2,7 +2,8 @@
   auth,
   onAuthStateChanged,
   getUserProfile,
-  createEgg
+  createEgg,
+  redirectIfUnverified
 } from '../core/firebase-app.js';
 import { startLayEggWarming } from '../lay-egg/warming-animation.js';
 import { resizeImageFile, showMessage } from '../core/utils.js';
@@ -51,6 +52,9 @@ renderTagSeekingFields();
 onAuthStateChanged(auth, async function (user) {
   if (!user) {
     window.location.href = 'auth.html';
+    return;
+  }
+  if (redirectIfUnverified(user)) {
     return;
   }
 
@@ -113,7 +117,6 @@ form.addEventListener('submit', async function (event) {
   var title = form.title.value.trim();
   var description = form.description.value.trim();
   var link = form.link.value.trim();
-  var demoUrl = form.demoUrl ? form.demoUrl.value.trim() : '';
 
   if (!title || !description) {
     showMessage(messageEl, 'Название и описание обязательны', 'error');
@@ -135,7 +138,6 @@ form.addEventListener('submit', async function (event) {
       title: title,
       description: description,
       link: link,
-      demoUrl: demoUrl,
       tags: getCheckedValues(document.getElementById('lay-egg-tags-field')),
       seeking: getCheckedValues(document.getElementById('lay-egg-seeking-field'))
     }, pendingCoverBlob);

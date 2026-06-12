@@ -3,7 +3,7 @@
   onAuthStateChanged,
   getUserProfile,
   deleteEgg,
-  waitForAuth
+  needsEmailVerification
 } from '../core/firebase-app.js';
 import {
   getEggById,
@@ -22,12 +22,10 @@ import {
   awardBadge
 } from '../platform/platform-api.js';
 import {
-  renderTags,
+  renderTagSpans,
   renderSeeking,
   loadQuestionsSection,
   loadMilestonesSection,
-  loadTrySection,
-  loadInvestSection,
   bindQuestionForm
 } from '../platform/egg-sections.js';
 import { trackQuestAction, trackEggViewQuest } from '../platform/quests.js';
@@ -190,7 +188,7 @@ export function renderEggPage(egg, elements) {
   elements.description.textContent = egg.description || '';
 
   if (elements.tags) {
-    elements.tags.innerHTML = renderTags(egg.tags);
+    elements.tags.innerHTML = renderTagSpans(egg.tags);
   }
   if (elements.seeking) {
     elements.seeking.innerHTML = renderSeeking(egg.seeking);
@@ -201,15 +199,6 @@ export function renderEggPage(egg, elements) {
     elements.link.hidden = false;
   } else {
     elements.link.hidden = true;
-  }
-
-  if (elements.demo) {
-    if (egg.demoUrl) {
-      elements.demo.href = egg.demoUrl;
-      elements.demo.hidden = false;
-    } else {
-      elements.demo.hidden = true;
-    }
   }
 }
 
@@ -270,18 +259,6 @@ async function loadEggExtras(eggId, egg, elements, user, profile) {
     console.error(error);
   }
 
-  try {
-    await loadTrySection(eggId, elements.tryBlock, user, profile, egg);
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    await loadInvestSection(eggId, elements.investBlock, user, profile, egg);
-  } catch (error) {
-    console.error(error);
-  }
-
   await renderEggStats(eggId, egg, elements);
 
   var isOwner = user && user.uid === egg.ownerId;
@@ -314,7 +291,7 @@ async function loadEggExtras(eggId, egg, elements, user, profile) {
 }
 
 async function tryRecordView(eggId, user, elements, egg) {
-  if (!user) {
+  if (!user || needsEmailVerification(user)) {
     return null;
   }
 
@@ -583,6 +560,23 @@ export async function initEggPage(eggId, elements) {
     }
   }
 
+  if (window.location.hash === '#demo') {
+    var demoTab = document.querySelector('[data-egg-tab="demo"]');
+    if (demoTab) {
+      demoTab.click();
+    }
+  }
+
+  loadEggExtras(eggId, egg, elements, null, null).catch(function (error) {
+    console.error(error);
+  });
+
+  bindEggPageAuth(eggId, egg, elements);
+
+  return egg;
+}
+
+function bindEggPageAuth(eggId, egg, elements) {
   var viewRecorded = false;
 
   async function recordIfNeeded(user) {
@@ -601,9 +595,6 @@ export async function initEggPage(eggId, elements) {
     }
   }
 
-  var initialUser = await waitForAuth();
-  await recordIfNeeded(initialUser);
-
   onAuthStateChanged(auth, async function (user) {
     var profile = user ? await getUserProfile(user.uid) : null;
     updateOwnerActions(egg, user, elements);
@@ -619,6 +610,4 @@ export async function initEggPage(eggId, elements) {
       console.error(error);
     }
   });
-
-  return egg;
 }

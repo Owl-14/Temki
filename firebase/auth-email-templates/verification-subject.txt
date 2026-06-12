@@ -1,0 +1,7 @@
+# Firebase Auth — тема verification (не для консоли)
+
+Шаблон Firebase подставляет %APP_NAME% = Инкубатор из Public-facing name.
+
+Реальная тема письма: Verify your email for Инкубатор
+
+Русский вариант «Инкубатор — подтверди свой email» — только для будущей Cloud Function.

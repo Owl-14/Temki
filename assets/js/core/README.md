@@ -5,6 +5,7 @@
 | Файл | Назначение |
 |------|------------|
 | `firebase-app.js` | Auth, Firestore, профили, CRUD яиц |
+| `brand.js` | Имя «Инкубатор», темы писем Auth (`config/brand.config.js`) |
 | `utils.js` | username, escapeHtml, даты, сжатие картинок |
 | `nav.js` | Меню, колокольчик, dropdown; на мобиле — бургер и выезжающее меню |
 | `eggs.js` | Рендер карточек яиц в ленте |

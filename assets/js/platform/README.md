@@ -29,6 +29,7 @@
 - `fetchHotEggs` — только `greetsya` (яйца в камере).
 - `fetchIncubatingEggs` — лента «Яйца в инкубаторе» (`greetsya`).
 - `fetchChicks` — лента «Цыплята» (`tsyplenok`, `kuritsa`).
+- `toggleFollow` / `fetchFollowedActivity` / `fetchFollowerCount` — подписки, счётчик на профиле, лента `activity.html` → `docs/platform/FOLLOWS.md`.
 - `qualifiesForFeaturedHatch` — лента «Недавно вылупились»; `hasExternalProductUrl`.
 
 Документация: `docs/platform/GAMIFICATION.md`, `docs/eggs/VIEWS.md`, `docs/eggs/HATCH.md`

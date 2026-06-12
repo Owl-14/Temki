@@ -3,7 +3,8 @@
   onAuthStateChanged,
   getUserProfile,
   updateEgg,
-  deleteEgg
+  deleteEgg,
+  redirectIfUnverified
 } from '../core/firebase-app.js';
 import { getEggById } from '../eggs/egg-api.js';
 import { getQueryParam, resizeImageFile, showMessage, statusLabel } from '../core/utils.js';
@@ -70,8 +71,7 @@ function renderTagSeekingFields(data) {
 
 function getFormProductUrls() {
   return {
-    link: form.link.value.trim(),
-    demoUrl: form.demoUrl.value.trim()
+    link: form.link.value.trim()
   };
 }
 
@@ -106,7 +106,6 @@ function bindHatchControls() {
     }
   });
   form.link.addEventListener('input', updateHatchButtonState);
-  form.demoUrl.addEventListener('input', updateHatchButtonState);
 }
 
 function renderStatusActions(currentStatus) {
@@ -117,7 +116,7 @@ function renderStatusActions(currentStatus) {
     html =
       '<div class="edit-egg__hatch-checklist">' +
         '<p class="edit-egg__hint">Перед вылуплением заполни ссылку на продукт в форме ниже и подтверди условия:</p>' +
-        '<p class="edit-egg__hatch-url-hint" id="hatch-url-hint" hidden>Нужна ссылка или «Демо / продукт»</p>' +
+        '<p class="edit-egg__hatch-url-hint" id="hatch-url-hint" hidden>Нужна ссылка на продукт</p>' +
         '<label class="form__checkbox edit-egg__hatch-check">' +
           '<input type="checkbox" id="hatch-check-public"> Продукт доступен незнакомым людям (не только друзьям)' +
         '</label>' +
@@ -127,7 +126,9 @@ function renderStatusActions(currentStatus) {
       '</div>' +
       '<div class="edit-egg__hatch-row">' +
         '<button type="button" class="btn btn--warm" id="hatch-btn" disabled>🐣 Отметить вылупление</button>' +
-        '<a class="edit-egg__hatch-rules" href="hatch-rules.html" target="_blank" rel="noopener">Правила вылупления</a>' +
+        '<a class="edit-egg__hatch-rules" href="hatch-rules.html?from=' +
+          encodeURIComponent('edit-egg.html?id=' + egg.id) +
+          '">Правила вылупления</a>' +
       '</div>';
   } else if (currentStatus === 'tsyplenok') {
     html = '<p class="edit-egg__hint">Цыплёнок на свободе. Статус «курица» назначает администратор.</p>';
@@ -175,7 +176,6 @@ async function handleHatch() {
       title: title,
       description: description,
       link: urls.link,
-      demoUrl: urls.demoUrl,
       tags: getSelectedTags(),
       seeking: getSelectedSeeking()
     }, pendingCoverBlob);
@@ -200,7 +200,6 @@ function fillForm(data) {
   form.title.value = data.title || '';
   form.description.value = data.description || '';
   form.link.value = data.link || '';
-  form.demoUrl.value = data.demoUrl || '';
 
   var imageSrc = data.imageUrl || '../assets/images/egg-placeholder.svg';
   coverPreview.innerHTML = '<img src="' + imageSrc + '" alt="Обложка яйца">';
@@ -212,6 +211,9 @@ function fillForm(data) {
 onAuthStateChanged(auth, async function (user) {
   if (!user) {
     window.location.href = 'auth.html';
+    return;
+  }
+  if (redirectIfUnverified(user)) {
     return;
   }
 
@@ -284,7 +286,6 @@ form.addEventListener('submit', async function (event) {
   var title = form.title.value.trim();
   var description = form.description.value.trim();
   var link = form.link.value.trim();
-  var demoUrl = form.demoUrl.value.trim();
 
   if (!title || !description) {
     showMessage(messageEl, 'Название и описание обязательны', 'error');
@@ -298,7 +299,6 @@ form.addEventListener('submit', async function (event) {
       title: title,
       description: description,
       link: link,
-      demoUrl: demoUrl,
       tags: getSelectedTags(),
       seeking: getSelectedSeeking()
     }, pendingCoverBlob);

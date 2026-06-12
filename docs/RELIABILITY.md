@@ -181,7 +181,9 @@ Storage требует Blaze. Аватары и обложки — **data URL** 
 | Файл | Не ломать |
 |------|-----------|
 | `assets/js/core/firebase-app.js` | init app, все Firestore-запросы, retry |
-| `assets/js/pages/home.js` | лента, loading, retry |
+| `assets/js/pages/home.js` | лента, `HOME_FEEDS`, loading, retry |
+| `assets/js/pages/hall.js` | `HALL_COPY`, карточки людей, лидерборды |
+| `pages/hall.html` | **ASCII-only** — без кириллицы в разметке (см. §13) |
 | `assets/js/profile/public-profile.js` | публичный профиль, яйца |
 | `assets/js/pages/profile.js` | очередь auth-загрузок |
 | `assets/js/core/presence.js` | только `getApps()[0]` |
@@ -203,3 +205,21 @@ python scripts/check_firebase.py
 | `failed-precondition` | Задеплоить индексы |
 | `api-key-not-valid` | П.2 — сверить ключ |
 | Пусто после F5 | П.4, П.5 — retry и loading guard |
+| `???` на `hall.html` | §13 — кириллица только в `hall.js` |
+
+---
+
+## 13. Кириллица в `hall.html` (симптом `???`)
+
+**Проблема:** при сохранении `pages/hall.html` через некоторые редакторы/инструменты кириллица на диске превращается в `???`. На странице ломаются заголовки, логотип в nav и футер. Тексты из `hall.js` (списки, «Пока пусто») при этом отображаются нормально.
+
+**Правило:**
+
+1. **`hall.html` — только ASCII:** пустые элементы с `id` (`#hall-page-title`, `#hall-users-heading`, …).
+2. **Все русские строки** — объект `HALL_COPY` + `initHallCopy()` в `assets/js/pages/hall.js` (можно через `\u`-escape).
+3. **Не вставлять кириллицу** в `hall.html` при правках. Менять тексты → `HALL_COPY`, bump `hall.js?v=N`.
+4. Если снова появились `???` — перепроверить файл на диске; при необходимости восстановить UTF-8 через скрипт или перенести строки в `hall.js`.
+
+Подробнее: [platform/HALL.md](platform/HALL.md).
+
+**Чек:** открыть `/hall.html` — «Зал славы», «Люди», «Горячая камера» читаемы; в исходнике HTML нет кириллицы в статике.

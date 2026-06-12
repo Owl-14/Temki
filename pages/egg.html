@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/style.css?v=15">
+  <link rel="stylesheet" href="../assets/css/style.css?v=22">
 </head>
 <body>
   <div class="scene" aria-hidden="true">
@@ -45,6 +45,7 @@
   </nav>
 
   <main class="page">
+    <div id="egg-loading" class="empty-state">Загружаем яйцо...</div>
     <div id="egg-not-found" class="empty-state" hidden>
       <h1 class="page__title">Яйцо не найдено</h1>
       <p class="page__lead">Такого яйца нет в инкубаторе</p>
@@ -55,7 +56,10 @@
       <header class="egg-page__hero">
         <div class="egg-page__cover" id="egg-cover"></div>
         <div class="egg-page__meta">
-          <span class="egg-page__status" id="egg-status"></span>
+          <div class="egg-page__head-badges">
+            <span class="egg-page__status" id="egg-status"></span>
+            <span class="egg-page__tags" id="egg-tags"></span>
+          </div>
           <h1 class="egg-page__title" id="egg-title"></h1>
           <p class="egg-page__owner" id="egg-owner"></p>
           <p class="egg-page__views" id="egg-views"></p>
@@ -67,19 +71,15 @@
         <a class="btn btn--warm" id="egg-link" href="#" target="_blank" rel="noopener noreferrer" hidden>
           <span class="btn__text">Ссылка</span>
         </a>
-        <a class="btn btn--ghost" id="egg-demo" href="#" target="_blank" rel="noopener noreferrer" hidden>
-          <span class="btn__text">Демо</span>
-        </a>
       </div>
 
-      <div class="egg-page__tags" id="egg-tags"></div>
       <div class="egg-page__seeking" id="egg-seeking"></div>
 
       <nav class="egg-page__tabs" aria-label="Разделы яйца">
         <button type="button" class="egg-page__tab is-active" data-egg-tab="desc">Описание</button>
         <button type="button" class="egg-page__tab" data-egg-tab="milestones">Вехи</button>
         <button type="button" class="egg-page__tab" data-egg-tab="questions">Вопросы</button>
-        <button type="button" class="egg-page__tab" data-egg-tab="comments">Комментарии</button>
+        <button type="button" class="egg-page__tab" data-egg-tab="demo">Демо</button>
         <button type="button" class="egg-page__tab" data-egg-tab="try">Попробовать</button>
         <button type="button" class="egg-page__tab" data-egg-tab="invest">Тепло</button>
       </nav>
@@ -88,6 +88,23 @@
         <p class="egg-page__description" id="egg-description"></p>
         <div class="egg-page__owner-actions" id="egg-owner-actions" hidden></div>
         <div class="egg-page__stats" id="egg-stats"></div>
+
+        <div class="egg-page__comments-block">
+          <h2 class="egg-page__heading">Комментарии</h2>
+          <p class="egg-page__guest" id="egg-comment-guest" hidden>
+            <a href="auth.html">Погрейся</a>, чтобы комментировать
+          </p>
+          <form class="form egg-page__comment-form" id="egg-comment-form" hidden novalidate>
+            <label class="form__field">
+              <textarea class="form__input form__textarea" id="egg-comment-input" maxlength="500" rows="3" placeholder="Написать комментарий..."></textarea>
+            </label>
+            <p class="form-message" id="egg-comment-message" hidden></p>
+            <button class="btn btn--primary" type="submit">
+              <span class="btn__text">Отправить</span>
+            </button>
+          </form>
+          <div class="egg-page__comments" id="egg-comments"></div>
+        </div>
       </section>
 
       <section class="egg-page__section" data-egg-panel="milestones" hidden>
@@ -113,29 +130,17 @@
         <div class="egg-page__questions" id="egg-questions"></div>
       </section>
 
-      <section class="egg-page__section" data-egg-panel="comments" hidden>
-        <p class="egg-page__guest" id="egg-comment-guest" hidden>
-          <a href="auth.html">Погрейся</a>, чтобы комментировать
-        </p>
-        <form class="form egg-page__comment-form" id="egg-comment-form" hidden novalidate>
-          <label class="form__field">
-            <textarea class="form__input form__textarea" id="egg-comment-input" maxlength="500" rows="3" placeholder="Написать комментарий..."></textarea>
-          </label>
-          <p class="form-message" id="egg-comment-message" hidden></p>
-          <button class="btn btn--primary" type="submit">
-            <span class="btn__text">Отправить</span>
-          </button>
-        </form>
-        <div class="egg-page__comments" id="egg-comments"></div>
+      <section class="egg-page__section" data-egg-panel="demo" hidden>
+        <p class="egg-page__stub">Раздел в разработке</p>
+        <p class="form__hint">Скоро здесь можно будет посмотреть демо проекта прямо в инкубаторе.</p>
       </section>
 
       <section class="egg-page__section" data-egg-panel="try" hidden>
-        <div id="egg-try-block"></div>
+        <p class="egg-page__stub">Дегустация еще в разработке</p>
       </section>
 
       <section class="egg-page__section" data-egg-panel="invest" hidden>
-        <p class="egg-page__hint">Фаза 1: интерес без денег — связь с создателем</p>
-        <div id="egg-invest-block"></div>
+        <p class="egg-page__stub">Скоро здесь можно будет инвестировать в яйцо</p>
       </section>
 
       <section class="egg-page__section" hidden>
@@ -153,6 +158,6 @@
   <script src="../assets/vendor/analytics.config.js?v=5"></script>
   <script src="../assets/vendor/analytics.js?v=5"></script>
   <script type="module" src="../assets/js/core/presence.js?v=1"></script>
-  <script type="module" src="../assets/js/pages/egg.js?v=7"></script>
+  <script type="module" src="../assets/js/pages/egg.js?v=15"></script>
 </body>
 </html>

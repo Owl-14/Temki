@@ -5,7 +5,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  reload
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore,
@@ -47,8 +49,178 @@ export {
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  sendEmailVerification,
+  reload,
   serverTimestamp
 };
+
+/** URL возврата после сброса пароля — должен быть в Authorized domains Firebase. */
+export function getPasswordResetContinueUrl() {
+  if (window.location.hostname === 'owl-14.github.io') {
+    return 'https://owl-14.github.io/Temki/pages/auth.html';
+  }
+  return new URL('auth.html', window.location.href).href.split('#')[0].split('?')[0];
+}
+
+/**
+ * Письмо от noreply@temki-1409.firebaseapp.com, отображаемое имя — «Инкубатор» (Firebase Templates).
+ * При ошибке continue URL — повтор без actionCodeSettings (ссылка через firebaseapp.com).
+ */
+export async function requestPasswordReset(email) {
+  var trimmed = String(email || '').trim().toLowerCase();
+  if (!trimmed) {
+    throw new Error('EMAIL_REQUIRED');
+  }
+
+  var actionCodeSettings = {
+    url: getPasswordResetContinueUrl(),
+    handleCodeInApp: false
+  };
+
+  try {
+    await sendPasswordResetEmail(auth, trimmed, actionCodeSettings);
+  } catch (error) {
+    if (
+      error.code === 'auth/unauthorized-continue-uri' ||
+      error.code === 'auth/invalid-continue-uri'
+    ) {
+      await sendPasswordResetEmail(auth, trimmed);
+      return { fallbackLink: true };
+    }
+    throw error;
+  }
+
+  return { fallbackLink: false };
+}
+
+/** URL после подтверждения email — тот же домен, что и для сброса пароля. */
+export function getEmailVerificationContinueUrl() {
+  return getPasswordResetContinueUrl();
+}
+
+/**
+ * Письмо с ссылкой подтверждения email (Firebase Auth).
+ * При ошибке continue URL — повтор без actionCodeSettings.
+ */
+export async function requestEmailVerification(user) {
+  if (!user) {
+    throw new Error('AUTH_REQUIRED');
+  }
+
+  var actionCodeSettings = {
+    url: getEmailVerificationContinueUrl(),
+    handleCodeInApp: false
+  };
+
+  try {
+    await sendEmailVerification(user, actionCodeSettings);
+  } catch (error) {
+    if (
+      error.code === 'auth/unauthorized-continue-uri' ||
+      error.code === 'auth/invalid-continue-uri'
+    ) {
+      await sendEmailVerification(user);
+      return { fallbackLink: true };
+    }
+    throw error;
+  }
+
+  return { fallbackLink: false };
+}
+
+export async function reloadAuthUser() {
+  var user = auth.currentUser;
+  if (!user) {
+    return null;
+  }
+  await reload(user);
+  return auth.currentUser;
+}
+
+/** Для входа по паролю — пока email не подтверждён, полный доступ закрыт. */
+export function needsEmailVerification(user) {
+  if (!user || !user.email || user.emailVerified) {
+    return false;
+  }
+  return user.providerData.some(function (provider) {
+    return provider.providerId === 'password';
+  });
+}
+
+export function redirectIfUnverified(user) {
+  if (needsEmailVerification(user)) {
+    window.location.href = 'auth.html?verify=1';
+    return true;
+  }
+  return false;
+}
+
+var PENDING_PROFILE_KEY = 'incubator_pending_profile';
+
+export function savePendingProfile(uid, data) {
+  if (!uid) {
+    return;
+  }
+  localStorage.setItem(
+    PENDING_PROFILE_KEY,
+    JSON.stringify({
+      uid: uid,
+      displayName: String(data.displayName || '').trim(),
+      username: String(data.username || '').trim(),
+      bio: String(data.bio || '').trim(),
+      savedAt: Date.now()
+    })
+  );
+}
+
+export function getPendingProfile(uid) {
+  try {
+    var raw = localStorage.getItem(PENDING_PROFILE_KEY);
+    if (!raw) {
+      return null;
+    }
+    var parsed = JSON.parse(raw);
+    if (!parsed || parsed.uid !== uid) {
+      return null;
+    }
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+}
+
+export function clearPendingProfile() {
+  localStorage.removeItem(PENDING_PROFILE_KEY);
+}
+
+/**
+ * Профиль Firestore создаётся только после emailVerified.
+ * Данные регистрации хранятся в localStorage до подтверждения.
+ */
+export async function finalizePendingProfile(user) {
+  if (!user || needsEmailVerification(user)) {
+    return null;
+  }
+
+  var existing = await getUserProfile(user.uid);
+  if (existing) {
+    clearPendingProfile();
+    return existing;
+  }
+
+  var pending = getPendingProfile(user.uid);
+  if (!pending) {
+    return null;
+  }
+
+  var profile = await createUserProfile(user.uid, {
+    displayName: pending.displayName,
+    username: pending.username,
+    bio: pending.bio
+  });
+  clearPendingProfile();
+  return profile;
+}
 
 export async function getUserProfile(uid) {
   var snap = await getDoc(doc(db, 'users', uid));

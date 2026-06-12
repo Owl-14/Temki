@@ -1,4 +1,4 @@
-﻿import { auth, onAuthStateChanged } from '../core/firebase-app.js';
+﻿import { auth, onAuthStateChanged, redirectIfUnverified } from '../core/firebase-app.js';
 import { fetchNotifications, markAllNotificationsRead } from '../platform/platform-api.js';
 import { escapeHtml, formatDate } from '../core/utils.js';
 import { initNav, refreshNavBadge } from '../core/nav.js';
@@ -37,6 +37,9 @@ async function load(user) {
 onAuthStateChanged(auth, function (user) {
   if (!user) {
     window.location.href = 'auth.html';
+    return;
+  }
+  if (redirectIfUnverified(user)) {
     return;
   }
   load(user);

@@ -1,4 +1,4 @@
-﻿import { fetchEggsFiltered, EGG_TAGS } from '../platform/platform-api.js';
+﻿import { fetchEggsFiltered, EGG_TAGS, SEEKING_OPTIONS } from '../platform/platform-api.js';
 import { renderEggs, mapFirestoreEgg } from '../core/eggs.js';
 import { initNav } from '../core/nav.js';
 
@@ -18,6 +18,17 @@ function showError() {
   container.innerHTML =
     '<p class="empty-state">Не удалось загрузить. <button class="btn btn--warm" type="button" id="chamber-retry">Повторить</button></p>';
   document.getElementById('chamber-retry').addEventListener('click', loadFromForm);
+}
+
+function populateSeeking() {
+  var seekingSelect = form.querySelector('[name="seeking"]');
+  if (!seekingSelect) {
+    return;
+  }
+  seekingSelect.innerHTML = '<option value="">Любое</option>' +
+    SEEKING_OPTIONS.map(function (opt) {
+      return '<option value="' + opt.id + '">' + opt.label + '</option>';
+    }).join('');
 }
 
 function populateTags() {
@@ -56,5 +67,6 @@ form.addEventListener('submit', function (event) {
 });
 
 populateTags();
+populateSeeking();
 initNav();
 loadFromForm();
