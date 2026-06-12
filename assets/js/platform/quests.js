@@ -14,12 +14,23 @@ export function getDailyQuests() {
   return QUESTS;
 }
 
+function defaultQuestProgress() {
+  return { views: 0, questions: 0, comments: 0, claimed: [], viewedEggIds: [] };
+}
+
 export function loadQuestProgress() {
   try {
     var raw = localStorage.getItem('incubator_quests_' + todayKey());
-    return raw ? JSON.parse(raw) : { views: 0, questions: 0, comments: 0, claimed: [] };
+    if (!raw) {
+      return defaultQuestProgress();
+    }
+    var progress = JSON.parse(raw);
+    if (!Array.isArray(progress.viewedEggIds)) {
+      progress.viewedEggIds = [];
+    }
+    return progress;
   } catch (e) {
-    return { views: 0, questions: 0, comments: 0, claimed: [] };
+    return defaultQuestProgress();
   }
 }
 
@@ -33,6 +44,22 @@ export function trackQuestAction(actionKey) {
     progress[actionKey] += 1;
     saveQuestProgress(progress);
   }
+  return progress;
+}
+
+export function trackEggViewQuest(eggId) {
+  if (!eggId) {
+    return loadQuestProgress();
+  }
+
+  var progress = loadQuestProgress();
+  if (progress.viewedEggIds.indexOf(eggId) !== -1) {
+    return progress;
+  }
+
+  progress.viewedEggIds.push(eggId);
+  progress.views = progress.viewedEggIds.length;
+  saveQuestProgress(progress);
   return progress;
 }
 

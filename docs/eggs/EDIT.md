@@ -54,6 +54,15 @@ edit-egg.html?id={eggId}
 | `js/eggs.js` | Кнопка «Редактировать» при `egg.editable === true` |
 | `js/profile/public-profile.js` | `editable: true` только для владельца профиля |
 
+## Вылупление
+
+Кнопка **«🐣 Отметить вылупление»** (статус `greetsya`):
+
+1. `playHatchAnimation(egg.imageUrl)` — полноэкранный оверлей
+2. `changeEggStatus(eggId, uid, 'tsyplenok')` — после анимации
+
+Подробно: слои, анти-clipping, картинка в яйце — [HATCH.md](HATCH.md), общие правила анимаций — [ANIMATIONS.md](ANIMATIONS.md).
+
 ## Правила Firestore
 
 ```

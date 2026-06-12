@@ -8,6 +8,8 @@
 |----------|--------|
 | [PAGE.md](PAGE.md) | Страница яйца: URL, блоки UI, сценарии |
 | [LAY_EGG.md](LAY_EGG.md) | Создание яйца и анимация прогрева |
+| [HATCH.md](HATCH.md) | Вылупление: оверлей, слои, anti-clipping |
+| [ANIMATIONS.md](ANIMATIONS.md) | Общие правила анимаций яйца |
 | [EDIT.md](EDIT.md) | Редактирование и удаление яйца |
 | [DATA_MODEL.md](DATA_MODEL.md) | Коллекции Firestore |
 | [VIEWS.md](VIEWS.md) | Уникальные просмотры зарегистрированных |

@@ -49,6 +49,8 @@ createEgg() → Firestore
 
 Прогресс задаётся в JS (`js/lay-egg/warming-animation.js`) через CSS-переменную `--warm` на `.lay-egg-warming__stage` — плавный переход, не зависит от CSS `@keyframes`.
 
+**Свечение и обводка** — на целом `.lay-egg-warming__shell` (одно яйцо, без клипа половинок). При других анимациях яйца не переносить ореол внутрь `overflow: hidden` — см. [ANIMATIONS.md](ANIMATIONS.md), [HATCH.md](HATCH.md).
+
 ## Файлы
 
 | Путь | Роль |

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Правила вылупления — Инкубатор</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=15">
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene__heat"></div>
+    <div class="scene__grid"></div>
+    <div class="scene__egg scene__egg--1"></div>
+    <div class="scene__egg scene__egg--2"></div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav__brand">
+      <a class="nav__logo" href="index.html">Инкубатор</a>
+    </div>
+    <div class="nav__actions" id="nav-auth-slot"></div>
+  </nav>
+
+  <main class="page page--narrow hatch-rules-page">
+    <header class="page__header">
+      <h1 class="page__title">Правила вылупления</h1>
+      <p class="page__lead">Когда яйцо становится цыплёнком — запущенным внешним продуктом, а не идеей в разработке</p>
+    </header>
+
+    <section class="hatch-rules__section">
+      <h2 class="hatch-rules__heading">Что такое вылупление</h2>
+      <p>Вылупление — это <strong>запуск внешнего продукта</strong>: бот, сайт, приложение, сервис, к которому может зайти человек извне и что-то сделать.</p>
+      <p>Не считается вылуплением:</p>
+      <ul class="hatch-rules__list">
+        <li>идея без рабочей точки входа;</li>
+        <li>лендинг «скоро» без продукта;</li>
+        <li>закрытая альфа только для друзей без публичной ссылки;</li>
+        <li>канал или пост о проекте без самого продукта.</li>
+      </ul>
+    </section>
+
+    <section class="hatch-rules__section">
+      <h2 class="hatch-rules__heading">Чем яйцо отличается от цыплёнка</h2>
+      <table class="hatch-rules__table">
+        <thead>
+          <tr>
+            <th>Яйцо (греется)</th>
+            <th>Цыплёнок (вылупился)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Строю, ищу фидбек и тестеров</td>
+            <td>Продукт доступен снаружи</td>
+          </tr>
+          <tr>
+            <td>Ссылка необязательна</td>
+            <td>Обязательна ссылка на продукт или демо</td>
+          </tr>
+          <tr>
+            <td>«Скоро будет»</td>
+            <td>«Можно зайти и попробовать»</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="hatch-rules__section">
+      <h2 class="hatch-rules__heading">Обязательно перед вылуплением</h2>
+      <ol class="hatch-rules__list hatch-rules__list--ordered">
+        <li>Заполнено поле <strong>«Ссылка»</strong> или <strong>«Демо / продукт»</strong> — ведёт на рабочий внешний продукт (не на описание в соцсети).</li>
+        <li>Продукт доступен <strong>незнакомым людям</strong> — не только тебе и друзьям (открытая бета по ссылке тоже подходит).</li>
+        <li>Работает <strong>минимум один сценарий</strong> — не заглушка и не скриншот: зарегистрироваться, отправить команду боту, создать запись и т.п.</li>
+      </ol>
+    </section>
+
+    <section class="hatch-rules__section">
+      <h2 class="hatch-rules__heading">Лента «Недавно вылупились»</h2>
+      <p>Не каждое нажатие «Вылупилось» попадает на главную. В ленту проходят <strong>отобранные честные запуски</strong>:</p>
+      <ul class="hatch-rules__list">
+        <li>есть ссылка на внешний продукт;</li>
+        <li>и хотя бы одно из: <strong>3+ уникальных просмотра</strong> или <strong>8+ тепла</strong> на яйце (активность сообщества).</li>
+      </ul>
+      <p class="hatch-rules__hint">Статус «цыплёнок» на странице яйца сохраняется в любом случае — лента только подсвечивает те, кого уже заметили в инкубаторе.</p>
+    </section>
+
+    <section class="hatch-rules__section">
+      <h2 class="hatch-rules__heading">Курица</h2>
+      <p>Статус <strong>«курица»</strong> — отдельная стадия для проектов с теплом кормильцев. Её назначает <strong>администратор</strong>, самостоятельно поставить нельзя.</p>
+      <p>Обратно в «греется» яйцо не переводится.</p>
+    </section>
+
+    <p class="hatch-rules__back">
+      <a class="btn btn--ghost" href="javascript:history.back()">← Назад</a>
+    </p>
+  </main>
+
+  <footer class="footer">
+    <p>Инкубатор — греем яйца до вылупления</p>
+  </footer>
+
+  <script type="module" src="../assets/js/pages/hatch-rules.js?v=1"></script>
+</body>
+</html>

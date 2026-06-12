@@ -77,7 +77,7 @@
 
 | Файл | URL | Назначение | Скрипты |
 |------|-----|------------|---------|
-| `pages/index.html` | `/pages/index.html` | Главная: hero, лента, горячие | `assets/js/pages/home.js` |
+| `pages/index.html` | `/pages/index.html` | Главная: hero, горячие, инкубация, цыплята | `assets/js/pages/home.js` |
 | `pages/auth.html` | `/pages/auth.html` | Вход и регистрация | `assets/js/pages/auth.js` |
 | `pages/profile.html` | `/pages/profile.html?u=` | Публичный профиль | `assets/js/pages/profile.js` |
 | `pages/egg.html` | `/pages/egg.html?id=` | Страница яйца | `assets/js/pages/egg.js` |
@@ -86,7 +86,7 @@
 | `pages/edit-egg.html` | `/pages/edit-egg.html?id=` | Редактирование, вылупление | `assets/js/pages/edit-egg.js` |
 | `pages/chamber.html` | `/pages/chamber.html` | Камера, фильтры | `assets/js/pages/chamber.js` |
 | `pages/my-eggs.html` | `/pages/my-eggs.html` | Кабинет основателя | `assets/js/pages/my-eggs.js` |
-| `legend.html` | `/legend.html` | Онбординг-легенда мира | статика + `nav.js` |
+| `legend.html` | `/legend.html` | Легенда: стадии проекта, роли участников | статика + `nav.js` |
 | `hall.html` | `/hall.html` | Зал славы (лидерборды) | `hall.js` |
 | `notifications.html` | `/notifications.html` | Уведомления | `notifications.js` |
 | `activity.html` | `/activity.html` | Лента событий | `activity.js` |
@@ -105,18 +105,18 @@
 | **Сцена** | `.scene` | Фон: сетка, яйца, орбы, тепло |
 | **Навигация** | `.nav`, `#nav-auth-slot` | Логотип + счётчик онлайн + вход/профиль |
 | **Hero** | `.hero`, `#home` | Заголовок, текст, CTA «Смотреть яйца» |
-| **Горячая камера** | `#hot`, `#hot-feed` | Топ-6 яиц по теплу |
-| **Недавно вылупились** | `#hatched`, `#hatched-feed` | Цыплята и курицы |
+| **Горячая камера** | `#hot`, `#hot-feed` | Топ-6 яиц (`greetsya`) по теплу |
+| **Недавно вылупились** | `#hatched`, `#hatched-feed` | Отобранные вылупления (ссылка + интерес) |
 | **Задания** | `#quests-widget` | Ежедневные квесты (залогиненные) |
-| **Камера яиц** | `.chamber`, `#projects` | Секция ленты стартапов |
-| **Лента** | `#eggs-feed` | Карточки яиц из Firestore |
+| **Инкубация** | `#projects`, `#eggs-feed` | Яйца `greetsya`, новые сверху |
+| **Цыплята** | `#chicks`, `#chicks-feed` | `tsyplenok` и `kuritsa`, по дате вылупления |
 | **Подвал** | `.footer` | Футер |
 
 ### Навигация (все страницы)
 
 | Состояние | Что в `#nav-auth-slot` |
 |-----------|--------------------------|
-| Гость | «Яйца» + кнопка «Войти» |
+| Наблюдатель | «Яйца» + кнопка «Погреться» |
 | Авторизован, профиль неполный | «Дописать профиль» |
 | Авторизован | Аватар + `@username` + dropdown |
 
@@ -230,7 +230,7 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 
 | Файл | Страница | Основной поток |
 |------|----------|----------------|
-| `home.js` | `index.html` | `fetchPublishedEggs` → `#eggs-feed` |
+| `home.js` | `index.html` | `fetchHotEggs`, `fetchIncubatingEggs`, `fetchChicks`, `fetchRecentlyHatched` |
 | `auth.js` | `auth.html` | Вход → профиль; регистрация → `createUserProfile` → settings |
 | `settings.js` | `settings.html` | Профиль, аватар (data URL), сброс пароля |
 | `profile.js` | `profile.html` | Публичный профиль по `?u=`, яйца автора |

@@ -12,6 +12,65 @@ var NAV_LINKS =
   '<a class="nav__link" href="index.html#hot">Горячие</a>' +
   '<a class="nav__link" href="legend.html">Легенда</a>';
 
+function ensureNavMobileShell() {
+  var nav = document.querySelector('.nav');
+  if (!nav || nav.dataset.shellReady) {
+    return null;
+  }
+
+  var brand = nav.querySelector('.nav__brand');
+  var slot = document.getElementById('nav-auth-slot');
+  if (!brand || !slot) {
+    return null;
+  }
+
+  nav.dataset.shellReady = '1';
+
+  var top = document.createElement('div');
+  top.className = 'nav__top';
+  nav.insertBefore(top, brand);
+  top.appendChild(brand);
+
+  var toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'nav__toggle';
+  toggle.setAttribute('aria-label', 'Меню');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-controls', 'nav-auth-slot');
+  toggle.innerHTML =
+    '<span class="nav__toggle-bar"></span>' +
+    '<span class="nav__toggle-bar"></span>' +
+    '<span class="nav__toggle-bar"></span>';
+  top.appendChild(toggle);
+
+  function closeNavMenu() {
+    nav.classList.remove('nav--open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', function () {
+    var open = nav.classList.toggle('nav--open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!nav.contains(event.target)) {
+      closeNavMenu();
+    }
+  });
+
+  slot.addEventListener('click', function (event) {
+    if (event.target.closest('#nav-user-btn')) {
+      return;
+    }
+    if (event.target.closest('a, button')) {
+      closeNavMenu();
+    }
+  });
+
+  return { nav: nav, closeNavMenu: closeNavMenu };
+}
+
 function renderGuestNav(slot) {
   slot.innerHTML = NAV_LINKS +
     '<a class="nav__link" href="index.html#projects">Яйца</a>' +
@@ -110,6 +169,8 @@ export function initNav() {
   if (!slot) {
     return;
   }
+
+  ensureNavMobileShell();
 
   onAuthStateChanged(auth, async function (user) {
     if (!user) {

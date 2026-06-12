@@ -61,19 +61,54 @@ export async function fetchMilestones(eggId) {
   }), 'createdAt');
 }
 
+export var HATCH_FEED_MIN_VIEWS = 3;
+export var HATCH_FEED_MIN_HEAT = 8;
+
+export function hasExternalProductUrl(egg) {
+  if (!egg) {
+    return false;
+  }
+  return !!((egg.link || '').trim() || (egg.demoUrl || '').trim());
+}
+
+export function qualifiesForFeaturedHatch(egg) {
+  if (!egg || egg.status === 'greetsya') {
+    return false;
+  }
+  if (!hasExternalProductUrl(egg)) {
+    return false;
+  }
+  if (egg.status === 'kuritsa') {
+    return true;
+  }
+  return (egg.viewCount || 0) >= HATCH_FEED_MIN_VIEWS || (egg.heat || 0) >= HATCH_FEED_MIN_HEAT;
+}
+
 export async function changeEggStatus(eggId, uid, newStatus) {
   var allowed = ['greetsya', 'tsyplenok', 'kuritsa'];
   if (allowed.indexOf(newStatus) === -1) {
     throw new Error('STATUS_INVALID');
+  }
+  if (newStatus === 'kuritsa') {
+    throw new Error('STATUS_ADMIN_ONLY');
   }
   var eggRef = doc(db, 'eggs', eggId);
   var snap = await getDoc(eggRef);
   if (!snap.exists() || snap.data().ownerId !== uid) {
     throw new Error('EGG_NOT_FOUND');
   }
-  var oldStatus = snap.data().status;
+  var eggData = snap.data();
+  var oldStatus = eggData.status;
   if (oldStatus === newStatus) {
     return { changed: false, status: newStatus };
+  }
+  if (newStatus === 'tsyplenok') {
+    if (oldStatus !== 'greetsya') {
+      throw new Error('STATUS_INVALID');
+    }
+    if (!hasExternalProductUrl(eggData)) {
+      throw new Error('HATCH_NO_URL');
+    }
   }
   await updateDoc(eggRef, {
     status: newStatus,
@@ -89,9 +124,6 @@ export async function changeEggStatus(eggId, uid, newStatus) {
   });
   if (newStatus === 'tsyplenok') {
     await awardBadge(uid, 'hatched');
-  }
-  if (newStatus === 'kuritsa') {
-    await awardBadge(uid, 'hen');
   }
   await bumpEggHeat(eggId, 10);
   return { changed: true, status: newStatus, hatched: newStatus === 'tsyplenok' };
@@ -445,9 +477,13 @@ export async function fetchEggsFiltered(options) {
     return e.published === true;
   });
 
-  if (options.status) {
+  if (options.statuses && options.statuses.length) {
     eggs = eggs.filter(function (e) {
-      return e.status === options.status;
+      return options.statuses.indexOf(e.status || 'greetsya') !== -1;
+    });
+  } else if (options.status) {
+    eggs = eggs.filter(function (e) {
+      return (e.status || 'greetsya') === options.status;
     });
   }
   if (options.tag) {
@@ -472,6 +508,12 @@ export async function fetchEggsFiltered(options) {
     eggs.sort(function (a, b) {
       return (b.heat || 0) - (a.heat || 0);
     });
+  } else if (options.sort === 'hatched') {
+    eggs.sort(function (a, b) {
+      var aT = a.hatchedAt && a.hatchedAt.toMillis ? a.hatchedAt.toMillis() : (a.updatedAt && a.updatedAt.toMillis ? a.updatedAt.toMillis() : 0);
+      var bT = b.hatchedAt && b.hatchedAt.toMillis ? b.hatchedAt.toMillis() : (b.updatedAt && b.updatedAt.toMillis ? b.updatedAt.toMillis() : 0);
+      return bT - aT;
+    });
   } else {
     eggs.sort(function (a, b) {
       var aT = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
@@ -485,9 +527,7 @@ export async function fetchEggsFiltered(options) {
 
 export async function fetchRecentlyHatched(limitCount) {
   var eggs = await fetchEggsFiltered({ max: 100, sort: 'new' });
-  return eggs.filter(function (e) {
-    return e.status === 'tsyplenok' || e.status === 'kuritsa';
-  }).sort(function (a, b) {
+  return eggs.filter(qualifiesForFeaturedHatch).sort(function (a, b) {
     var aT = a.hatchedAt && a.hatchedAt.toMillis ? a.hatchedAt.toMillis() : (a.updatedAt && a.updatedAt.toMillis ? a.updatedAt.toMillis() : 0);
     var bT = b.hatchedAt && b.hatchedAt.toMillis ? b.hatchedAt.toMillis() : (b.updatedAt && b.updatedAt.toMillis ? b.updatedAt.toMillis() : 0);
     return bT - aT;
@@ -495,7 +535,15 @@ export async function fetchRecentlyHatched(limitCount) {
 }
 
 export async function fetchHotEggs(limitCount) {
-  return fetchEggsFiltered({ max: 80, sort: 'hot', limit: limitCount || 6 });
+  return fetchEggsFiltered({ max: 80, sort: 'hot', status: 'greetsya', limit: limitCount || 6 });
+}
+
+export async function fetchIncubatingEggs(limitCount) {
+  return fetchEggsFiltered({ max: 100, sort: 'new', status: 'greetsya', limit: limitCount || 50 });
+}
+
+export async function fetchChicks(limitCount) {
+  return fetchEggsFiltered({ max: 100, sort: 'hatched', statuses: ['tsyplenok', 'kuritsa'], limit: limitCount || 50 });
 }
 
 export async function fetchLeaderboardUsers(limitCount) {

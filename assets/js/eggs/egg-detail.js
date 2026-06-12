@@ -30,7 +30,7 @@ import {
   loadInvestSection,
   bindQuestionForm
 } from '../platform/egg-sections.js';
-import { trackQuestAction } from '../platform/quests.js';
+import { trackQuestAction, trackEggViewQuest } from '../platform/quests.js';
 import { escapeHtml, formatDate, viewsLabel, statusLabel, showMessage } from '../core/utils.js';
 
 var commentState = {
@@ -315,7 +315,6 @@ async function loadEggExtras(eggId, egg, elements, user, profile) {
 
 async function tryRecordView(eggId, user, elements, egg) {
   if (!user) {
-    trackQuestAction('views');
     return null;
   }
 
@@ -337,7 +336,7 @@ async function tryRecordView(eggId, user, elements, egg) {
     throw error;
   }
   if (!result || !result.ownEgg) {
-    trackQuestAction('views');
+    trackEggViewQuest(eggId);
   }
 
   if (result && result.counted && !result.ownEgg) {
@@ -589,7 +588,7 @@ export async function initEggPage(eggId, elements) {
   async function recordIfNeeded(user) {
     if (!user || viewRecorded) {
       if (!user) {
-        trackQuestAction('views');
+        trackEggViewQuest(eggId);
       }
       return;
     }
