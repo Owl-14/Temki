@@ -52,6 +52,15 @@ function renderOwnerButtons(egg) {
     '</button>';
 }
 
+function renderCardTags(tags) {
+  if (!tags || !tags.length) {
+    return '';
+  }
+  return tags.map(function (tag) {
+    return '<span class="egg__tag">' + escapeHtml(tag) + '</span>';
+  }).join('');
+}
+
 export function renderEggCard(egg) {
   var description = egg.description
     ? '<p class="egg__description">' + escapeHtml(egg.description) + '</p>'
@@ -66,6 +75,8 @@ export function renderEggCard(egg) {
     : '<h3 class="egg__title">' + escapeHtml(egg.title) + '</h3>';
 
   var heatBadge = egg.heat ? '<span class="egg__heat">🔥 ' + egg.heat + '</span>' : '';
+  var tagSpans = renderCardTags(egg.tags);
+  var tagsBlock = tagSpans ? '<div class="egg__tags">' + tagSpans + '</div>' : '';
 
   return '<article class="egg" data-tilt>' +
     '<div class="egg__shell">' +
@@ -77,6 +88,7 @@ export function renderEggCard(egg) {
       renderImage(egg) +
       '<div class="egg__body">' +
         titleHtml +
+        tagsBlock +
         owner +
         description +
         '<div class="egg__actions">' +
@@ -110,6 +122,7 @@ export function mapFirestoreEgg(data) {
     status: data.status || 'greetsya',
     heat: data.heat || 0,
     contain: !data.imageUrl,
-    ownerUsername: data.ownerUsername || null
+    ownerUsername: data.ownerUsername || null,
+    tags: data.tags || []
   };
 }

@@ -34,10 +34,14 @@
 |---------|--------|--------------|
 | **Firestore** (профили, яйца) | ✅ API включён | [Firestore](https://console.firebase.google.com/project/temki-1409/firestore) |
 | **Auth Email/Password** | Нужно включить вручную | [Sign-in method](https://console.firebase.google.com/project/temki-1409/authentication/providers) |
-| **Домены** `localhost`, `owl-14.github.io` | Добавить вручную | [Auth settings](https://console.firebase.google.com/project/temki-1409/authentication/settings) |
+| **Домены** `localhost`, `127.0.0.1`, `owl-14.github.io` | Добавить вручную | [Auth settings → Authorized domains](https://console.firebase.google.com/project/temki-1409/authentication/settings) |
 | **Realtime Database** (онлайн) | ✅ Работает | [Realtime Database](https://console.firebase.google.com/project/temki-1409/database) |
 | **Storage** | ❌ Не используем | Картинки в Firestore (data URL) |
 | **Правила Firestore** | Вставить из репо | `firebase/firestore.rules` → [Rules](https://console.firebase.google.com/project/temki-1409/firestore/rules) |
+| **Public-facing name** | ✅ `Инкубатор` | [Project settings → General](https://console.firebase.google.com/project/temki-1409/settings/general) → синхрон с `config/brand.config.js` |
+| **Auth Sender name** | ✅ `Инкубатор` | [Templates → Template settings](https://console.firebase.google.com/project/temki-1409/authentication/emails) |
+| **Password reset subject** | ✅ `Инкубатор — сброс пароля` | Templates → Password reset |
+| **Verification subject** | `Verify your email for Инкубатор` | Шаблон Firebase (текст письма не редактируется) |
 
 **Поддоменов нет** — один статический сайт на GitHub Pages. Все «разделы» — это HTML-страницы и якоря (`#projects`), не отдельные домены.
 
@@ -66,7 +70,7 @@
 | **Логика** | `assets/js/` | ES-модули (core, eggs, platform, pages) |
 | **Картинки** | `assets/images/` | Плейсхолдеры и статика |
 | **Vendor** | `assets/vendor/` | Метрика, `effects.js` |
-| **Конфиг** | `config/` | Firebase, presence |
+| **Конфиг** | `config/` | Firebase, brand, presence |
 | **Бэкенд** | `firebase/` + облако | Правила Firestore |
 
 Карта папок: [README.md](../README.md)
@@ -77,7 +81,7 @@
 
 | Файл | URL | Назначение | Скрипты |
 |------|-----|------------|---------|
-| `pages/index.html` | `/pages/index.html` | Главная: hero, горячие, инкубация, цыплята | `assets/js/pages/home.js` |
+| `pages/index.html` | `/pages/index.html` | Главная: hero, инкубация, цыплята | `assets/js/pages/home.js` |
 | `pages/auth.html` | `/pages/auth.html` | Вход и регистрация | `assets/js/pages/auth.js` |
 | `pages/profile.html` | `/pages/profile.html?u=` | Публичный профиль | `assets/js/pages/profile.js` |
 | `pages/egg.html` | `/pages/egg.html?id=` | Страница яйца | `assets/js/pages/egg.js` |
@@ -86,11 +90,11 @@
 | `pages/edit-egg.html` | `/pages/edit-egg.html?id=` | Редактирование, вылупление | `assets/js/pages/edit-egg.js` |
 | `pages/chamber.html` | `/pages/chamber.html` | Камера, фильтры | `assets/js/pages/chamber.js` |
 | `pages/my-eggs.html` | `/pages/my-eggs.html` | Кабинет основателя | `assets/js/pages/my-eggs.js` |
-| `legend.html` | `/legend.html` | Легенда: стадии проекта, роли участников | статика + `nav.js` |
-| `hall.html` | `/hall.html` | Зал славы (лидерборды) | `hall.js` |
+| `legend.html` | `/legend.html` | Концепция (онбординг): стадии проекта, роли | статика + `nav.js` |
+| `hall.html` | `/hall.html` | Зал славы: лидерборды, горячая камера, недавно вылупились | `hall.js` — см. [platform/HALL.md](platform/HALL.md) |
 | `notifications.html` | `/notifications.html` | Уведомления | `notifications.js` |
-| `activity.html` | `/activity.html` | Лента событий | `activity.js` |
-| `investors.html` | `/investors.html` | Витрина для кормильцев | `investors.js` |
+| `activity.html` | `/activity.html` | Подписки и лента обновлений | `activity.js` |
+| `investors.html` | `/investors.html` | Заглушка «Раздел в разработке» | `investors.js` |
 
 **Платформа (дорожная карта):** [docs/platform/README.md](platform/README.md)
 
@@ -105,11 +109,11 @@
 | **Сцена** | `.scene` | Фон: сетка, яйца, орбы, тепло |
 | **Навигация** | `.nav`, `#nav-auth-slot` | Логотип + счётчик онлайн + вход/профиль |
 | **Hero** | `.hero`, `#home` | Заголовок, текст, CTA «Смотреть яйца» |
-| **Горячая камера** | `#hot`, `#hot-feed` | Топ-6 яиц (`greetsya`) по теплу |
-| **Недавно вылупились** | `#hatched`, `#hatched-feed` | Отобранные вылупления (ссылка + интерес) |
 | **Задания** | `#quests-widget` | Ежедневные квесты (залогиненные) |
-| **Инкубация** | `#projects`, `#eggs-feed` | Яйца `greetsya`, новые сверху |
-| **Цыплята** | `#chicks`, `#chicks-feed` | `tsyplenok` и `kuritsa`, по дате вылупления |
+| **Инкубация** | `#projects`, `#eggs-feed` | Первый блок ленты: яйца `greetsya`, новые сверху |
+| **Цыплята** | `#chicks`, `#chicks-feed` | Второй блок: `tsyplenok` и `kuritsa`, по дате вылупления |
+| **Горячая камера** *(скрыто)* | `#hot`, `#hot-feed` | Перенесено на `hall.html`; на главной — `HOME_FEEDS.hot` |
+| **Недавно вылупились** *(скрыто)* | `#hatched`, `#hatched-feed` | Перенесено на `hall.html`; на главной — `HOME_FEEDS.hatched` |
 | **Подвал** | `.footer` | Футер |
 
 ### Навигация (все страницы)
@@ -122,7 +126,7 @@
 
 Dropdown: Профиль · Мои яйца · Снести яйцо · Активность · Зал славы · Инвесторам · Настройки · Выйти
 
-Глобальные ссылки: Камера · Горячие · Легенда · Яйца · 🔔 уведомления
+Глобальные ссылки: Камера · Зал славы · Концепция · Яйца · 🔔 уведомления
 
 ### `js/platform/` — платформа
 
@@ -148,7 +152,8 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 | `app`, `auth`, `db` | Инициализация Firebase |
 | `getUserProfile(uid)` | Профиль по uid |
 | `getUserByUsername(username)` | Профиль по @username (через `usernames/`) |
-| `createUserProfile(uid, data)` | Создание профиля + резерв username (транзакция) |
+| `createUserProfile(uid, data)` | Создание профиля + резерв username (только после verify) |
+| `savePendingProfile` / `finalizePendingProfile` | Данные регистрации в localStorage → профиль после verify |
 | `updateUserProfile(uid, data, currentUsername)` | Обновление, смена username |
 | `uploadAvatar(uid, blob)` | Blob → data URL (в Firestore, не Storage) |
 | `createEgg(uid, profile, data, imageBlob)` | Новое яйцо в ленте + запись в `egg_updates` |
@@ -163,7 +168,7 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 | Функция | Назначение |
 |---------|------------|
 | `normalizeUsername()` | lowercase + trim |
-| `validateUsername()` | 3–20 символов, `a-z0-9_`, запрещённые имена |
+| `validateUsername(username, label?)` | 3–20 символов, `a-z0-9_`, запрещённые имена; `label` — слово в ошибках («Тег» / «Юзернейм») |
 | `statusLabel(status)` | `greetsya` → «греется», `tsyplenok` → «цыплёнок», `kuritsa` → «курица» |
 | `escapeHtml()` | Защита от XSS в шаблонах |
 | `getQueryParam(name)` | Чтение `?u=`, `?id=` и др. |
@@ -178,7 +183,7 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 
 | Функция | Назначение |
 |---------|------------|
-| `initNav()` | Рендер `#nav-auth-slot` по состоянию Auth |
+| `initNav()` | Рендер `#nav-auth-slot`; ссылки: Камера, **Зал славы** (`hall.html`), **Концепция** (`legend.html`) |
 
 ### `js/eggs.js` — карточки яиц
 
@@ -220,7 +225,8 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 |---------|------------|
 | `loadPublicProfile(username, elements)` | Загрузка профиля и яиц по `@username` |
 | `renderProfileHeader(profile, elements)` | Аватар, имя, bio |
-| `renderOwnerActions(profile, actionsEl, user)` | «Снести яйцо», «Настройки» — только владельцу |
+| `loadProfileFollowerCount(uid, el)` | Счётчик подписчиков в шапке |
+| `renderOwnerActions(profile, actionsEl, user, options)` | «Снести яйцо», «Настройки» — только владельцу; подписка + `onFollowChange` |
 | `loadProfileEggs(...)` | Яйца автора; `editable: true` для владельца |
 | `emptyEggsMessage(isOwner)` | Текст пустого списка яиц |
 
@@ -230,8 +236,9 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 
 | Файл | Страница | Основной поток |
 |------|----------|----------------|
-| `home.js` | `index.html` | `fetchHotEggs`, `fetchIncubatingEggs`, `fetchChicks`, `fetchRecentlyHatched` |
-| `auth.js` | `auth.html` | Вход → профиль; регистрация → `createUserProfile` → settings |
+| `home.js` | `index.html` | `fetchIncubatingEggs`, `fetchChicks`; `fetchHotEggs` / `fetchRecentlyHatched` — только если `HOME_FEEDS` |
+| `hall.js` | `hall.html` | Лидерборды, горячая камера, недавно вылупились; `HALL_COPY`, карточки людей |
+| `auth.js` | `auth.html` | Вход, регистрация, сброс пароля по email |
 | `settings.js` | `settings.html` | Профиль, аватар (data URL), сброс пароля |
 | `profile.js` | `profile.html` | Публичный профиль по `?u=`, яйца автора |
 | `lay-egg.js` | `lay-egg.html` | Создание яйца, анимация прогрева → `egg.html?id=` |
@@ -310,7 +317,7 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 | `heat_events` | События начисления тепла |
 | `user_badges` | Бейджи пользователей |
 
-Поля `eggs`: `tags[]`, `seeking[]`, `heat`, `demoUrl`, `hatchedAt`
+Поля `eggs`: `tags[]` (список в `EGG_TAGS` в `platform-api.js`), `seeking[]` (`team`, `testers`, `feedback`, `invest` — подписи в `SEEKING_OPTIONS`), `heat`, `demoUrl`, `hatchedAt`
 
 ### Правила
 
@@ -442,14 +449,18 @@ git push origin main
 
 ## 12. Чеклист «всё работает»
 
-- [ ] http://localhost:5500 — главная, лента яиц из Firestore
+- [ ] http://localhost:5500 — главная: **Яйца в инкубаторе**, затем **Цыплята** (без горячей камеры на главной)
+- [ ] `/hall.html` — зал славы: люди (карточки), яйца, горячая камера, недавно вылупились; текст на русском, не `???`
+- [ ] Nav: **Зал славы**, **Концепция** (`legend.html`); регистрация — поле **Тег**
 - [ ] Счётчик «тут щас N» появляется в nav
-- [ ] `/auth.html` — регистрация нового email
+- [ ] `/auth.html` — регистрация → verify → профиль создаётся; до verify нет тепла/комментариев
+- [ ] После изменения `firestore.rules` — деплой правил (`email_verified`)
 - [ ] `/settings.html` — имя, username, аватар сохраняются
-- [ ] `/profile.html?u=USERNAME` — профиль и яйца; на своём — «Редактировать»
+- [ ] `/profile.html?u=USERNAME` — профиль, яйца, счётчик подписчиков; на своём — «Редактировать»
 - [ ] `/lay-egg.html` — анимация прогрева, яйцо на главной и в профиле
 - [ ] Удаление яйца из профиля / edit-egg / страницы яйца
 - [ ] `/egg.html?id=...` — страница яйца, просмотры, комментарии
+- [ ] Подписка на профиле → счётчик +1, `/activity.html` — список подписок и обновления яиц
 - [ ] `/edit-egg.html?id=...` — сохранение названия и описания
 - [ ] https://owl-14.github.io/Temki/ — то же после деплоя
 
@@ -461,6 +472,7 @@ git push origin main
 | Auth не пускает | Включить Email/Password, добавить домен |
 | «Фото слишком большое» | Другое фото или меньшее разрешение |
 | Счётчик не виден | Проверить `databaseURL` в `firebase.config.js` |
+| На `hall.html` вместо русского — `???` | Кириллица в `hall.html` повреждена — править только `HALL_COPY` в `hall.js`, HTML держать ASCII-only; см. [RELIABILITY.md](RELIABILITY.md) |
 
 ---
 

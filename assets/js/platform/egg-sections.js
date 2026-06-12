@@ -8,25 +8,38 @@
   getTesterStats,
   expressInvestInterest,
   hasInvestInterest,
-  BADGE_LABELS
+  BADGE_LABELS,
+  SEEKING_OPTIONS
 } from './platform-api.js';
 import { escapeHtml, formatDate, showMessage } from '../core/utils.js';
 import { trackQuestAction } from './quests.js';
 
-export function renderTags(tags) {
+export function renderTagSpans(tags, tagClass) {
   if (!tags || !tags.length) {
     return '';
   }
-  return '<div class="egg-page__tags">' + tags.map(function (tag) {
-    return '<span class="egg-page__tag">' + escapeHtml(tag) + '</span>';
-  }).join('') + '</div>';
+  var cls = tagClass || 'egg-page__tag';
+  return tags.map(function (tag) {
+    return '<span class="' + cls + '">' + escapeHtml(tag) + '</span>';
+  }).join('');
+}
+
+export function renderTags(tags) {
+  var spans = renderTagSpans(tags);
+  if (!spans) {
+    return '';
+  }
+  return '<div class="egg-page__tags">' + spans + '</div>';
 }
 
 export function renderSeeking(seeking) {
   if (!seeking || !seeking.length) {
     return '';
   }
-  var labels = { testers: 'ищу тестеров', feedback: 'ищу фидбек', invest: 'ищу тепло' };
+  var labels = {};
+  SEEKING_OPTIONS.forEach(function (opt) {
+    labels[opt.id] = opt.badge || opt.label;
+  });
   return '<div class="egg-page__seeking">' + seeking.map(function (s) {
     return '<span class="egg-page__seeking-badge">' + escapeHtml(labels[s] || s) + '</span>';
   }).join('') + '</div>';

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/style.css?v=15">
+  <link rel="stylesheet" href="../assets/css/style.css?v=22">
 </head>
 <body>
   <div class="scene" aria-hidden="true">
@@ -51,11 +51,8 @@
       </label>
       <label class="form__field">
         <span class="form__label">Ищут</span>
-        <select class="form__input" name="seeking">
+        <select class="form__input" name="seeking" id="chamber-seeking">
           <option value="">Любое</option>
-          <option value="testers">Тестеров</option>
-          <option value="feedback">Фидбек</option>
-          <option value="invest">Тепло</option>
         </select>
       </label>
       <label class="form__field">
@@ -75,6 +72,6 @@
 
   <script src="../config/firebase.config.js?v=2"></script>
   <script type="module" src="../assets/js/core/presence.js?v=1"></script>
-  <script type="module" src="../assets/js/pages/chamber.js?v=1"></script>
+  <script type="module" src="../assets/js/pages/chamber.js?v=3"></script>
 </body>
 </html>

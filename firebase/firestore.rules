@@ -4,8 +4,8 @@ service cloud.firestore {
 
   match /databases/{database}/documents {
 
-    function isAuth() {
-      return request.auth != null;
+    function isVerified() {
+      return request.auth != null && request.auth.token.email_verified == true;
     }
 
     function eggOwner(eggId) {
@@ -13,7 +13,8 @@ service cloud.firestore {
     }
 
     function isEggHeatBump() {
-      return resource.data.published == true
+      return isVerified()
+        && resource.data.published == true
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['heat'])
         && request.resource.data.heat >= resource.data.get('heat', 0)
         && request.resource.data.heat <= resource.data.get('heat', 0) + 20;
@@ -27,7 +28,8 @@ service cloud.firestore {
     }
 
     function isViewCountBump() {
-      return resource.data.published == true
+      return isVerified()
+        && resource.data.published == true
         && resource.data.ownerId != request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount'])
         && request.resource.data.viewCount is int
@@ -36,35 +38,35 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read: if true;
-      allow create: if isAuth() && request.auth.uid == uid;
-      allow update: if isAuth() && request.auth.uid == uid;
+      allow create: if isVerified() && request.auth.uid == uid;
+      allow update: if isVerified() && request.auth.uid == uid;
       allow delete: if false;
     }
 
     match /usernames/{username} {
       allow read: if true;
-      allow create: if isAuth() && request.resource.data.uid == request.auth.uid;
+      allow create: if isVerified() && request.resource.data.uid == request.auth.uid;
       allow update: if false;
-      allow delete: if isAuth() && resource.data.uid == request.auth.uid;
+      allow delete: if isVerified() && resource.data.uid == request.auth.uid;
     }
 
     match /eggs/{eggId} {
       allow read: if resource.data.published == true
-        || (isAuth() && resource.data.ownerId == request.auth.uid);
-      allow create: if isAuth()
+        || (isVerified() && resource.data.ownerId == request.auth.uid);
+      allow create: if isVerified()
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.published == true;
-      allow update: if isAuth() && (
+      allow update: if isVerified() && (
         resource.data.ownerId == request.auth.uid
         || isEggHeatBump()
         || isViewCountBump()
       );
-      allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
+      allow delete: if isVerified() && resource.data.ownerId == request.auth.uid;
     }
 
     match /egg_views/{viewId} {
-      allow read: if isAuth();
-      allow create: if isAuth()
+      allow read: if isVerified();
+      allow create: if isVerified()
         && request.resource.data.uid == request.auth.uid
         && eggOwner(request.resource.data.eggId) != request.auth.uid
         && request.resource.data.eggId is string
@@ -74,34 +76,34 @@ service cloud.firestore {
 
     match /egg_comments/{commentId} {
       allow read: if true;
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.authorId == request.auth.uid
         && request.resource.data.text is string
         && request.resource.data.text.size() > 0
         && request.resource.data.text.size() <= 500
         && request.resource.data.eggId is string;
-      allow delete: if isAuth() && resource.data.authorId == request.auth.uid;
+      allow delete: if isVerified() && resource.data.authorId == request.auth.uid;
       allow update: if false;
     }
 
     match /egg_comment_reactions/{reactionId} {
       allow read: if true;
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.commentId is string
         && request.resource.data.eggId is string
         && request.resource.data.vote in ['like', 'dislike']
         && reactionId == request.resource.data.commentId + '_' + request.auth.uid;
-      allow update: if isAuth()
+      allow update: if isVerified()
         && resource.data.uid == request.auth.uid
         && request.resource.data.uid == resource.data.uid
         && request.resource.data.vote in ['like', 'dislike'];
-      allow delete: if isAuth() && resource.data.uid == request.auth.uid;
+      allow delete: if isVerified() && resource.data.uid == request.auth.uid;
     }
 
     match /egg_updates/{updateId} {
       allow read: if true;
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.eggId is string
         && eggOwner(request.resource.data.eggId) == request.auth.uid;
       allow update, delete: if false;
@@ -109,7 +111,7 @@ service cloud.firestore {
 
     match /egg_milestones/{milestoneId} {
       allow read: if true;
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.eggId is string
         && request.resource.data.message is string
         && request.resource.data.message.size() > 0
@@ -120,14 +122,14 @@ service cloud.firestore {
 
     match /egg_questions/{questionId} {
       allow read: if true;
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.authorId == request.auth.uid
         && eggOwner(request.resource.data.eggId) != request.auth.uid
         && request.resource.data.eggId is string
         && request.resource.data.text is string
         && request.resource.data.text.size() > 0
         && request.resource.data.text.size() <= 500;
-      allow update: if isAuth()
+      allow update: if isVerified()
         && request.resource.data.eggId == resource.data.eggId
         && eggOwner(resource.data.eggId) == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answerText', 'answeredAt']);
@@ -136,11 +138,11 @@ service cloud.firestore {
 
     match /egg_testers/{testerId} {
       allow read: if true;
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.eggId is string
         && testerId == request.resource.data.eggId + '_' + request.auth.uid;
-      allow update: if isAuth() && (
+      allow update: if isVerified() && (
         resource.data.uid == request.auth.uid
         || eggOwner(resource.data.eggId) == request.auth.uid
       );
@@ -149,31 +151,31 @@ service cloud.firestore {
 
     match /follows/{followId} {
       allow read: if true;
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.followerUid == request.auth.uid
         && followId == request.resource.data.followerUid + '_' + request.resource.data.targetUid;
-      allow delete: if isAuth() && resource.data.followerUid == request.auth.uid;
+      allow delete: if isVerified() && resource.data.followerUid == request.auth.uid;
       allow update: if false;
     }
 
     match /notifications/{notifId} {
-      allow read: if isAuth() && resource.data.uid == request.auth.uid;
-      allow create: if isAuth();
-      allow update: if isAuth()
+      allow read: if isVerified() && resource.data.uid == request.auth.uid;
+      allow create: if isVerified();
+      allow update: if isVerified()
         && resource.data.uid == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
       allow delete: if false;
     }
 
     match /invest_interest/{interestId} {
-      allow read: if isAuth() && (
+      allow read: if isVerified() && (
         resource.data.investorUid == request.auth.uid
         || eggOwner(resource.data.eggId) == request.auth.uid
       );
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.investorUid == request.auth.uid
         && interestId == request.resource.data.eggId + '_' + request.auth.uid;
-      allow update: if isAuth()
+      allow update: if isVerified()
         && eggOwner(resource.data.eggId) == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
       allow delete: if false;
@@ -181,13 +183,13 @@ service cloud.firestore {
 
     match /heat_events/{eventId} {
       allow read: if false;
-      allow create: if isAuth() && request.resource.data.uid == request.auth.uid;
+      allow create: if isVerified() && request.resource.data.uid == request.auth.uid;
       allow update, delete: if false;
     }
 
     match /user_badges/{badgeId} {
       allow read: if true;
-      allow create: if isAuth()
+      allow create: if isVerified()
         && request.resource.data.uid == request.auth.uid
         && badgeId == request.resource.data.uid + '_' + request.resource.data.badgeId;
       allow update, delete: if false;

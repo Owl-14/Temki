@@ -1,22 +1,37 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Активность — Инкубатор</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=15">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=16">
 </head>
 <body>
   <nav class="nav">
     <div class="nav__brand"><a class="nav__logo" href="index.html">Инкубатор</a></div>
     <div class="nav__actions" id="nav-auth-slot"></div>
   </nav>
-  <main class="page page--narrow">
+  <main class="page page--narrow activity-page">
     <h1 class="page__title">Активность</h1>
-    <p class="page__lead">События от тех, на кого ты подписан</p>
-    <div id="activity-feed"></div>
+    <p class="page__lead">Обновления от основателей, на которых ты подписан</p>
+
+    <section class="activity-subscriptions" id="activity-subscriptions" hidden>
+      <h2 class="activity-section__title">Мои подписки</h2>
+      <ul class="activity-following-list" id="activity-following-list"></ul>
+    </section>
+
+    <section class="activity-feed-section">
+      <h2 class="activity-section__title">Обновления</h2>
+      <div id="activity-feed"></div>
+    </section>
   </main>
+  <footer class="footer">
+    <p>Инкубатор — греем яйца до вылупления</p>
+  </footer>
   <script src="../config/firebase.config.js?v=2"></script>
-  <script type="module" src="../assets/js/pages/activity.js?v=1"></script>
+  <script type="module" src="../assets/js/pages/activity.js?v=2"></script>
 </body>
 </html>

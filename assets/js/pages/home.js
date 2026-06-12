@@ -4,6 +4,12 @@ import { renderQuestsWidget } from '../platform/quests.js';
 import { initNav } from '../core/nav.js';
 import { renderEggs, mapFirestoreEgg } from '../core/eggs.js';
 
+/** Блоки главной: включить и убрать hidden с секций в index.html */
+var HOME_FEEDS = {
+  hot: false,
+  hatched: false
+};
+
 var container = document.getElementById('eggs-feed');
 var hotContainer = document.getElementById('hot-feed');
 var hatchedContainer = document.getElementById('hatched-feed');
@@ -128,7 +134,11 @@ onAuthStateChanged(auth, function (user) {
 });
 
 initNav();
-loadHot();
-loadHatched();
+if (HOME_FEEDS.hot) {
+  loadHot();
+}
+if (HOME_FEEDS.hatched) {
+  loadHatched();
+}
 loadFeed();
 loadChicks();

@@ -23,9 +23,15 @@
 
 ## Подписки
 
-`follows/{followerUid}_{targetUid}` — подписка на основателя.
+Подписка на **основателя** — лента обновлений его яиц на `activity.html`.
 
-Лента: `activity.html` — вылупления и вехи от подписок.
+Полное описание: **[FOLLOWS.md](FOLLOWS.md)**.
+
+Кратко:
+
+- `follows/{followerUid}_{targetUid}` — кнопка на `profile.html`
+- События: `egg_updates` (создание, веха, вылупление, правки)
+- Уведомление основателю: `new_follower`
 
 ## Уведомления
 
@@ -53,7 +59,7 @@
 { eggId, uid, username, status, feedback?, rating?, createdAt }
 ```
 
-UI: блок «Попробовать» на `egg.html`, список в `my-eggs.html`.
+UI: вкладка «Попробовать» на `egg.html` (пока заглушка).
 
 ## Вехи
 

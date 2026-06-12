@@ -4,7 +4,7 @@
   deleteEgg,
   waitForAuth
 } from '../core/firebase-app.js';
-import { fetchUserBadges, toggleFollow, isFollowing } from '../platform/platform-api.js';
+import { fetchUserBadges, toggleFollow, isFollowing, fetchFollowerCount } from '../platform/platform-api.js';
 import { renderBadges } from '../platform/egg-sections.js';
 import { escapeHtml } from '../core/utils.js';
 import { renderEggs, mapFirestoreEgg } from '../core/eggs.js';
@@ -14,6 +14,23 @@ export function emptyEggsMessage(isOwner) {
     return 'Тут пока пусто — снеси своё';
   }
   return 'Тут пока нет яиц';
+}
+
+export function formatFollowerCount(count) {
+  var n = Math.max(0, Number(count) || 0);
+  var abs = n % 100;
+  var last = abs % 10;
+
+  if (abs > 10 && abs < 20) {
+    return n + ' подписчиков';
+  }
+  if (last === 1) {
+    return n + ' подписчик';
+  }
+  if (last >= 2 && last <= 4) {
+    return n + ' подписчика';
+  }
+  return n + ' подписчиков';
 }
 
 export function renderProfileHeader(profile, elements) {
@@ -52,7 +69,26 @@ export async function loadProfileBadges(uid, badgesEl) {
   }
 }
 
-export async function renderOwnerActions(profile, actionsEl, user) {
+export async function loadProfileFollowerCount(uid, followersEl) {
+  if (!followersEl) {
+    return null;
+  }
+
+  followersEl.hidden = false;
+  followersEl.textContent = '…';
+
+  try {
+    var count = await fetchFollowerCount(uid);
+    followersEl.textContent = formatFollowerCount(count);
+    return count;
+  } catch (error) {
+    console.error(error);
+    followersEl.hidden = true;
+    return null;
+  }
+}
+
+export async function renderOwnerActions(profile, actionsEl, user, options) {
   if (user && user.uid === profile.uid) {
     actionsEl.innerHTML =
       '<a class="btn btn--primary" href="lay-egg.html">' +
@@ -78,6 +114,9 @@ export async function renderOwnerActions(profile, actionsEl, user) {
   document.getElementById('follow-btn').addEventListener('click', async function () {
     var result = await toggleFollow(user.uid, profile.uid, profile.username);
     document.getElementById('follow-btn').textContent = result.following ? 'Отписаться' : 'Подписаться';
+    if (options && typeof options.onFollowChange === 'function') {
+      await options.onFollowChange();
+    }
   });
 }
 
@@ -183,7 +222,12 @@ export async function loadPublicProfile(username, elements, authUser) {
 
   renderProfileHeader(profile, elements.header);
   await loadProfileBadges(profile.uid, elements.badges);
-  await renderOwnerActions(profile, elements.actions, authUser);
+  await loadProfileFollowerCount(profile.uid, elements.header.followers);
+  await renderOwnerActions(profile, elements.actions, authUser, {
+    onFollowChange: function () {
+      return loadProfileFollowerCount(profile.uid, elements.header.followers);
+    }
+  });
   await loadProfileEggs(profile, elements, authUser);
 
   return profile;

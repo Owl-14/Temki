@@ -1,4 +1,4 @@
-﻿import { db, serverTimestamp } from '../core/firebase-app.js';
+﻿import { auth, db, serverTimestamp } from '../core/firebase-app.js';
 import {
   doc,
   getDoc,
@@ -10,16 +10,29 @@ import {
   where,
   limit,
   getDocs,
+  getCountFromServer,
   runTransaction,
   orderBy,
   writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-export var EGG_TAGS = ['ai', 'боты', 'fintech', 'мобайл', 'saas', 'маркетплейс', 'игры', 'другое'];
+export var EGG_TAGS = [
+  'Приложение',
+  'Чатбот',
+  'Сайт',
+  'B2C',
+  'B2B',
+  'Маркетплейс',
+  'Инструмент',
+  'Скилл',
+  'Нейро',
+  'другое'
+];
 export var SEEKING_OPTIONS = [
-  { id: 'testers', label: 'Тестеров' },
-  { id: 'feedback', label: 'Обратную связь' },
-  { id: 'invest', label: 'Тепло от кормильцев' }
+  { id: 'team', label: 'Команду', badge: 'ищу команду' },
+  { id: 'testers', label: 'Тестеров', badge: 'ищу тестеров' },
+  { id: 'feedback', label: 'Обратную связь', badge: 'ищу обратную связь' },
+  { id: 'invest', label: 'Инвестиции', badge: 'ищу инвестиции' }
 ];
 
 function sortByTime(items, field) {
@@ -68,7 +81,7 @@ export function hasExternalProductUrl(egg) {
   if (!egg) {
     return false;
   }
-  return !!((egg.link || '').trim() || (egg.demoUrl || '').trim());
+  return !!((egg.link || '').trim());
 }
 
 export function qualifiesForFeaturedHatch(egg) {
@@ -311,6 +324,77 @@ export async function fetchFollowing(uid) {
   });
 }
 
+export async function fetchFollowerCount(targetUid) {
+  if (!targetUid) {
+    return 0;
+  }
+  var q = query(collection(db, 'follows'), where('targetUid', '==', targetUid));
+  var snap = await getCountFromServer(q);
+  return snap.data().count;
+}
+
+export var ACTIVITY_FEED_TYPES = ['created', 'edited', 'milestone', 'hatched', 'status'];
+
+export async function fetchFollowedActivity(uid, limitCount) {
+  var follows = await fetchFollowing(uid);
+  if (!follows.length) {
+    return { follows: [], events: [] };
+  }
+
+  var followedUsernames = {};
+  follows.forEach(function (f) {
+    followedUsernames[f.targetUid] = f.targetUsername || '';
+  });
+
+  var followedEggIds = {};
+  var eggInfo = {};
+  var ownerUids = Object.keys(followedUsernames);
+  var i;
+
+  for (i = 0; i < ownerUids.length; i++) {
+    var ownerUid = ownerUids[i];
+    var eggsQuery = query(
+      collection(db, 'eggs'),
+      where('ownerId', '==', ownerUid),
+      where('published', '==', true),
+      limit(50)
+    );
+    var eggsSnap = await getDocs(eggsQuery);
+    eggsSnap.docs.forEach(function (d) {
+      var data = d.data();
+      followedEggIds[d.id] = true;
+      eggInfo[d.id] = {
+        title: data.title || 'Яйцо',
+        ownerUsername: data.ownerUsername || followedUsernames[ownerUid]
+      };
+    });
+  }
+
+  if (!Object.keys(followedEggIds).length) {
+    return { follows: follows, events: [] };
+  }
+
+  var updatesSnap = await getDocs(query(collection(db, 'egg_updates'), limit(200)));
+  var events = updatesSnap.docs.map(function (d) {
+    return Object.assign({ id: d.id }, d.data());
+  }).filter(function (e) {
+    return followedEggIds[e.eggId] && ACTIVITY_FEED_TYPES.indexOf(e.type) !== -1;
+  }).map(function (e) {
+    var info = eggInfo[e.eggId] || {};
+    return Object.assign({}, e, {
+      eggTitle: info.title,
+      ownerUsername: info.ownerUsername
+    });
+  });
+
+  return {
+    follows: sortByTime(follows.map(function (f, idx) {
+      return Object.assign({ id: f.followerUid + '_' + f.targetUid }, f);
+    }), 'createdAt'),
+    events: sortByTime(events, 'createdAt').slice(0, limitCount || 30)
+  };
+}
+
 export async function createNotification(data) {
   await addDoc(collection(db, 'notifications'), {
     uid: data.uid,
@@ -404,6 +488,10 @@ export async function hasInvestInterest(eggId, uid) {
 }
 
 export async function addUserHeat(uid, amount, reason) {
+  if (!auth.currentUser || !auth.currentUser.emailVerified) {
+    return;
+  }
+
   var userRef = doc(db, 'users', uid);
   return runTransaction(db, async function (tx) {
     var snap = await tx.get(userRef);

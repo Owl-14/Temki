@@ -14,6 +14,7 @@ var elements = {
     username: document.getElementById('profile-username'),
     bio: document.getElementById('profile-bio'),
     heat: document.getElementById('profile-heat'),
+    followers: document.getElementById('profile-followers'),
     avatar: document.getElementById('profile-avatar')
   },
   badges: document.getElementById('profile-badges'),

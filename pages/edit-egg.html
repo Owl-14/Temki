@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/style.css?v=15">
+  <link rel="stylesheet" href="../assets/css/style.css?v=21">
 </head>
 <body>
   <div class="scene" aria-hidden="true">
@@ -97,10 +97,6 @@
           <span class="form__label">Ссылка</span>
           <input class="form__input" type="url" name="link" placeholder="https://t.me/...">
         </label>
-        <label class="form__field">
-          <span class="form__label">Демо / продукт</span>
-          <input class="form__input" type="url" name="demoUrl" placeholder="https://...">
-        </label>
 
         <fieldset class="form__fieldset" id="edit-egg-tags-field">
           <legend class="form__label">Теги</legend>
@@ -124,7 +120,30 @@
   <div id="hatch-overlay" class="hatch-overlay" aria-live="polite">
     <div class="hatch-overlay__backdrop"></div>
     <div class="hatch-overlay__stage">
-      <div class="hatch-overlay__egg"></div>
+      <div class="hatch-overlay__egg" aria-hidden="true">
+        <div class="hatch-overlay__aura" aria-hidden="true"></div>
+        <div class="hatch-overlay__glow" aria-hidden="true"></div>
+        <div class="hatch-overlay__shell hatch-overlay__shell--left">
+          <div class="hatch-overlay__body">
+            <div class="hatch-overlay__avatar-wrap"></div>
+            <div class="hatch-overlay__shell-glaze" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="hatch-overlay__shell hatch-overlay__shell--right">
+          <div class="hatch-overlay__body">
+            <div class="hatch-overlay__avatar-wrap"></div>
+            <div class="hatch-overlay__shell-glaze" aria-hidden="true"></div>
+          </div>
+        </div>
+        <svg class="hatch-overlay__cracks" viewBox="0 0 200 260" aria-hidden="true">
+          <path class="hatch-overlay__crack-line" d="M100 29 L95 68 L105 111 L97 154 L102 198 L98 241" />
+          <path class="hatch-overlay__crack-line hatch-overlay__crack-line--branch" d="M95 68 L67 59 L53 46" />
+          <path class="hatch-overlay__crack-line hatch-overlay__crack-line--branch" d="M105 111 L137 101 L150 85" />
+          <path class="hatch-overlay__crack-line hatch-overlay__crack-line--branch" d="M97 154 L73 166 L60 182" />
+          <path class="hatch-overlay__crack-line hatch-overlay__crack-line--branch" d="M102 198 L127 208 L143 224" />
+        </svg>
+        <div class="hatch-overlay__chick" aria-hidden="true">🐣</div>
+      </div>
       <p class="hatch-overlay__text">Трещина...</p>
     </div>
   </div>
@@ -137,6 +156,6 @@
   <script src="../assets/vendor/analytics.config.js?v=5"></script>
   <script src="../assets/vendor/analytics.js?v=5"></script>
   <script type="module" src="../assets/js/core/presence.js?v=1"></script>
-  <script type="module" src="../assets/js/pages/edit-egg.js?v=3"></script>
+  <script type="module" src="../assets/js/pages/edit-egg.js?v=6"></script>
 </body>
 </html>
