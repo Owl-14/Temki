@@ -23,6 +23,8 @@
 | Юзернейм | `users/{uid}.username` |
 | О себе | `users/{uid}.bio` |
 | Подписчики | `follows` where `targetUid == uid` (счётчик в шапке) |
+| Личное тепло | `users/{uid}.heat` — полоска в шапке профиля |
+| Бейджи | `user_badges` — только `first_comment`, `laid_egg`, `hatched` (см. [GAMIFICATION.md](../platform/GAMIFICATION.md)) |
 | Яйца | `eggs` where `ownerId == uid` and `published == true` |
 
 ## Что скрыто от чужих
@@ -40,7 +42,7 @@
 | Кто смотрит | Что на карточке |
 |-------------|-----------------|
 | Наблюдатель / чужой | Название → `egg.html`, обложка, описание, «Ссылка» |
-| Владелец | То же + **«Редактировать»** и **«Удалить»** |
+| Владелец | То же + **«Редактировать»** и **«Удалить»** (модальное подтверждение) |
 
 Логика: `public-profile.js` ставит `editable: true` в `mapFirestoreEgg`, `eggs.js` рендерит кнопку.
 
@@ -69,7 +71,8 @@
 | `js/pages/profile.js` | Точка входа страницы |
 | `js/profile/public-profile.js` | Логика публичного просмотра, `editable` на яйцах |
 | `js/eggs.js` | Рендер карточек, кнопка «Редактировать» |
-| `js/firebase-app.js` | `getUserByUsername`, `fetchUserEggs` |
+| `js/core/confirm-modal.js` | Подтверждение удаления яйца |
+| `js/firebase-app.js` | `getUserByUsername`, `fetchUserEggs`, `deleteEgg` |
 | `firebase/firestore.rules` | `users` read: all; `eggs` read: published |
 
 ---
@@ -96,16 +99,11 @@ onAuthStateChanged → если uid совпал → кнопки владель
 
 ## Правила безопасности (Firestore)
 
-```js
-// users — читать может кто угодно
-allow read: if true;
+- `users` — read: all; update профиля — только владелец; `heat` — инкремент +1…+10
+- `eggs` — read: published или владелец; update — whitelist полей (не heat/viewCount через edit)
+- Удалить чужой профиль или яйцо **невозможно**
 
-// eggs — гость видит только published
-allow read: if resource.data.published == true
-  || (request.auth != null && resource.data.ownerId == request.auth.uid);
-```
-
-Редактировать чужой профиль или яйца **невозможно** — правила запрещают write без совпадения `uid`.
+Подробнее: [platform/SECURITY.md](../platform/SECURITY.md).
 
 ---
 

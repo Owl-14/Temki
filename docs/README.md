@@ -14,6 +14,7 @@
 | Письма Auth (тема, русский текст) | [blocks/AUTH_EMAILS.md](blocks/AUTH_EMAILS.md) | Firebase Console → Templates |
 | Яйца | [eggs/README.md](eggs/README.md) | Просмотр, редактирование, комментарии, просмотры |
 | **Платформа** | [platform/README.md](platform/README.md) | Видение, роли, UI, геймификация, зал славы, roadmap |
+| **Безопасность Firestore** | [platform/SECURITY.md](platform/SECURITY.md) | Rules prod: тепло, яйца, бейджи, verify email |
 
 ### Платформа — зал славы и главная
 

@@ -1,5 +1,7 @@
 # Модель данных — яйца
 
+Профиль пользователя (`users`, `pending_profiles`, `users.heat`) — см. [DOCUMENTATION.md §5](../DOCUMENTATION.md#5-firebase-коллекции-и-правила).
+
 ## `eggs/{eggId}` (расширение)
 
 ```js
@@ -13,6 +15,7 @@
   status: 'greetsya' | 'tsyplenok' | 'kuritsa',
   published: boolean,
   viewCount: number,        // уникальные просмотры зарегистрированных
+  heat: number,             // тепло яйца; bump +1…+10 за запрос (rules)
   createdAt: timestamp,
   updatedAt: timestamp
 }

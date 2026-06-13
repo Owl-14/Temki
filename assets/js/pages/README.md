@@ -7,7 +7,7 @@
 | `home.js` | `index.html` |
 | `auth.js` | `auth.html` |
 | `profile.js` | `profile.html` |
-| `settings.js` | `settings.html` |
+| `settings.js` | `settings.html` — удаление аккаунта через `confirm-modal` |
 | `egg.js` | `egg.html` |
 | `lay-egg.js` | `lay-egg.html` |
 | `edit-egg.js` | `edit-egg.html` |

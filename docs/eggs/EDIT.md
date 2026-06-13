@@ -33,7 +33,7 @@ edit-egg.html?id={eggId}
 ## Удаление
 
 - Кнопка **«Удалить»** на `edit-egg.html`, в своём профиле и на странице яйца
-- Модальное окно: «Вы точно хотите удалить своё яйцо?» — **Отмена** / клик по фону / Escape закрывают без удаления; **Да, удалить** запускает `deleteEgg`
+- Модальное окно через `showConfirmModal` (`confirm-modal.js`): «Вы точно хотите удалить своё яйцо?» — **Отмена** / клик по фону / Escape закрывают без удаления; **Да, удалить** запускает `deleteEgg`
 - `deleteEgg(eggId, uid)` — удаляет документ из `eggs`
 - После удаления — редирект в профиль
 
@@ -52,7 +52,8 @@ edit-egg.html?id={eggId}
 | `js/firebase-app.js` | `updateEgg(eggId, uid, data, imageBlob)` |
 | `js/egg/egg-api.js` | `getEggById` — чтение для формы |
 | `js/eggs.js` | Кнопка «Редактировать» при `egg.editable === true` |
-| `js/profile/public-profile.js` | `editable: true` только для владельца профиля |
+| `js/core/confirm-modal.js` | `showConfirmModal` — подтверждение удаления |
+| `js/profile/public-profile.js` | `editable: true` только для владельца профиля; удаление с модалкой |
 
 ## Вылупление
 
@@ -67,8 +68,12 @@ edit-egg.html?id={eggId}
 
 ```
 eggs:
-  update: ownerId == auth.uid  (полное обновление полей владельцем)
+  create: heat == 0, viewCount == 0, status == greetsya (rules)
+  update (владелец): whitelist полей title, description, link, imageUrl, status, …
+                      heat / viewCount / kuritsa — не через edit
 
 egg_updates:
   create: владелец яйца (при сохранении редактирования)
 ```
+
+Полная таблица: [platform/SECURITY.md](../platform/SECURITY.md).

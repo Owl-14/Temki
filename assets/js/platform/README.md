@@ -30,6 +30,9 @@
 - `fetchIncubatingEggs` — лента «Яйца в инкубаторе» (`greetsya`).
 - `fetchChicks` — лента «Цыплята» (`tsyplenok`, `kuritsa`).
 - `toggleFollow` / `fetchFollowedActivity` / `fetchFollowerCount` — подписки, счётчик на профиле, лента `activity.html` → `docs/platform/FOLLOWS.md`.
+- `maybeAwardIncubatorVoiceBadge` — бейдж «Голос инкубатора» после 5 комментариев под чужими яйцами.
+- `awardBadge` — только `first_comment`, `laid_egg`, `hatched` (rules whitelist).
+- `addUserHeat` / `bumpEggHeat` — +1…+10 за запрос (rules).
 - `qualifiesForFeaturedHatch` — лента «Недавно вылупились»; `hasExternalProductUrl`.
 
-Документация: `docs/platform/GAMIFICATION.md`, `docs/eggs/VIEWS.md`, `docs/eggs/HATCH.md`
+Документация: `docs/platform/GAMIFICATION.md`, `docs/platform/SECURITY.md`, `docs/eggs/VIEWS.md`, `docs/eggs/HATCH.md`

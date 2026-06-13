@@ -28,6 +28,8 @@
       ↓
 createEgg() → Firestore
       ↓
++1 личного тепла, бейдж «Снес своё»
+      ↓
 Анимация ~4.2 с (--warm 0 → 1)
       ↓
 Редирект на egg.html?id={eggId}
@@ -59,6 +61,7 @@ createEgg() → Firestore
 | `js/pages/lay-egg.js` | Валидация, `createEgg`, запуск анимации |
 | `js/lay-egg/warming-animation.js` | `startLayEggWarming()`, прогресс `--warm` |
 | `js/firebase-app.js` | `createEgg()` |
+| `js/platform/platform-api.js` | `addUserHeat`, `awardBadge('laid_egg')` |
 | `style.css` | `.lay-egg-warming__*` |
 
 ## После создания

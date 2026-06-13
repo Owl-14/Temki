@@ -16,8 +16,9 @@ service cloud.firestore {
       return isVerified()
         && resource.data.published == true
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['heat'])
+        && request.resource.data.heat is int
         && request.resource.data.heat >= resource.data.get('heat', 0)
-        && request.resource.data.heat <= resource.data.get('heat', 0) + 20;
+        && request.resource.data.heat <= resource.data.get('heat', 0) + 10;
     }
 
     function eggViewCount() {
@@ -36,14 +37,121 @@ service cloud.firestore {
         && request.resource.data.viewCount == eggViewCount() + 1;
     }
 
+    function isEggStatusOk() {
+      let newStatus = request.resource.data.get('status', resource.data.get('status', 'greetsya'));
+      let oldStatus = resource.data.get('status', 'greetsya');
+      return newStatus != 'kuritsa'
+        && (newStatus == oldStatus || (oldStatus == 'greetsya' && newStatus == 'tsyplenok'));
+    }
+
+    function isEggOwnerEdit() {
+      let diff = request.resource.data.diff(resource.data).affectedKeys();
+      return isVerified()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.ownerUsername == resource.data.ownerUsername
+        && request.resource.data.published == resource.data.published
+        && request.resource.data.get('heat', 0) == resource.data.get('heat', 0)
+        && request.resource.data.get('viewCount', 0) == resource.data.get('viewCount', 0)
+        && isEggStatusOk()
+        && (
+          diff.hasOnly(['title', 'description', 'link', 'demoUrl', 'tags', 'seeking', 'updatedAt'])
+          || diff.hasOnly(['title', 'description', 'link', 'demoUrl', 'tags', 'seeking', 'updatedAt', 'imageUrl'])
+          || diff.hasOnly(['title', 'description', 'link', 'demoUrl', 'tags', 'seeking', 'updatedAt', 'imageUrl', 'status', 'hatchedAt'])
+          || diff.hasOnly(['status', 'hatchedAt', 'updatedAt'])
+          || diff.hasOnly(['updatedAt'])
+        );
+    }
+
+    function isValidEggCreate() {
+      return isVerified()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.published == true
+        && request.resource.data.get('heat', 0) == 0
+        && request.resource.data.get('viewCount', 0) == 0
+        && request.resource.data.get('status', 'greetsya') == 'greetsya'
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 60
+        && request.resource.data.description is string
+        && request.resource.data.description.size() > 0
+        && request.resource.data.description.size() <= 500
+        && request.resource.data.ownerUsername is string;
+    }
+
+    function isUserProfileUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+        ['displayName', 'username', 'bio', 'avatarUrl', 'updatedAt']
+      );
+    }
+
+    function isUserHeatBump() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['heat'])
+        && request.resource.data.heat is int
+        && request.resource.data.heat >= resource.data.get('heat', 0)
+        && request.resource.data.heat <= resource.data.get('heat', 0) + 10;
+    }
+
+    function isValidUserCreate(userId) {
+      return isVerified()
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.keys().hasOnly([
+          'uid', 'displayName', 'username', 'bio', 'avatarUrl', 'createdAt', 'updatedAt'
+        ]);
+    }
+
+    function isValidNotificationCreate() {
+      return isVerified()
+        && request.resource.data.fromUid == request.auth.uid
+        && request.resource.data.read == false
+        && request.resource.data.uid is string
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.type in [
+          'new_question', 'question_answered', 'tester_signed_up', 'new_follower', 'invest_interest'
+        ]
+        && (
+          (request.resource.data.type == 'new_follower'
+            && request.resource.data.uid != request.auth.uid)
+          || (request.resource.data.eggId is string
+            && request.resource.data.eggId.size() > 0
+            && (
+              (request.resource.data.type in ['new_question', 'tester_signed_up', 'invest_interest']
+                && eggOwner(request.resource.data.eggId) == request.resource.data.uid)
+              || (request.resource.data.type == 'question_answered'
+                && eggOwner(request.resource.data.eggId) == request.auth.uid
+                && request.resource.data.uid != request.auth.uid)
+            ))
+        );
+    }
+
+    function isValidHeatEventCreate() {
+      return isVerified()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.amount is int
+        && request.resource.data.amount > 0
+        && request.resource.data.amount <= 10
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() > 0
+        && request.resource.data.reason.size() <= 64;
+    }
+
+    function isAllowedBadgeId(badgeId) {
+      return badgeId in ['first_comment', 'laid_egg', 'hatched'];
+    }
+
     match /pending_profiles/{uid} {
       allow read, write, delete: if request.auth != null && request.auth.uid == uid;
     }
 
     match /users/{uid} {
       allow read: if true;
-      allow create: if isVerified() && request.auth.uid == uid;
-      allow update: if isVerified() && request.auth.uid == uid;
+      allow create: if isValidUserCreate(uid);
+      allow update: if isVerified()
+        && request.auth.uid == uid
+        && (isUserProfileUpdate() || isUserHeatBump());
       allow delete: if isVerified() && request.auth.uid == uid;
     }
 
@@ -57,11 +165,9 @@ service cloud.firestore {
     match /eggs/{eggId} {
       allow read: if resource.data.published == true
         || (isVerified() && resource.data.ownerId == request.auth.uid);
-      allow create: if isVerified()
-        && request.resource.data.ownerId == request.auth.uid
-        && request.resource.data.published == true;
+      allow create: if isValidEggCreate();
       allow update: if isVerified() && (
-        resource.data.ownerId == request.auth.uid
+        isEggOwnerEdit()
         || isEggHeatBump()
         || isViewCountBump()
       );
@@ -164,7 +270,7 @@ service cloud.firestore {
 
     match /notifications/{notifId} {
       allow read: if isVerified() && resource.data.uid == request.auth.uid;
-      allow create: if isVerified();
+      allow create: if isValidNotificationCreate();
       allow update: if isVerified()
         && resource.data.uid == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
@@ -187,7 +293,7 @@ service cloud.firestore {
 
     match /heat_events/{eventId} {
       allow read: if false;
-      allow create: if isVerified() && request.resource.data.uid == request.auth.uid;
+      allow create: if isValidHeatEventCreate();
       allow update, delete: if false;
     }
 
@@ -195,7 +301,8 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isVerified()
         && request.resource.data.uid == request.auth.uid
-        && badgeId == request.resource.data.uid + '_' + request.resource.data.badgeId;
+        && badgeId == request.resource.data.uid + '_' + request.resource.data.badgeId
+        && isAllowedBadgeId(request.resource.data.badgeId);
       allow update: if false;
       allow delete: if isVerified() && resource.data.uid == request.auth.uid;
     }

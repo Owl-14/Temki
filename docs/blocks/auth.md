@@ -35,7 +35,7 @@
 
 | Кнопка | Действие |
 |--------|----------|
-| **Отправить ещё раз** | `requestEmailVerification(currentUser)` — кнопка неактивна **60 сек** после отправки (таймер на кнопке) |
+| **Отправить ещё раз** | `requestEmailVerification(currentUser)` — кнопка неактивна **60 сек** после отправки; при `auth/too-many-requests` — **120 сек** |
 | **Я подтвердил — проверить** | `reloadAuthUser()` → если `emailVerified`, редирект в профиль |
 | **Выйти** | `signOut` → форма входа |
 
@@ -67,7 +67,8 @@
 |---------|------------|
 | `requestEmailVerification(user)` | Письмо подтверждения email |
 | `reloadAuthUser()` | Обновить `emailVerified` после клика по ссылке |
-| `savePendingProfile` / `finalizePendingProfile` | Профиль Firestore только после verify |
+| `savePendingProfile` / `finalizePendingProfile` / `fetchPendingProfile` | Профиль Firestore только после verify; fallback из Firestore |
+| `deleteUserAccount(user)` | Полное удаление данных и Auth-аккаунта |
 | `needsEmailVerification(user)` | `true` для password-провайдера без `emailVerified` |
 | `redirectIfUnverified(user)` | Редирект на `auth.html?verify=1` |
 | `requestPasswordReset(email)` | Сброс пароля |
