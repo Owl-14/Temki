@@ -7,7 +7,7 @@
 } from '../core/firebase-app.js';
 import { startLayEggWarming } from '../lay-egg/warming-animation.js';
 import { resizeImageFile, showMessage } from '../core/utils.js';
-import { EGG_TAGS, SEEKING_OPTIONS, awardBadge } from '../platform/platform-api.js';
+import { EGG_TAGS, SEEKING_OPTIONS, awardBadge, addUserHeat } from '../platform/platform-api.js';
 import { initNav } from '../core/nav.js';
 
 var messageEl = document.getElementById('lay-egg-message');
@@ -139,6 +139,7 @@ form.addEventListener('submit', async function (event) {
     }, pendingCoverBlob);
 
     try {
+      await addUserHeat(user.uid, 1, 'laid_egg');
       await awardBadge(user.uid, 'laid_egg');
     } catch (e) {
       console.error(e);

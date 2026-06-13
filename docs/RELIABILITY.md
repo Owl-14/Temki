@@ -187,7 +187,7 @@ Storage требует Blaze. Аватары и обложки — **data URL** 
 | `assets/js/profile/public-profile.js` | публичный профиль, яйца |
 | `assets/js/pages/profile.js` | очередь auth-загрузок |
 | `assets/js/core/presence.js` | только `getApps()[0]` |
-| `firebase/firestore.rules` | read users всем, eggs — published |
+| `firebase/firestore.rules` | read users всем, eggs — published; whitelist update, лимиты heat |
 | `firebase/firestore.indexes.json` | индекс ownerId+published |
 
 ---
@@ -223,3 +223,30 @@ python scripts/check_firebase.py
 Подробнее: [platform/HALL.md](platform/HALL.md).
 
 **Чек:** открыть `/hall.html` — «Зал славы», «Люди», «Горячая камера» читаемы; в исходнике HTML нет кириллицы в статике.
+
+---
+
+## 14. Firestore rules — после изменений
+
+**Правило:** любое изменение `firebase/firestore.rules` → деплой в prod **до** проверки фич на сайте.
+
+```powershell
+firebase.cmd deploy --only firestore:rules --project temki-1409
+```
+
+**Не забыть:**
+
+- `email_verified` на все write (кроме read публичных данных)
+- `eggs` create: `heat: 0`, `viewCount: 0`, `status: greetsya`
+- bump `users.heat` / `eggs.heat` — только +1…+10 за запрос
+- гостевые запросы яиц — `published == true` (§3)
+
+При `permission-denied` после деплоя rules — сверить поля в клиенте с whitelist в rules. Таблица: [platform/SECURITY.md](platform/SECURITY.md).
+
+**Чек после деплоя rules (под verify-аккаунтом):**
+
+- [ ] Снести яйцо (+1 тепла)
+- [ ] Комментарий под чужим яйцом (+2 тепла)
+- [ ] Подписка → уведомление
+- [ ] Вылупление (если есть тестовое яйцо)
+- [ ] F12 — нет `permission-denied` на штатных действиях

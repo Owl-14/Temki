@@ -10,6 +10,7 @@
 | [UI_MAP.md](UI_MAP.md) | Страницы и блоки интерфейса |
 | [HALL.md](HALL.md) | Зал славы: лидерборды, карточки людей, перенос лент с главной |
 | [GAMIFICATION.md](GAMIFICATION.md) | Тепло, бейджи, квесты, ритуалы |
+| [SECURITY.md](SECURITY.md) | Firestore rules prod: анти-накрутка, verify, ограничения |
 | [COMMUNITY.md](COMMUNITY.md) | Q&A, тесты, подписки, уведомления |
 | [INVESTMENTS.md](INVESTMENTS.md) | Фазы инвестиций, метрики |
 | [ROADMAP.md](ROADMAP.md) | Фазы A–D, чеклисты |

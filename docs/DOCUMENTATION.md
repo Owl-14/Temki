@@ -12,7 +12,7 @@
 
 **Оглавление всей документации:** [docs/README.md](README.md)
 
-0. **[Надёжность загрузки (обязательно)](RELIABILITY.md)** — правила, чтобы лента и профили не падали
+0. **[Надёжность загрузки (обязательно)](RELIABILITY.md)** — правила, чтобы лента и профили не падали; §14 — деплой Firestore rules
 1. [Статус и что должно быть включено в Firebase](#1-статус-и-что-должно-быть-включено-в-firebase)
 2. [Архитектура](#2-архитектура)
 3. [Страницы сайта](#3-страницы-сайта)
@@ -88,6 +88,7 @@
 | `settings.html` | `/pages/settings.html` | Настройки профиля, удаление аккаунта | `assets/js/pages/settings.js` |
 | `pages/lay-egg.html` | `/pages/lay-egg.html` | Снести яйцо | `assets/js/pages/lay-egg.js` |
 | `pages/edit-egg.html` | `/pages/edit-egg.html?id=` | Редактирование, вылупление | `assets/js/pages/edit-egg.js` |
+| `pages/hatch-rules.html` | `/pages/hatch-rules.html?from=` | Правила вылупления (ссылка с edit-egg) | `assets/js/pages/hatch-rules.js` |
 | `pages/chamber.html` | `/pages/chamber.html` | Камера, фильтры | `assets/js/pages/chamber.js` |
 | `pages/my-eggs.html` | `/pages/my-eggs.html` | Кабинет основателя | `assets/js/pages/my-eggs.js` |
 | `legend.html` | `/legend.html` | Концепция (онбординг): стадии проекта, роли | статика + `nav.js` |
@@ -153,7 +154,8 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 | `getUserProfile(uid)` | Профиль по uid |
 | `getUserByUsername(username)` | Профиль по @username (через `usernames/`) |
 | `createUserProfile(uid, data)` | Создание профиля + резерв username (только после verify) |
-| `savePendingProfile` / `finalizePendingProfile` | Данные регистрации в localStorage → профиль после verify |
+| `savePendingProfile` / `finalizePendingProfile` / `fetchPendingProfile` | Данные регистрации: localStorage + `pending_profiles/{uid}` → профиль после verify |
+| `deleteUserAccount(user)` | Удаление аккаунта: яйца, follows, notifications, badges, `users`, `usernames`, Auth |
 | `updateUserProfile(uid, data, currentUsername)` | Обновление, смена username |
 | `uploadAvatar(uid, blob)` | Blob → data URL (в Firestore, не Storage) |
 | `createEgg(uid, profile, data, imageBlob)` | Новое яйцо в ленте + запись в `egg_updates` |
@@ -162,6 +164,14 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 | `fetchPublishedEggs(max)` | Все опубликованные яйца |
 | `fetchUserEggs(uid)` | Яйца одного автора |
 | `waitForAuth()` | Promise с текущим пользователем |
+
+### `js/core/confirm-modal.js`
+
+| Экспорт | Назначение |
+|---------|------------|
+| `showConfirmModal(options)` | Модальное «Вы точно…?» — удаление яйца, удаление аккаунта; Escape / фон / «Отмена» |
+
+Используется в `egg-detail.js`, `edit-egg.js`, `public-profile.js`, `settings.js`.
 
 ### `js/utils.js` — утилиты
 
@@ -239,9 +249,9 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 | `home.js` | `index.html` | `fetchIncubatingEggs`, `fetchChicks`; `fetchHotEggs` / `fetchRecentlyHatched` — только если `HOME_FEEDS` |
 | `hall.js` | `hall.html` | Лидерборды, горячая камера, недавно вылупились; `HALL_COPY`, карточки людей |
 | `auth.js` | `auth.html` | Вход, регистрация, сброс пароля по email |
-| `settings.js` | `settings.html` | Профиль, аватар (data URL), сброс пароля |
+| `settings.js` | `settings.html` | Профиль, аватар (data URL), сброс пароля, **удаление аккаунта** (модальное подтверждение) |
 | `profile.js` | `profile.html` | Публичный профиль по `?u=`, яйца автора |
-| `lay-egg.js` | `lay-egg.html` | Создание яйца, анимация прогрева → `egg.html?id=` |
+| `lay-egg.js` | `lay-egg.html` | Создание яйца, +1 тепла и бейдж «Снес своё», анимация прогрева → `egg.html?id=` |
 | `edit-egg.js` | `edit-egg.html` | Редактирование яйца → `updateEgg` → страница яйца |
 | `egg.js` | `egg.html` | Загрузка яйца, просмотр, комментарии, история |
 
@@ -274,8 +284,17 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 {
   uid, displayName, username, bio,
   avatarUrl,  // null или "data:image/webp;base64,..."
+  heat,       // личное тепло (начисляется клиентом, +1…+10 за запрос — rules)
   createdAt, updatedAt
 }
+```
+
+#### `pending_profiles/{uid}`
+
+Данные регистрации до подтверждения email. Read/write — только свой uid. После verify → `finalizePendingProfile()` создаёт `users` и `usernames`.
+
+```js
+{ displayName, username, bio, createdAt }
 ```
 
 #### `usernames/{username}`
@@ -321,8 +340,9 @@ Dropdown: Профиль · Мои яйца · Снести яйцо · Акти
 
 ### Правила
 
-- `firebase/firestore.rules` — все коллекции выше + инкремент `heat`/`viewCount`
+- `firebase/firestore.rules` — все коллекции выше; анти-накрутка тепла, whitelist полей яйца, verify email
 - `firebase/storage.rules` — на будущее (сейчас Storage не используется)
+- Подробная таблица: [platform/SECURITY.md](platform/SECURITY.md), [firebase/README.md](../firebase/README.md)
 
 Деплой правил (после `firebase login`):
 
@@ -377,7 +397,9 @@ Firebase Storage требует Blaze. Вместо него:
 | Переменные | `:root` | Цвета, радиусы, тени |
 | Фон | `.scene`, `.scene__*` | Анимированный фон |
 | Nav | `.nav`, `.nav__brand`, `.nav__actions`, `.nav__user`, `.nav__dropdown` | Шапка и меню пользователя |
-| Онлайн | `.online-counter__*` | Текст и точка в pill |
+| Онлайн | `.online-counter__*` | Текст и точка в pill; на мобиле текст **виден** (компактный размер) |
+| Модалки | `.confirm-modal__*` | Подтверждение удаления яйца / аккаунта |
+| Настройки | `.settings-danger__*` | Блок «Опасная зона», удаление аккаунта |
 | Hero | `.hero`, `.hero__*` | Главный экран |
 | Кнопки | `.btn`, `.btn--primary`, `.btn--warm` | CTA |
 | Яйца | `.egg`, `.egg__*`, `.egg__actions`, `.egg__edit` | Карточки стартапов |
@@ -409,6 +431,7 @@ Firebase Storage требует Blaze. Вместо него:
 - Расположение: только в oval `.nav__brand` рядом с «Инкубатор»
 - Элементы: `#online-text`, `#online-heat`
 - Heartbeat: каждые 20 с, активность 45 с
+- На экранах ≤768px счётчик остаётся в nav (не скрывается)
 
 ---
 
@@ -452,16 +475,17 @@ git push origin main
 - [ ] http://localhost:5500 — главная: **Яйца в инкубаторе**, затем **Цыплята** (без горячей камеры на главной)
 - [ ] `/hall.html` — зал славы: люди (карточки), яйца, горячая камера, недавно вылупились; текст на русском, не `???`
 - [ ] Nav: **Зал славы**, **Концепция** (`legend.html`); регистрация — поле **Тег**
-- [ ] Счётчик «тут щас N» появляется в nav
-- [ ] `/auth.html` — регистрация → verify → профиль создаётся; до verify нет тепла/комментариев
-- [ ] После изменения `firestore.rules` — деплой правил (`email_verified`)
-- [ ] `/settings.html` — имя, username, аватар сохраняются
+- [ ] Счётчик «тут щас N» появляется в nav (десктоп и мобила)
+- [ ] `/auth.html` — регистрация → verify → профиль создаётся; до verify нет тепла/комментариев; «Отправить ещё раз» — cooldown 60 с (120 с при rate limit)
+- [ ] После изменения `firestore.rules` — деплой правил (`email_verified`, whitelist яиц, лимиты heat)
+- [ ] `/settings.html` — имя, username, аватар сохраняются; **удаление аккаунта** — модалка → полное удаление данных
 - [ ] `/profile.html?u=USERNAME` — профиль, яйца, счётчик подписчиков; на своём — «Редактировать»
-- [ ] `/lay-egg.html` — анимация прогрева, яйцо на главной и в профиле
-- [ ] Удаление яйца из профиля / edit-egg / страницы яйца
+- [ ] `/lay-egg.html` — анимация прогрева, +1 личного тепла, бейдж «Снес своё», яйцо на главной и в профиле
+- [ ] Удаление яйца из профиля / edit-egg / страницы яйца — **модальное подтверждение**
 - [ ] `/egg.html?id=...` — страница яйца, просмотры, комментарии
 - [ ] Подписка на профиле → счётчик +1, `/activity.html` — список подписок и обновления яиц
-- [ ] `/edit-egg.html?id=...` — сохранение названия и описания
+- [ ] Комментарий под чужим яйцом → +2 тепла; после 5 таких — бейдж «Голос инкубатора»
+- [ ] `/edit-egg.html?id=...` — сохранение названия и описания; ссылка «Правила вылупления» → `hatch-rules.html`
 - [ ] https://owl-14.github.io/Temki/ — то же после деплоя
 
 ### Типичные ошибки

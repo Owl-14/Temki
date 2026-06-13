@@ -30,8 +30,9 @@
 | `js/egg/egg-detail.js` | Рендер страницы, комментарии, голоса |
 | `js/egg/egg-api.js` | Firestore: яйцо, просмотры, комментарии, реакции |
 | `js/eggs.js` | Карточки в ленте и профиле, ссылки, «Редактировать» |
-| `js/firebase-app.js` | `createEgg`, `updateEgg`, `deleteEgg` |
-| `firebase/firestore.rules` | Правила коллекций яиц |
+| `js/firebase-app.js` | `createEgg`, `updateEgg`, `deleteEgg`, `deleteUserAccount` |
+| `js/core/confirm-modal.js` | Подтверждение удаления яйца |
+| `firebase/firestore.rules` | Правила коллекций яиц — [SECURITY.md](../platform/SECURITY.md) |
 
 ## URL
 
